@@ -1,0 +1,47 @@
+{
+  "tarea": "Proyectos (anillo)",
+  "alcance": "La sección de proyectos postulados se calca del cilindro de trabajos de ryanstrzok.com: tarjetas en hélice que giran con el scroll de una sección fija.",
+  "fecha": "2026-11-09",
+  "evidencia": {
+    "capturas": "referentes/capturas/ryan-01..03.jpg (capturar.mjs de la skill, 2026-11-09, 1440×900)",
+    "codigo": "https://ryanstrzok.com/assets/code/main.js y _init.css, leídos el 2026-11-09 en el scratchpad. No se versiona ni se copia: se reimplementa la técnica."
+  },
+  "librerias": {
+    "GSAP": "s.os.timeline / fromTo con ease \"sine.out\", \"elastic.inOut(1, 0.3)\" (versión no impresa en el bundle)",
+    "OGL": "renderer k.K9(canvas,{dpr,alpha,premultipliedAlpha,antialias:!1,depth:!1}) y programa k.dl con shaders \"#version 300 es\" (WebGL2)",
+    "propio": "clase del cilindro (\"work-cylinder\"), scroll propio con ease .12, reels de video por cuadros en un worker (\"scrubreel-worker.js\")"
+  },
+  "referentes": [
+    {
+      "sitio": "https://ryanstrzok.com/",
+      "se_toma": [
+        { "id": "A1", "aspecto": "Las tarjetas forman un cilindro alrededor del centro de la pantalla: se ven la del frente completa y las vecinas curvadas y más pequeñas a los lados", "fuente": "captura ryan-03", "referente": "referentes/capturas/ryan-03.jpg", "estado": "anillo-medio" },
+        { "id": "A2", "aspecto": "El giro va pegado al scroll: la sección queda fija (sticky) y cada tarjeta ocupa 0,6 pantallas de recorrido", "fuente": "_init.css .work-cylinder{--per-tile:0.6; height:calc(100lvh + (n-1)*0.6*100lvh)}", "referente": "referentes/capturas/ryan-03.jpg", "estado": "anillo-medio" },
+        { "id": "A3", "aspecto": "Hélice, no anillo plano: cada tarjeta sigue sube un poco respecto a la anterior", "fuente": "main.js placeTile: rotateY(slot·dθ) translate3d(0, slot·dy, R); dy = 0,52 × alto de tarjeta", "referente": "referentes/capturas/ryan-03.jpg", "estado": "anillo-medio" },
+        { "id": "A4", "aspecto": "Las tarjetas están curvadas sobre la superficie del cilindro, no son planos girados", "fuente": "vertex shader: a = x/R; bent = (R·sin a, y, R·(cos a − 1))", "referente": "referentes/capturas/ryan-03.jpg", "estado": "anillo-medio" },
+        { "id": "A5", "aspecto": "Al girar rápido, la imagen de la tarjeta se acerca un poco y se desliza dentro de su marco; el marco no se mueve", "fuente": "fragment shader: uv·(1 − uZoom) y uv.y += uDrift; uZoom = 0,05·|v|, uDrift = 0,02·v", "referente": "—", "estado": "anillo-girando" },
+        { "id": "A6", "aspecto": "Título de cada tarjeta encima de la imagen, con el año como superíndice («Kizik 2022»)", "fuente": "captura ryan-03", "referente": "referentes/capturas/ryan-03.jpg", "estado": "anillo-medio" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "Los reels de video por cuadros en un worker", "por_que": "Nuestras tarjetas son ideas de estudiantes: no tienen video" },
+        { "aspecto": "El scroll infinito en bucle de la portada («runway»)", "por_que": "La convocatoria tiene un final: el formulario" },
+        { "aspecto": "La firma caligráfica «Design» y el fondo ácido de su portada", "por_que": "Identidad: manda el manual de Creación Digital" }
+      ]
+    }
+  ],
+  "tecnica": [
+    { "id": "K1", "que": "Geometría del cilindro", "como": "dθ = 2π / turn; R = max(1, ancho_tarjeta · (1 + gap) / dθ); dy = rise · alto_tarjeta. Cada tarjeta i se coloca en rotateY(i·dθ), y = i·dy, z = R.", "constantes": { "turn": 6.5, "rise": 0.52, "gap": 0.36, "ancho_tarjeta": "clamp(380px, 40.28vw, 696px)", "perspectiva": "clamp(900px, 97.22vw, 1680px)", "titulo": "clamp(38px, 4.03vw, 69.6px), letter-spacing −0.03em" }, "tiempos": "estático; se recalcula en resize y cuando cargan las fuentes", "fuente": "main.js measure() y _init.css .work-cylinder" },
+    { "id": "K2", "que": "Giro por scroll", "como": "t = progreso de la sección (0–1); s = t · (n − 1); el contenedor recibe translate3d(0, −lift(s), −R) rotateY(−s·dθ). lift mantiene la tarjeta del frente centrada en alto.", "constantes": { "per_tile_viewport": 0.6, "scroll_ease": 0.12 }, "tiempos": "toda la altura de la sección; la etapa es sticky de 100lvh", "fuente": "main.js update(), applySpin(), front()" },
+    { "id": "K3", "que": "Velocidad e inercia visual", "como": "v += 0,2·(clamp(−1, 1, 10·Δs) − v) en cada actualización; en cada cuadro v *= 0,85 y se anula bajo 0,002. uZoom = 0,05·|v|, uDrift = 0,02·v.", "constantes": { "suavizado": 0.2, "decaimiento": 0.85, "umbral": 0.002 }, "tiempos": "por cuadro", "fuente": "main.js update(), decay(), draw()" },
+    { "id": "K4", "que": "Tarjetas curvas y accesibles", "como": "Las tarjetas son elementos reales del DOM (enlaces con texto) colocados con CSS 3D; encima, un canvas WebGL (pointer-events:none, aria-hidden) dibuja las mismas tarjetas curvadas. Si WebGL falla, quedan las del DOM. Las caras de atrás se mezclan 75 % con el fondo.", "constantes": { "dorso_mezcla": 0.75 }, "tiempos": "—", "fuente": "main.js clase $ (canvas work-cylinder__gl), fragment shader «A tile's back… mix(color, uBg, 0.75)»" }
+  ],
+  "estados": [
+    { "nombre": "anillo-medio", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 3000 }, { "rueda": 1500 }, { "esperar": 1500 }] },
+    { "nombre": "anillo-girando", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 3000 }, { "rueda": 1200 }, { "rueda": 600 }] }
+  ],
+  "dudas": [
+    "¿El anillo se gira con el scroll de la página (como el referente) o también con flechas/arrastre? El prototipo v2 hace las dos cosas; el referente solo scroll.",
+    "Las tarjetas del referente son imágenes de proyectos. Las nuestras son texto (idea, regla, facultad): ¿llevan imagen (por ejemplo, un objeto 3D o un color por facultad) o solo tipografía?",
+    "¿Curvatura real por WebGL (como el referente) o tarjetas planas en CSS 3D (más simple, como el prototipo)?"
+  ]
+}

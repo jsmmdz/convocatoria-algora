@@ -1,0 +1,52 @@
+{
+  "$comentario": "Ficha de un referente (fase 2). Va a fabrica/proyecto/referentes/<nombre>.json; es el formato que leen capturas.mjs y el QA. Borra los ejemplos al llenarla.",
+  "tarea": "<ID o nombre de la sección>",
+  "alcance": "Qué parte de nuestro sitio se calca de qué parte del referente, en una frase.",
+  "fecha": "AAAA-MM-DD",
+  "evidencia": {
+    "grabaciones": ["referentes/<sitio>/<sitio>-1440.webm (duración; qué recorre)"],
+    "capturas": "referentes/<sitio>/capturas/ (capturar.mjs, fecha)",
+    "hojas": "referentes/<sitio>/hojas/ (hoja-<t>.jpg = qué momento)",
+    "codigo": "URL del bundle leído y fecha. No se versiona ni se copia: se reimplementa la técnica."
+  },
+  "librerias": {
+    "<nombre>": "versión + la cadena interna que lo prueba (no solo el nombre)"
+  },
+  "referentes": [
+    {
+      "sitio": "https://...",
+      "se_toma": [
+        {
+          "id": "A1",
+          "aspecto": "Verificable a simple vista en una hoja lado a lado. Ej.: el contador de carga ocupa el centro, ~13 vw de alto, y sube de 0 a 100 en ~1,5 s",
+          "fuente": "captura, tiempo del video o archivo del bundle",
+          "referente": "referentes/<sitio>/capturas/<archivo>.jpg",
+          "estado": "nombre del estado en estados[] con el que se compara"
+        }
+      ],
+      "no_se_toma": [
+        { "aspecto": "Qué se descarta", "por_que": "Choca con PRODUCTO.md § … / decisión D-…" }
+      ]
+    }
+  ],
+  "tecnica": [
+    {
+      "id": "K1",
+      "que": "El efecto",
+      "como": "La técnica en palabras o pseudocódigo propio: qué calcula y con qué fórmula",
+      "constantes": { "duracion_ms": 0, "easing": "cubic-bezier(...)" },
+      "tiempos": "Cuándo empieza y termina, en ms o en % del scroll",
+      "fuente": "archivo del bundle, línea o cadena buscada; o tiempo del video"
+    }
+  ],
+  "estados": [
+    {
+      "nombre": "reposo",
+      "ruta": "/",
+      "ancho": 1440,
+      "alto": 900,
+      "pasos": [{ "esperar": 2000 }, { "rueda": 900 }, { "clic": "selector" }, { "cursor": "selector" }, { "tecla": "Tab" }]
+    }
+  ],
+  "dudas": ["Lo que no se pudo medir o choca con PRODUCTO.md. No se decide aquí: va al autor."]
+}

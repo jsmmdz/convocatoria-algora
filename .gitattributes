@@ -1,0 +1,2 @@
+# Lo que lee Claude Code va siempre en LF: en CRLF, /construir-tarea no arranca («control characters»).
+.claude/** text eol=lf

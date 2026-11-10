@@ -1,0 +1,45 @@
+name: Publicar en GitHub Pages
+
+# Cada push a main construye sitio/ y lo publica. Hasta que T01 cree sitio/package.json no corre nada.
+# La base sale sola del nombre del repo: <usuario>.github.io se sirve en la raíz; cualquier otro, en /<repo>/.
+on:
+  push:
+    branches: [main]
+    paths: ['sitio/**', '.github/workflows/deploy.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: hashFiles('sitio/package.json') != ''
+    env:
+      SITIO_URL: https://${{ github.repository_owner }}.github.io
+      SITIO_BASE: ${{ endsWith(github.event.repository.name, '.github.io') && '/' || format('/{0}/', github.event.repository.name) }}
+      # Supabase (docs/2-TECNICO.md § 4). Sin estos secrets el sitio sale en modo demostración.
+      PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_URL }}
+      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.PUBLIC_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: withastro/action@v3
+        with:
+          path: sitio
+          node-version: 22
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

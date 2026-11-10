@@ -1,0 +1,27 @@
+# ---- Referentes: material de otros sitios, no se sube ----
+referentes/capturas/*
+referentes/videos/*
+!referentes/capturas/.gitkeep
+!referentes/videos/.gitkeep
+
+# ---- Fábrica: estado local del lanzador y registros sin tarea ----
+fabrica/.tarea-activa.json
+fabrica/.herramientas-sin-tarea.jsonl
+
+# ---- Sitio ----
+sitio/node_modules/
+sitio/dist/
+sitio/.astro/
+sitio/test-results/
+sitio/playwright-report/
+
+# ---- Sistema ----
+.env
+.env.*
+desktop.ini
+Thumbs.db
+.DS_Store
+
+# ---- Material previo al encargo (prototipo del artifact, estrategia, capturas viejas) ----
+# Se consulta en el arranque; no se sube hasta que el encargo decida qué se queda.
+previo/

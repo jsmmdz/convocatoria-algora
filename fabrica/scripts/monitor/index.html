@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitor de la fábrica</title>
+<style>
+  /* Tokens: paleta de referencia de la skill de dataviz (3 fases validadas en claro y oscuro). */
+  :root {
+    color-scheme: light;
+    --pagina: #f9f9f7; --superficie: #fcfcfb; --superficie-2: #f2f1ed;
+    --texto: #0b0b0b; --texto-2: #52514e; --tenue: #898781;
+    --rejilla: #e1e0d9; --eje: #c3c2b7; --borde: rgba(11,11,11,.10);
+    --serie-1: #2a78d6; --serie-2: #eb6834; --serie-3: #1baf7a; --neutro: #898781;
+    --bien: #0ca30c; --aviso: #fab219; --serio: #ec835a; --critico: #d03b3b; --bien-texto: #006300;
+    --mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --pagina: #0d0d0d; --superficie: #1a1a19; --superficie-2: #232321;
+      --texto: #ffffff; --texto-2: #c3c2b7; --tenue: #898781;
+      --rejilla: #2c2c2a; --eje: #383835; --borde: rgba(255,255,255,.10);
+      --serie-1: #3987e5; --serie-2: #d95926; --serie-3: #199e70; --bien-texto: #0ca30c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --pagina: #0d0d0d; --superficie: #1a1a19; --superficie-2: #232321;
+    --texto: #ffffff; --texto-2: #c3c2b7; --tenue: #898781;
+    --rejilla: #2c2c2a; --eje: #383835; --borde: rgba(255,255,255,.10);
+    --serie-1: #3987e5; --serie-2: #d95926; --serie-3: #199e70; --bien-texto: #0ca30c;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--pagina); color: var(--texto); font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1240px; margin: 0 auto; padding: 18px 16px 64px; }
+  header { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  h1 { font-size: 15px; font-weight: 600; margin: 0; display: flex; gap: 10px; align-items: center; }
+  .controles { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  select, button { background: var(--superficie); color: var(--texto); border: 1px solid var(--borde); border-radius: 8px; padding: 6px 10px; font: inherit; cursor: pointer; }
+  .meta { color: var(--texto-2); font-size: 12.5px; }
+  .tenue { color: var(--tenue); }
+  section, .tarjeta { background: var(--superficie); border: 1px solid var(--borde); border-radius: 12px; padding: 16px; margin-bottom: 14px; min-width: 0; }
+  h2 { font-size: 13px; font-weight: 600; margin: 0 0 2px; }
+  .sub { color: var(--texto-2); font-size: 12.5px; margin: 0 0 12px; }
+  .pulso { width: 9px; height: 9px; border-radius: 50%; background: var(--tenue); flex: none; }
+  .pulso.vivo { background: var(--bien); box-shadow: 0 0 0 0 rgba(12,163,12,.55); animation: pulso 1.6s infinite; }
+  @keyframes pulso { to { box-shadow: 0 0 0 9px rgba(12,163,12,0); } }
+  @media (prefers-reduced-motion: reduce) { .pulso.vivo, .nodo.corriendo .anillo { animation: none; } }
+
+  /* Cabecera: cifra principal + KPIs */
+  .portada { display: grid; grid-template-columns: minmax(260px, 1.1fr) minmax(0, 2fr); gap: 14px; }
+  @media (max-width: 900px) { .portada { grid-template-columns: minmax(0, 1fr); } }
+  .heroe .etiqueta { color: var(--texto-2); font-size: 13px; }
+  .heroe .cifra { font-size: 52px; font-weight: 650; line-height: 1.05; letter-spacing: -.02em; margin: 4px 0 6px; }
+  .heroe .rango { color: var(--texto-2); font-size: 13px; }
+  .estado-pill { display: inline-flex; gap: 6px; align-items: center; font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--borde); margin-bottom: 10px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+  .kpi { background: var(--superficie-2); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .kpi .etiqueta { color: var(--texto-2); font-size: 12.5px; }
+  .kpi .valor { font-size: 24px; font-weight: 600; margin: 2px 0; }
+  .kpi .nota { color: var(--tenue); font-size: 12px; }
+  .medidor { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--serie-1) 18%, transparent); overflow: hidden; margin: 8px 0 4px; }
+  .medidor > i { display: block; height: 100%; border-radius: 4px; background: var(--serie-1); }
+  .medidor.alto > i { background: var(--serio); }
+
+  /* Diagrama del flujo */
+  .flujo { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px 4px; }
+  .grupo { border: 1px solid var(--borde); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .grupo > .titulo-grupo { font-size: 11.5px; color: var(--tenue); letter-spacing: .02em; padding-left: 2px; }
+  .grupo > .nodos { display: flex; gap: 4px; align-items: stretch; }
+  .flecha { align-self: center; color: var(--tenue); font-size: 15px; padding: 0 2px; }
+  .nodo { position: relative; width: 116px; border-radius: 8px; background: var(--superficie-2); padding: 10px 10px 9px; overflow: hidden; }
+  .nodo::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--color); }
+  .nodo .nombre { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .nodo .detalle { color: var(--texto-2); font-size: 12px; margin-top: 2px; }
+  .nodo .marca { font-size: 12px; margin-top: 4px; display: flex; gap: 5px; align-items: center; color: var(--texto-2); }
+  .nodo.posible { opacity: .5; }
+  .nodo.omitido { opacity: .28; }
+  .nodo.corriendo { outline: 2px solid var(--color); outline-offset: -2px; }
+  .nodo.corriendo .anillo { width: 8px; height: 8px; border-radius: 50%; background: var(--color); animation: latido 1.2s ease-in-out infinite; }
+  @keyframes latido { 50% { transform: scale(.55); opacity: .5; } }
+  .icono { width: 14px; height: 14px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 9.5px; font-weight: 700; color: #fff; flex: none; }
+  .icono.bien { background: var(--bien); } .icono.mal { background: var(--critico); } .icono.aviso { background: var(--aviso); color: #000; }
+  .icono.vacio { background: transparent; border: 1.5px solid var(--tenue); }
+  @media (max-width: 640px) { .nodo { width: 112px; } .flecha { display: none; } }
+
+  /* Gráficos */
+  .leyenda { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--texto-2); margin: 0 0 10px; }
+  .leyenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .leyenda i { width: 12px; height: 10px; border-radius: 2px; display: inline-block; }
+  .leyenda i.lavado { opacity: .3; }
+  .grafico { width: 100%; position: relative; }
+  .grafico svg { display: block; width: 100%; overflow: visible; }
+  .grafico text { fill: var(--texto-2); font-size: 11.5px; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .grafico text.eje { fill: var(--tenue); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .grafico text.fuerte { fill: var(--texto); font-weight: 600; }
+  .grafico [data-tip]:hover .marca-hover, .grafico [data-tip].activo .marca-hover { opacity: 1; }
+  .dos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+  @media (max-width: 900px) { .dos { grid-template-columns: minmax(0, 1fr); } }
+  .dos > section { margin-bottom: 0; }
+  #tip { position: fixed; z-index: 10; pointer-events: none; background: var(--superficie); border: 1px solid var(--borde); border-radius: 8px; padding: 8px 10px; box-shadow: 0 6px 24px rgba(0,0,0,.25); font-size: 12.5px; max-width: 300px; display: none; }
+  #tip .v { font-weight: 650; font-size: 14px; color: var(--texto); }
+  #tip .l { color: var(--texto-2); display: flex; align-items: center; gap: 6px; }
+  #tip .l b { display: inline-block; width: 12px; height: 2px; border-radius: 1px; }
+
+  /* Tabla (la vista accesible de los gráficos) */
+  .tabla-envoltura { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  th { text-align: left; color: var(--texto-2); font-weight: 600; padding: 6px 8px; border-bottom: 1px solid var(--eje); white-space: nowrap; }
+  td { padding: 6px 8px; border-bottom: 1px solid var(--rejilla); white-space: nowrap; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td .punto { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+  tr.estimado td { color: var(--tenue); }
+
+  /* Detalle de agentes */
+  details.agente { border-top: 1px solid var(--rejilla); padding: 10px 0; }
+  details.agente:first-of-type { border-top: 0; }
+  details.agente > summary { cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; list-style: none; }
+  details.agente > summary::-webkit-details-marker { display: none; }
+  details.agente > summary::before { content: "▸"; color: var(--tenue); }
+  details.agente[open] > summary::before { content: "▾"; }
+  .rejilla2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; margin-top: 10px; }
+  @media (max-width: 820px) { .rejilla2 { grid-template-columns: minmax(0, 1fr); } }
+  .caja { background: var(--superficie-2); border-radius: 8px; padding: 10px 12px; min-width: 0; }
+  .caja h3 { margin: 0 0 8px; font-size: 12px; color: var(--texto-2); font-weight: 600; }
+  ol.actividad { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow: auto; }
+  ol.actividad li { display: grid; grid-template-columns: 58px 104px minmax(0, 1fr); gap: 8px; padding: 3px 0; border-bottom: 1px solid var(--rejilla); font-size: 12.5px; }
+  ol.actividad li:last-child { border-bottom: 0; }
+  .hora { color: var(--tenue); font-family: var(--mono); font-size: 11.5px; }
+  .herr { font-family: var(--mono); font-size: 12px; color: var(--texto-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .det { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .texto { white-space: pre-wrap; font-size: 13px; max-height: 220px; overflow: auto; color: var(--texto-2); }
+  .espera { border: 1px solid var(--borde); border-left: 3px solid var(--bien); border-radius: 8px; padding: 8px 12px; margin-top: 10px; font-size: 13px; overflow-wrap: anywhere; }
+  .bloqueo { border-left: 3px solid var(--critico); padding: 4px 10px; margin: 6px 0; font-size: 12.5px; }
+  .bloqueo pre, details.resultado pre { white-space: pre-wrap; margin: 4px 0 0; color: var(--texto-2); font-family: var(--mono); font-size: 11.5px; }
+  details.resultado { margin-top: 10px; }
+  details.resultado summary { cursor: pointer; color: var(--texto-2); font-size: 12.5px; }
+  .git td:first-child { width: 36px; font-family: var(--mono); color: var(--texto-2); }
+  .vacio { color: var(--tenue); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1><span class="pulso" id="pulso"></span>Monitor de la fábrica</h1>
+    <div class="controles">
+      <select id="corrida" aria-label="Corrida"></select>
+      <button id="tema" type="button" aria-label="Cambiar el tema">Tema: auto</button>
+      <span class="meta" id="actualizado">cargando…</span>
+    </div>
+  </header>
+  <div id="app"></div>
+</main>
+<div id="tip" role="tooltip"></div>
+<script>
+const $ = (s) => document.querySelector(s)
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+const miles = (n) => Math.round(Number(n ?? 0)).toLocaleString('es-CO')
+const compacto = (n) => n >= 1e6 ? (n / 1e6).toLocaleString('es-CO', { maximumFractionDigits: 2 }) + ' M' : n >= 1e3 ? Math.round(n / 1e3).toLocaleString('es-CO') + ' k' : miles(n)
+const hora = (t) => t ? new Date(t).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: false }) : '—'
+const horaS = (t) => t ? new Date(t).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }) : '—'
+const fecha = (t) => t ? new Date(t).toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false }) : '—'
+function dur(ms) {
+  if (!(ms >= 0)) return '—'
+  const m = Math.round(ms / 60000), h = Math.floor(m / 60)
+  return h ? `${h} h ${String(m % 60).padStart(2, '0')} min` : `${m} min`
+}
+const sinCache = (t) => (t?.entrada ?? 0) + (t?.cacheCreacion ?? 0) + (t?.salida ?? 0)
+
+// ---------- fases, pasos y estimación ----------
+
+const FASES = [
+  { clave: 'Construir', nombre: 'Construir', css: 'var(--serie-1)' },
+  { clave: 'QA', nombre: 'QA', css: 'var(--serie-2)' },
+  { clave: 'Auditoría final', nombre: 'Auditoría final', css: 'var(--serie-3)' },
+]
+const faseDe = (etiqueta) => /^constructor/.test(etiqueta) ? 'Construir' : /^qa/.test(etiqueta) ? 'QA' : 'Auditoría final'
+const colorDe = (etiqueta) => FASES.find((f) => f.clave === faseDe(etiqueta)).css
+const tipoDe = (e) => e === 'constructor r1' ? 'c1' : /^constructor r/.test(e) ? 'corr' : /^qa r/.test(e) ? 'qa' : 'aud'
+const nombrePaso = (e) => e === 'constructor r1' ? 'Constructor' : /^constructor/.test(e) ? 'Corrección' : /^qa/.test(e) ? 'QA' : 'Auditoría final'
+const POR_DEFECTO = { c1: 50, corr: 20, qa: 15, aud: 15 }
+const REVISION_MIN = [30, 45] // la revisión del orquestador después de la auditoría
+
+function estadisticas(hist) {
+  const grupos = { c1: [], corr: [], qa: [], aud: [] }, rondas = []
+  for (const h of hist) {
+    let r = 0
+    for (const p of h.pasos) {
+      grupos[tipoDe(p.etiqueta)].push(p.min)
+      const m = p.etiqueta.match(/r(\d)$/)
+      if (m) r = Math.max(r, +m[1])
+    }
+    if (r) rondas.push(r)
+  }
+  const mediana = (v) => { const s = [...v].sort((a, b) => a - b), n = s.length; return n ? (n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2) : null }
+  const est = {}
+  for (const k in grupos) {
+    const v = grupos[k]
+    est[k] = { mediana: mediana(v) ?? POR_DEFECTO[k], max: v.length ? Math.max(...v) : POR_DEFECTO[k] * 2, n: v.length }
+  }
+  // Rondas típicas: la moda; en empate, la menor.
+  const cuenta = {}
+  rondas.forEach((r) => { cuenta[r] = (cuenta[r] ?? 0) + 1 })
+  const moda = Object.entries(cuenta).sort((a, b) => b[1] - a[1] || a[0] - b[0])[0]
+  est.rondas = moda ? +moda[0] : 2
+  est.corridas = hist.length
+  est.noPasaPrimera = hist.filter((h) => h.pasos.some((p) => p.etiqueta === 'qa r1' && p.veredicto === 'NO_PASA')).length
+  est.conQa1 = hist.filter((h) => h.pasos.some((p) => p.etiqueta === 'qa r1')).length
+  return est
+}
+
+function planear(c, est, ahora, escenario) {
+  const reales = new Map(c.agentes.map((a) => [a.etiqueta, a]))
+  let rondaMin = 1, pasoEn = null
+  for (const a of c.agentes) {
+    const m = a.etiqueta.match(/^qa r(\d)$/)
+    if (m && a.resultado?.veredicto === 'NO_PASA') rondaMin = Math.max(rondaMin, +m[1] + 1)
+    if (m && a.resultado?.veredicto === 'PASA') pasoEn = +m[1]
+  }
+  const escalada = !pasoEn && rondaMin > 3
+  const rondas = pasoEn ?? Math.min(3, escenario === 'mejor' ? rondaMin : escenario === 'probable' ? Math.max(rondaMin, est.rondas) : 3)
+  const secuencia = []
+  for (let r = 1; r <= rondas; r++) secuencia.push(`constructor r${r}`, `qa r${r}`)
+  if (!escalada) secuencia.push('auditoría final')
+  const stat = escenario === 'peor' ? 'max' : 'mediana'
+  let t = Date.parse(c.inicio)
+  const pasos = []
+  for (const etiqueta of secuencia) {
+    const a = reales.get(etiqueta), tipico = est[tipoDe(etiqueta)][stat] * 60000
+    if (a?.estado === 'terminó') {
+      const ini = Date.parse(a.inicio), fin = Date.parse(a.ultima)
+      pasos.push({ etiqueta, ini, fin, estado: 'hecho', agente: a }); t = fin
+    } else if (a) {
+      const ini = Date.parse(a.inicio), fin = Math.max(ahora + 3 * 60000, ini + tipico)
+      pasos.push({ etiqueta, ini, fin, estado: 'corriendo', agente: a, tipico }); t = fin
+    } else {
+      pasos.push({ etiqueta, ini: t, fin: t + tipico, estado: 'estimado', tipico }); t += tipico
+    }
+  }
+  return { pasos, fin: t, rondas, escalada, pasoEn }
+}
+
+// ---------- tooltip (uno solo, por delegación) ----------
+
+const tips = new Map()
+let hover = null // { clave, x, y }
+const tip = $('#tip')
+function mostrarTip(clave, x, y) {
+  const d = tips.get(clave)
+  if (!d) { tip.style.display = 'none'; return }
+  tip.replaceChildren()
+  const v = document.createElement('div'); v.className = 'v'; v.textContent = d.valor; tip.append(v)
+  for (const l of d.lineas) {
+    const fila = document.createElement('div'); fila.className = 'l'
+    if (l.color) { const b = document.createElement('b'); b.style.background = l.color; fila.append(b) }
+    fila.append(document.createTextNode(l.texto)); tip.append(fila)
+  }
+  tip.style.display = 'block'
+  const r = tip.getBoundingClientRect()
+  tip.style.left = Math.min(window.innerWidth - r.width - 8, x + 14) + 'px'
+  tip.style.top = Math.max(8, y - r.height - 10) + 'px'
+  document.querySelectorAll('[data-tip].activo').forEach((e) => e.classList.remove('activo'))
+  document.querySelector(`[data-tip="${CSS.escape(clave)}"]`)?.classList.add('activo')
+}
+document.addEventListener('pointermove', (e) => {
+  const el = e.target.closest?.('[data-tip]')
+  const area = e.target.closest?.('[data-area-actividad]')
+  if (area) {
+    const clave = claveActividad(area, e.clientX)
+    if (clave) { hover = { clave, x: e.clientX, y: e.clientY }; mostrarTip(clave, e.clientX, e.clientY); return }
+  }
+  if (el) { hover = { clave: el.dataset.tip, x: e.clientX, y: e.clientY }; mostrarTip(el.dataset.tip, e.clientX, e.clientY) }
+  else if (hover) { hover = null; tip.style.display = 'none'; document.querySelectorAll('[data-tip].activo').forEach((x) => x.classList.remove('activo')) }
+})
+
+// ---------- gráficos (SVG a mano) ----------
+
+function marcasDeTiempo(t0, t1, ancho) {
+  const pasosMin = [5, 10, 15, 30, 60, 120, 240]
+  const objetivo = Math.max(3, Math.floor(ancho / 110))
+  const paso = (pasosMin.find((p) => (t1 - t0) / (p * 60000) <= objetivo) ?? 240) * 60000
+  const marcas = []
+  for (let t = Math.ceil(t0 / paso) * paso; t <= t1; t += paso) marcas.push(t)
+  return marcas
+}
+
+function pintarGantt(cont, plan, planes, ahora, c) {
+  const W = Math.max(320, cont.clientWidth), IZQ = W < 520 ? 82 : 112, DER = 12, FILA = 36, ARRIBA = 24, ABAJO = 28
+  const pasos = plan.pasos
+  const t0 = Date.parse(c.inicio)
+  const t1 = Math.max(planes.peor.fin, ahora) + 4 * 60000
+  const X = (t) => IZQ + (t - t0) / (t1 - t0) * (W - IZQ - DER)
+  const H = ARRIBA + pasos.length * FILA + ABAJO
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Línea de tiempo de la corrida: pasos hechos y estimados">`
+  for (const m of marcasDeTiempo(t0, t1, W - IZQ)) {
+    s += `<line x1="${X(m)}" x2="${X(m)}" y1="${ARRIBA - 4}" y2="${H - ABAJO}" stroke="var(--rejilla)" />`
+    s += `<text class="eje" x="${X(m)}" y="${H - ABAJO + 16}" text-anchor="middle">${hora(m)}</text>`
+  }
+  s += `<line x1="${IZQ}" x2="${W - DER}" y1="${H - ABAJO}" y2="${H - ABAJO}" stroke="var(--eje)" />`
+  // Cierres posibles: mejor y peor recesivos; el probable, marcado.
+  const enCurso = c.estado !== 'terminada'
+  if (enCurso) {
+    for (const [nombre, p, fuerte] of [['mejor', planes.mejor, false], ['peor', planes.peor, false], ['probable', planes.probable, true]]) {
+      s += `<line x1="${X(p.fin)}" x2="${X(p.fin)}" y1="${ARRIBA - 4}" y2="${H - ABAJO}" stroke="${fuerte ? 'var(--texto-2)' : 'var(--eje)'}" stroke-width="${fuerte ? 1.5 : 1}" />`
+      tips.set(`cierre-${nombre}`, { valor: `${hora(p.fin)}`, lineas: [{ texto: `Cierre ${nombre} (${p.rondas} ronda${p.rondas > 1 ? 's' : ''}${p.escalada ? ', escalada' : ''})` }] })
+      s += `<rect data-tip="cierre-${nombre}" x="${X(p.fin) - 6}" y="${ARRIBA - 4}" width="12" height="${H - ABAJO - ARRIBA + 4}" fill="transparent" />`
+    }
+  }
+  pasos.forEach((p, i) => {
+    const y = ARRIBA + i * FILA, yc = y + FILA / 2, alto = 14, color = colorDe(p.etiqueta)
+    const clave = `gantt-${p.etiqueta}`
+    s += `<g data-tip="${clave}">`
+    s += `<rect x="0" y="${y}" width="${W}" height="${FILA}" fill="transparent" />`
+    s += `<text class="${p.estado === 'corriendo' ? 'fuerte' : ''}" x="0" y="${yc + 4}">${esc(nombrePaso(p.etiqueta))} ${/ r\d$/.test(p.etiqueta) ? `<tspan fill="var(--tenue)">r${esc(p.etiqueta.slice(-1))}</tspan>` : ""}</text>`
+    const x1 = X(p.ini), x2 = Math.max(X(p.fin), x1 + 3)
+    if (p.estado === 'hecho') {
+      s += `<rect x="${x1}" y="${yc - alto / 2}" width="${x2 - x1}" height="${alto}" rx="3" fill="${color}" />`
+    } else if (p.estado === 'corriendo') {
+      const xa = Math.min(Math.max(X(ahora), x1 + 2), x2)
+      s += `<rect x="${x1}" y="${yc - alto / 2}" width="${x2 - x1}" height="${alto}" rx="3" fill="${color}" opacity=".24" />`
+      s += `<rect x="${x1}" y="${yc - alto / 2}" width="${xa - x1}" height="${alto}" rx="3" fill="${color}" />`
+    } else {
+      s += `<rect x="${x1}" y="${yc - alto / 2}" width="${x2 - x1}" height="${alto}" rx="3" fill="${color}" opacity=".24" />`
+    }
+    // Etiqueta directa al final de la barra, solo si cabe.
+    const v = p.agente?.resultado?.veredicto
+    const etiqueta = p.estado === 'hecho' ? `${dur(p.fin - p.ini)}${v ? (v === 'PASA' ? ' · pasa' : ' · no pasa') : ''}`
+      : p.estado === 'corriendo' ? `lleva ${dur(ahora - p.ini)} · ≈ ${dur(p.fin - ahora)} más` : `≈ ${dur(p.fin - p.ini)}`
+    const largo = etiqueta.length * 6.3
+    if (x2 + 8 + largo < W) s += `<text x="${x2 + 8}" y="${yc + 4}">${esc(etiqueta)}</text>`
+    else if (x1 - 8 - largo > IZQ) s += `<text x="${x1 - 8}" y="${yc + 4}" text-anchor="end">${esc(etiqueta)}</text>`
+    s += `</g>`
+    const lineas = [{ texto: `${p.etiqueta} · ${faseDe(p.etiqueta)}`, color }, { texto: `${hora(p.ini)} → ${hora(p.fin)}${p.estado === 'hecho' ? '' : ' (estimado)'}` }]
+    if (p.agente) lineas.push({ texto: `${compacto(sinCache(p.agente.tokens))} tokens sin caché · ${miles(p.agente.herramientas)} herramientas` })
+    if (v) lineas.push({ texto: `Veredicto: ${v === 'PASA' ? 'pasa' : 'no pasa'}` })
+    if (p.tipico && p.estado !== 'hecho') lineas.push({ texto: `Lo típico en corridas anteriores: ${dur(p.tipico)}` })
+    tips.set(clave, { valor: p.estado === 'hecho' ? dur(p.fin - p.ini) : p.estado === 'corriendo' ? `lleva ${dur(ahora - p.ini)}` : `≈ ${dur(p.fin - p.ini)}`, lineas })
+  })
+  if (enCurso) {
+    const xa = X(ahora)
+    s += `<line x1="${xa}" x2="${xa}" y1="${ARRIBA - 8}" y2="${H - ABAJO}" stroke="var(--texto)" stroke-width="1.5" />`
+    s += `<text class="fuerte" x="${xa}" y="${ARRIBA - 12}" text-anchor="${xa > W - 60 ? 'end' : 'middle'}">ahora ${hora(ahora)}</text>`
+  }
+  cont.innerHTML = s + '</svg>'
+}
+
+let cubetasActividad = [] // para el hover del gráfico de actividad
+function pintarActividad(cont, c, ahora) {
+  const W = Math.max(300, cont.clientWidth), IZQ = 30, DER = 8, ARRIBA = 10, ABAJO = 24, H = 170
+  const t0 = Math.floor(Date.parse(c.inicio) / 60000) * 60000
+  const t1 = c.estado === 'corriendo' ? ahora : Date.parse(c.ultima)
+  const minutos = Math.max(1, Math.ceil((t1 - t0) / 60000))
+  const tam = minutos > 240 ? 5 : minutos > 120 ? 2 : 1 // minutos por columna
+  const n = Math.ceil(minutos / tam)
+  const cubetas = Array.from({ length: n }, (_, i) => ({ t: t0 + i * tam * 60000, total: 0, porAgente: {} }))
+  for (const a of c.agentes) for (const [k, v] of a.porMinuto ?? []) {
+    const i = Math.floor((Date.parse(k + ':00Z') - t0) / (tam * 60000))
+    if (i >= 0 && i < n) { cubetas[i].total += v; cubetas[i].porAgente[a.etiqueta] = (cubetas[i].porAgente[a.etiqueta] ?? 0) + v }
+  }
+  const maximo = Math.max(4, ...cubetas.map((b) => b.total))
+  const tope = Math.ceil(maximo / 5) * 5
+  const banda = (W - IZQ - DER) / n, ancho = Math.max(1, Math.min(24, banda - 2))
+  const Y = (v) => H - ABAJO - v / tope * (H - ABAJO - ARRIBA)
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Usos de herramientas por minuto">`
+  for (const v of [0, tope / 2, tope]) {
+    s += `<line x1="${IZQ}" x2="${W - DER}" y1="${Y(v)}" y2="${Y(v)}" stroke="${v ? 'var(--rejilla)' : 'var(--eje)'}" />`
+    s += `<text class="eje" x="${IZQ - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`
+  }
+  for (const m of marcasDeTiempo(t0, t0 + n * tam * 60000, W - IZQ)) {
+    const x = IZQ + (m - t0) / (tam * 60000) * banda
+    s += `<text class="eje" x="${x}" y="${H - 6}" text-anchor="middle">${hora(m)}</text>`
+  }
+  cubetas.forEach((b, i) => {
+    if (!b.total) return
+    const dominante = Object.entries(b.porAgente).sort((x, y) => y[1] - x[1])[0][0]
+    const x = IZQ + i * banda + (banda - ancho) / 2, y = Y(b.total)
+    const alto = H - ABAJO - y
+    s += `<path d="M${x},${H - ABAJO} V${y + Math.min(2, alto)} q0,-2 2,-2 H${x + ancho - 2} q2,0 2,2 V${H - ABAJO} Z" fill="${colorDe(dominante)}" />`
+  })
+  s += `<rect data-area-actividad x="${IZQ}" y="${ARRIBA}" width="${W - IZQ - DER}" height="${H - ABAJO - ARRIBA}" fill="transparent" />`
+  cont.innerHTML = s + '</svg>'
+  cubetasActividad = cubetas.map((b, i) => {
+    const clave = `act-${i}`
+    tips.set(clave, {
+      valor: `${b.total} herramienta${b.total === 1 ? '' : 's'}`,
+      lineas: [{ texto: `${hora(b.t)}${tam > 1 ? ` – ${hora(b.t + tam * 60000)}` : ''}` }, ...Object.entries(b.porAgente).map(([e, v]) => ({ texto: `${e}: ${v}`, color: colorDe(e) }))],
+    })
+    return clave
+  })
+  cont.dataset.izq = IZQ; cont.dataset.banda = banda
+}
+function claveActividad(area, clientX) {
+  const cont = area.closest('.grafico'), r = cont.getBoundingClientRect()
+  const i = Math.floor((clientX - r.left - Number(cont.dataset.izq)) / Number(cont.dataset.banda))
+  return cubetasActividad[i] ?? null
+}
+
+function pintarHistorial(cont, hist, c, plan, ahora) {
+  const sumar = (pasos, fn) => {
+    const t = { Construir: 0, QA: 0, 'Auditoría final': 0 }
+    for (const p of pasos) t[faseDe(p.etiqueta)] += fn(p)
+    return t
+  }
+  const filas = hist.map((h) => ({ nombre: h.tarea ?? '¿?', sub: fecha(h.inicio), real: sumar(h.pasos, (p) => p.min), est: null, id: h.id }))
+  const actual = {
+    nombre: `${c.tarea ?? '¿?'} (esta)`, sub: fecha(c.inicio), id: c.id,
+    real: sumar(plan.pasos, (p) => p.estado === 'hecho' ? (p.fin - p.ini) / 60000 : p.estado === 'corriendo' ? (ahora - p.ini) / 60000 : 0),
+    est: sumar(plan.pasos, (p) => p.estado === 'corriendo' ? (p.fin - ahora) / 60000 : p.estado === 'estimado' ? (p.fin - p.ini) / 60000 : 0),
+  }
+  filas.push(actual)
+  const total = (f) => FASES.reduce((s, x) => s + f.real[x.clave] + (f.est?.[x.clave] ?? 0), 0)
+  const W = Math.max(300, cont.clientWidth), IZQ = 96, DER = 86, FILA = 30, ARRIBA = 4, ABAJO = 24
+  const H = ARRIBA + filas.length * FILA + ABAJO
+  const maximo = Math.max(60, ...filas.map(total))
+  const paso = maximo > 300 ? 120 : maximo > 150 ? 60 : 30
+  const tope = Math.ceil(maximo / paso) * paso
+  const X = (m) => IZQ + m / tope * (W - IZQ - DER)
+  let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="Duración de cada corrida por fase">`
+  for (let m = 0; m <= tope; m += paso) {
+    s += `<line x1="${X(m)}" x2="${X(m)}" y1="${ARRIBA}" y2="${H - ABAJO}" stroke="${m ? 'var(--rejilla)' : 'var(--eje)'}" />`
+    s += `<text class="eje" x="${X(m)}" y="${H - 8}" text-anchor="middle">${m >= 60 ? m / 60 + ' h' : m + ' min'}</text>`
+  }
+  filas.forEach((f, i) => {
+    const y = ARRIBA + i * FILA + (FILA - 16) / 2, esta = f.id === c.id
+    s += `<text class="${esta ? 'fuerte' : ''}" x="0" y="${y + 12}">${esc(f.nombre)}</text>`
+    const id = `recorte-${i}`
+    const fin = X(total(f))
+    s += `<clipPath id="${id}"><rect x="${X(0)}" y="${y}" width="${Math.max(0, fin - X(0))}" height="16" rx="3" /></clipPath><g clip-path="url(#${id})">`
+    let acum = 0
+    const segmentos = []
+    for (const fase of FASES) segmentos.push({ fase, m: f.real[fase.clave], lavado: false })
+    if (f.est) for (const fase of FASES) segmentos.push({ fase, m: f.est[fase.clave], lavado: true })
+    segmentos.forEach((sg, j) => {
+      if (sg.m <= 0) return
+      const x1 = X(acum), x2 = X(acum + sg.m)
+      acum += sg.m
+      const clave = `hist-${i}-${j}`
+      s += `<rect data-tip="${clave}" x="${x1}" y="${y}" width="${Math.max(0, x2 - x1 - 2)}" height="16" fill="${sg.fase.css}" opacity="${sg.lavado ? .24 : 1}" />`
+      tips.set(clave, { valor: dur(sg.m * 60000) + (sg.lavado ? ' (estimado)' : ''), lineas: [{ texto: `${f.nombre} · ${sg.fase.nombre}`, color: sg.fase.css }, { texto: f.sub }] })
+    })
+    s += `</g><text x="${fin + 8}" y="${y + 12}">${f.est && Object.values(f.est).some((v) => v > 0) ? '≈ ' : ''}${esc(dur(total(f) * 60000))}</text>`
+  })
+  cont.innerHTML = s + '</svg>'
+}
+
+// ---------- secciones ----------
+
+function iconoVeredicto(v) {
+  if (v === 'PASA') return `<span class="icono bien" aria-hidden="true">✓</span>pasa`
+  if (v === 'NO_PASA') return `<span class="icono mal" aria-hidden="true">✕</span>no pasa`
+  return ''
+}
+
+function pintarFlujo(c, planes, ahora) {
+  const enPlan = (plan, e) => plan.pasos.find((p) => p.etiqueta === e)
+  const nodo = (e) => {
+    const real = c.agentes.findLast((a) => a.etiqueta === e)
+    const prob = enPlan(planes.probable, e), peor = enPlan(planes.peor, e)
+    const color = colorDe(e)
+    let clase, detalle, marca = ''
+    if (real?.estado === 'terminó') {
+      clase = 'hecho'; detalle = `${dur(Date.parse(real.ultima) - Date.parse(real.inicio))} · ${hora(real.inicio)}–${hora(real.ultima)}`
+      marca = real.resultado?.veredicto ? iconoVeredicto(real.resultado.veredicto) : `<span class="icono bien" aria-hidden="true">✓</span>terminó`
+    } else if (real) {
+      clase = 'corriendo'
+      const p = prob ?? peor
+      detalle = `lleva ${dur(ahora - Date.parse(real.inicio))}${p ? ` · ≈ ${dur(p.fin - ahora)} más` : ''}`
+      marca = real.espera ? `<span class="anillo"></span>esperando ${esc(real.espera.herramienta)}` : real.estado === 'sin actividad' ? `<span class="icono aviso" aria-hidden="true">!</span>sin actividad` : `<span class="anillo"></span>trabajando`
+    } else if (prob) {
+      clase = 'probable'; detalle = `≈ ${dur(prob.fin - prob.ini)} · hacia ${hora(prob.fin)}`; marca = `<span class="icono vacio" aria-hidden="true"></span>pendiente`
+    } else if (peor && c.estado !== 'terminada') {
+      clase = 'posible'; detalle = `≈ ${dur(peor.fin - peor.ini)}`; marca = 'solo si el QA no pasa'
+    } else {
+      clase = 'omitido'; detalle = 'no hizo falta'
+    }
+    return `<div class="nodo ${clase}" style="--color:${color}"><div class="nombre">${esc(nombrePaso(e))}</div><div class="detalle">${esc(detalle)}</div>${marca ? `<div class="marca">${marca}</div>` : ''}</div>`
+  }
+  const ronda = (r) => `<div class="grupo"><div class="titulo-grupo">Ronda ${r}</div><div class="nodos">${nodo(`constructor r${r}`)}${nodo(`qa r${r}`)}</div></div>`
+  const terminada = c.estado === 'terminada'
+  const revision = `<div class="grupo"><div class="titulo-grupo">Después</div><div class="nodos"><div class="nodo ${terminada ? 'corriendo' : 'probable'}" style="--color:var(--neutro)"><div class="nombre">Revisión</div><div class="detalle">orquestador + tú · ${REVISION_MIN[0]}-${REVISION_MIN[1]} min</div><div class="marca">${terminada ? '<span class="anillo"></span>nos toca' : '<span class="icono vacio" aria-hidden="true"></span>pendiente'}</div></div></div></div>`
+  return `<div class="flujo">${ronda(1)}<span class="flecha">→</span>${ronda(2)}<span class="flecha">→</span>${ronda(3)}<span class="flecha">→</span><div class="grupo"><div class="titulo-grupo">Cierre</div><div class="nodos">${nodo('auditoría final')}</div></div><span class="flecha">→</span>${revision}</div>`
+}
+
+function pintarAgente(a, ahora, abierto) {
+  const fin = a.estado === 'terminó' ? Date.parse(a.ultima) : ahora
+  const actividad = (a.actividad ?? []).map((u) => `
+    <li><span class="hora">${horaS(u.t)}</span><span class="herr">${u.estado === 'bloqueo' ? '⛔ ' : u.estado === 'error' ? '✕ ' : ''}${esc(u.herramienta)}</span><span class="det" title="${esc(u.detalle)}">${esc(u.detalle)}</span></li>`).join('')
+  const bloqueos = (a.bloqueos ?? []).slice().reverse().map((b) => `
+    <div class="bloqueo"><span class="hora">${horaS(b.t)}</span> <span class="herr">${esc(b.herramienta ?? '')}</span> ${esc(b.detalle ?? '')}<pre>${esc(b.motivo)}</pre></div>`).join('')
+  let resultado = ''
+  if (a.resultado) {
+    const r = a.resultado
+    const texto = typeof r === 'string' ? r : (r.resumen ?? JSON.stringify(r, null, 2))
+    const hall = Array.isArray(r.hallazgos) && r.hallazgos.length ? '\n\n' + r.hallazgos.map((h) => '· ' + (typeof h === 'string' ? h : `${h.severidad ? '[' + h.severidad + '] ' : ''}${h.descripcion ?? JSON.stringify(h)}`)).join('\n') : ''
+    resultado = `<details class="resultado" data-clave="res-${a.agentId}" ${abiertos.has('res-' + a.agentId) ? 'open' : ''}><summary>Resultado del agente${r.veredicto ? ' · ' + (r.veredicto === 'PASA' ? 'pasa' : 'no pasa') : ''}${r.hallazgos?.length ? ` · ${r.hallazgos.length} hallazgos` : ''}</summary><pre>${esc(texto + hall)}</pre></details>`
+  }
+  const espera = a.espera ? `<div class="espera">Esperando <span class="herr">${esc(a.espera.herramienta)}</span> desde ${horaS(a.espera.desde)} (lleva ${dur(ahora - Date.parse(a.espera.desde))}${a.espera.tope ? ` de un tope de ${dur(a.espera.tope)}` : ''}) · ${esc(a.espera.detalle)}</div>` : ''
+  return `
+  <details class="agente" data-clave="ag-${a.agentId}" ${abierto ? 'open' : ''}>
+    <summary><span class="punto" style="display:inline-block;width:9px;height:9px;border-radius:2px;background:${colorDe(a.etiqueta)}"></span><strong>${esc(a.etiqueta)}</strong>
+      <span class="meta">${esc(a.estado)} · ${esc(a.modelo ?? '')} · esfuerzo ${esc(a.esfuerzo ?? '—')} · ${dur(fin - Date.parse(a.inicio))} · ${compacto(sinCache(a.tokens))} tokens · ${miles(a.herramientas)} herramientas${a.bloqueos?.length ? ` · ⛔ ${a.bloqueos.length} bloqueos` : ''}</span></summary>
+    ${espera}
+    <div class="rejilla2">
+      <div class="caja"><h3>Actividad reciente</h3>${actividad ? `<ol class="actividad">${actividad}</ol>` : '<div class="vacio">Sin herramientas todavía.</div>'}</div>
+      <div class="caja"><h3>Lo último que escribió ${a.texto ? `<span class="hora">${horaS(a.texto.t)}</span>` : ''}</h3>${a.texto ? `<div class="texto">${esc(a.texto.texto)}</div>` : '<div class="vacio">Todavía no escribe texto.</div>'}
+        ${bloqueos ? `<h3 style="margin-top:14px">Lo que le negaron (hook de la fábrica o Claude Code)</h3>${bloqueos}` : ''}</div>
+    </div>
+    ${resultado}
+  </details>`
+}
+
+// ---------- estado de la página ----------
+
+let elegida = new URLSearchParams(location.search).get('corrida') || ''
+const abiertos = new Set()
+const cerrados = new Set()
+$('#corrida').addEventListener('change', (e) => {
+  elegida = e.target.value
+  history.replaceState(null, '', elegida ? `?corrida=${elegida}` : location.pathname)
+  cargar()
+})
+document.addEventListener('toggle', (e) => {
+  const k = e.target.dataset?.clave
+  if (!k) return
+  if (e.target.open) { abiertos.add(k); cerrados.delete(k) } else { abiertos.delete(k); cerrados.add(k) }
+}, true)
+
+const TEMAS = ['auto', 'dark', 'light'], NOMBRES = { auto: 'auto', dark: 'oscuro', light: 'claro' }
+let tema = 'auto'
+try { tema = localStorage.getItem('monitor-tema') || 'auto' } catch {}
+function aplicarTema() {
+  if (tema === 'auto') document.documentElement.removeAttribute('data-theme')
+  else document.documentElement.dataset.theme = tema
+  $('#tema').textContent = `Tema: ${NOMBRES[tema]}`
+}
+$('#tema').addEventListener('click', () => {
+  tema = TEMAS[(TEMAS.indexOf(tema) + 1) % TEMAS.length]
+  try { localStorage.setItem('monitor-tema', tema) } catch {}
+  aplicarTema(); if (ultimo) pintar(ultimo)
+})
+aplicarTema()
+
+let ultimo = null
+function pintarSelector(corridas, actual) {
+  const sel = $('#corrida')
+  const html = corridas.map((c) => `<option value="${esc(c.id)}" ${c.id === actual ? 'selected' : ''}>${esc(c.tarea ?? '¿?')} · ${esc(c.id)} · ${fecha(c.mtime)}</option>`).join('')
+  if (sel.dataset.html !== html) { sel.innerHTML = html; sel.dataset.html = html }
+}
+
+function pintar(d) {
+  ultimo = d
+  tips.clear()
+  const ahora = Date.parse(d.ahora)
+  const c = d.corrida
+  pintarSelector(d.corridas, c?.id)
+  $('#pulso').className = 'pulso' + (c?.estado === 'corriendo' ? ' vivo' : '')
+  $('#actualizado').textContent = `actualizado ${horaS(d.ahora)}`
+  if (!c) { $('#app').innerHTML = '<section class="vacio">No encontré corridas.</section>'; return }
+  if (!c.agentes.length || !c.inicio) { $('#app').innerHTML = `<section class="vacio">La corrida ${esc(c.id)} todavía no arranca ningún agente.</section>`; return }
+
+  const est = estadisticas(d.historial ?? [])
+  const planes = { mejor: planear(c, est, ahora, 'mejor'), probable: planear(c, est, ahora, 'probable'), peor: planear(c, est, ahora, 'peor') }
+  const t = c.totales, totalCorrida = sinCache(t)
+  const tarea = d.tarea, totalTarea = tarea?.sinCache ?? totalCorrida
+  const ventana = totalTarea / 1.2e6
+  const terminada = c.estado === 'terminada', corriendo = c.estado === 'corriendo'
+  const lleva = (terminada || !corriendo ? Date.parse(c.ultima) : ahora) - Date.parse(c.inicio)
+
+  const pill = corriendo ? `<span class="estado-pill"><span class="pulso vivo"></span>Corriendo</span>`
+    : terminada ? `<span class="estado-pill"><span class="icono bien" aria-hidden="true">✓</span>Terminada</span>`
+      : `<span class="estado-pill"><span class="icono aviso" aria-hidden="true">!</span>Detenida o en pausa</span>`
+  const heroe = terminada
+    ? `<div class="etiqueta">La fábrica terminó</div><div class="cifra">${hora(c.ultima)}</div><div class="rango">Duró ${dur(lleva)}. Sigue la revisión del orquestador (${REVISION_MIN[0]}-${REVISION_MIN[1]} min).</div>`
+    : corriendo
+      ? `<div class="etiqueta">La fábrica termina, estimado</div><div class="cifra">≈ ${hora(planes.probable.fin)}</div>
+         <div class="rango">Entre ${hora(planes.mejor.fin)} (pasa a la primera) y ${hora(planes.peor.fin)} (3 rondas lentas). Con la revisión del orquestador, ≈ ${hora(planes.probable.fin + REVISION_MIN[0] * 60000)}–${hora(planes.probable.fin + REVISION_MIN[1] * 60000)}.</div>
+         <div class="rango tenue" style="margin-top:6px">Con ${est.corridas} corridas anteriores: en ${est.noPasaPrimera} de ${est.conQa1} el QA pidió corrección en la ronda 1; lo típico son ${est.rondas} rondas.</div>`
+      : `<div class="etiqueta">Sin actividad</div><div class="cifra">—</div><div class="rango">Ningún agente escribe desde ${hora(c.ultima)}. Si no la paraste tú, revisa /workflows.</div>`
+
+  const kpi = (etiqueta, valor, nota, extra = '') => `<div class="kpi"><div class="etiqueta">${etiqueta}</div><div class="valor">${valor}</div>${extra}<div class="nota">${nota}</div></div>`
+  const notaTarea = tarea && tarea.corridas.length > 1 ? `${tarea.corridas.length} corridas de ${esc(tarea.tarea)}` : 'esta corrida'
+  const kpis = [
+    kpi('Lleva', dur(lleva), `desde ${hora(c.inicio)}`),
+    kpi('Tokens de esta corrida', compacto(totalCorrida), `sin caché · ${compacto(t.cacheLectura)} de caché`),
+    kpi(`Tokens de ${esc(tarea?.tarea ?? 'la tarea')}`, compacto(totalTarea), `${notaTarea} · ≈ ${(ventana * 10).toLocaleString('es-CO', { maximumFractionDigits: 1 })}-${(ventana * 12).toLocaleString('es-CO', { maximumFractionDigits: 1 })} % semanal`,
+      `<div class="medidor ${ventana > .8 ? 'alto' : ''}" title="${Math.round(ventana * 100)} % de una ventana de 5 h (1,2 M)"><i style="width:${Math.min(100, ventana * 100)}%"></i></div><div class="nota">${Math.round(ventana * 100)} % de una ventana de 5 h</div>`),
+    kpi('Herramientas', miles(t.herramientas), `${miles(t.errores)} con error`),
+    kpi('Bloqueos', t.bloqueos ? `<span class="icono mal" aria-hidden="true" style="width:18px;height:18px;font-size:11px;vertical-align:4px">⛔</span> ${miles(t.bloqueos)}` : '0', t.bloqueos ? 'del hook de la fábrica o de Claude Code; detalle en cada agente' : 'ninguno'),
+  ].join('')
+
+  const leyenda = `<div class="leyenda">${FASES.map((f) => `<span><i style="background:${f.css}"></i>${f.nombre}</span>`).join('')}<span><i class="lavado" style="background:var(--texto-2)"></i>estimado</span></div>`
+  const plan = planes.probable
+  const filasTabla = plan.pasos.map((p) => {
+    const a = p.agente
+    return `<tr class="${p.estado === 'estimado' ? 'estimado' : ''}"><td><span class="punto" style="background:${colorDe(p.etiqueta)}"></span>${esc(p.etiqueta)}</td><td>${faseDe(p.etiqueta)}</td>
+      <td>${p.estado === 'hecho' ? 'terminó' : p.estado === 'corriendo' ? esc(a?.estado ?? '') : 'estimado'}</td><td class="num">${hora(p.ini)}</td><td class="num">${p.estado === 'hecho' ? '' : '≈ '}${hora(p.fin)}</td>
+      <td class="num">${p.estado === 'hecho' ? '' : '≈ '}${dur(p.fin - p.ini)}</td><td class="num">${a ? miles(sinCache(a.tokens)) : '—'}</td><td class="num">${a ? miles(a.herramientas) : '—'}</td>
+      <td class="num">${a ? miles(a.bloqueos?.length) : '—'}</td><td>${a?.resultado?.veredicto ? (a.resultado.veredicto === 'PASA' ? 'pasa' : 'no pasa') : ''}</td></tr>`
+  }).join('')
+
+  const activo = c.agentes.slice().reverse().find((a) => a.estado !== "terminó" && a.estado !== "cortado") ?? c.agentes.at(-1)
+  const agentes = c.agentes.slice().reverse().map((a) => {
+    const k = 'ag-' + a.agentId
+    return pintarAgente(a, ahora, abiertos.has(k) || (a === activo && !cerrados.has(k)))
+  }).join('')
+  const g = d.git
+  const git = g?.error ? '<div class="vacio">No pude leer git.</div>'
+    : g?.cambios?.length ? `<div class="tabla-envoltura"><table class="git">${g.cambios.map((x) => `<tr><td>${esc(x.marca)}</td><td>${esc(x.ruta)}</td></tr>`).join('')}</table></div>`
+      : '<div class="vacio">Árbol limpio.</div>'
+  const tareaCorridas = tarea && tarea.corridas.length > 1
+    ? `<p class="sub" style="margin-top:10px">Corridas de ${esc(tarea.tarea)}: ${tarea.corridas.map((x) => `${esc(x.id)} (${fecha(x.inicio)}, ${compacto(x.sinCache)}, ${esc(x.estado)})`).join(' · ')}</p>` : ''
+
+  $('#app').innerHTML = `
+  <div class="portada">
+    <section class="heroe">${pill}<div class="meta" style="margin-bottom:6px">${esc(c.tarea ?? 'Tarea sin identificar')} · ${esc(c.id)}</div>${heroe}</section>
+    <section><h2>Cifras</h2><p class="sub">Tokens sin caché; el % semanal sale de tu cálculo (1,2 M ≈ ventana de 5 h ≈ 10-12 %). La cifra real es la de /usage.</p><div class="kpis">${kpis}</div>${tareaCorridas}</section>
+  </div>
+  <section><h2>El flujo</h2><p class="sub">Constructor → QA en hasta 3 rondas; si el QA aprueba, auditoría final con Opus y después nuestra revisión.</p>${pintarFlujo(c, planes, ahora)}</section>
+  <section><h2>Línea de tiempo</h2><p class="sub">Lo hecho en color; lo que falta, en lavado, con la duración típica de cada paso. Las líneas verticales marcan el cierre mejor, probable (la más fuerte) y peor.</p>${leyenda}<div class="grafico" id="g-gantt"></div></section>
+  <div class="dos">
+    <section><h2>Actividad por minuto</h2><p class="sub">Usos de herramientas; un tramo vacío largo suele ser una herramienta que tarda (las compuertas).</p>${leyenda.replace(/<span><i class="lavado"[^]*?<\/span>/, '')}<div class="grafico" id="g-actividad"></div></section>
+    <section><h2>Contra las corridas anteriores</h2><p class="sub">Duración de cada corrida por fase; la de ahora suma lo que falta, estimado.</p>${leyenda}<div class="grafico" id="g-historial"></div></section>
+  </div>
+  <section><h2>Tabla</h2><p class="sub">Los mismos datos de la línea de tiempo (escenario probable).</p><div class="tabla-envoltura"><table>
+    <thead><tr><th>Paso</th><th>Fase</th><th>Estado</th><th class="num">Inicio</th><th class="num">Fin</th><th class="num">Duración</th><th class="num">Tokens sin caché</th><th class="num">Herramientas</th><th class="num">Bloqueos</th><th>Veredicto</th></tr></thead>
+    <tbody>${filasTabla}</tbody></table></div></section>
+  <section><h2>Agentes</h2>${agentes || '<div class="vacio">Sin agentes todavía.</div>'}</section>
+  <section><h2>Árbol del repo · ${esc(g?.commit ?? '')}</h2>${git}</section>`
+
+  pintarGantt($('#g-gantt'), plan, planes, ahora, c)
+  pintarActividad($('#g-actividad'), c, ahora)
+  pintarHistorial($('#g-historial'), d.historial ?? [], c, plan, ahora)
+  if (hover && tips.has(hover.clave)) mostrarTip(hover.clave, hover.x, hover.y)
+  else tip.style.display = 'none'
+}
+
+async function cargar() {
+  try {
+    const r = await fetch('/api/estado' + (elegida ? `?corrida=${encodeURIComponent(elegida)}` : ''), { cache: 'no-store' })
+    pintar(await r.json())
+  } catch (e) {
+    console.error(e)
+    $('#actualizado').textContent = 'sin conexión con el monitor'
+    $('#pulso').className = 'pulso'
+  }
+}
+let esperaTam = null
+window.addEventListener('resize', () => { clearTimeout(esperaTam); esperaTam = setTimeout(() => ultimo && pintar(ultimo), 120) })
+cargar()
+setInterval(cargar, 3000)
+</script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+{
+  "$comentario": "Pasos para capturar cada referente, siempre igual. Lo llena el orquestador en el arranque desde ENCARGO.md § 3. Se corre con: node fabrica/scripts/referentes.mjs [nombre]. Pasos: esperar (ms), rueda (px), clic / cursor (selector), clicXY / moverXY ([x, y]), arrastrar ([[x0, y0], [x1, y1]]), tecla. sinEsperarCarga: true cuando el preloader es parte de lo que se calca.",
+  "sitios": [
+    {
+      "nombre": "unseen",
+      "$que": "Referente del inicio: la línea de tiempo y su interactividad (storytelling aprobado el 2026-11-01).",
+      "url": "https://2025.unseen.co/",
+      "anchos": [
+        [
+          1440,
+          900
+        ],
+        [
+          390,
+          844
+        ]
+      ],
+      "sinEsperarCarga": true,
+      "tomas": [
+        {
+          "archivo": "unseen-01-entrada.jpg",
+          "pasos": [
+            {
+              "esperar": 7000
+            }
+          ]
+        },
+        {
+          "archivo": "unseen-02-titular.jpg",
+          "pasos": [
+            {
+              "rueda": 2400
+            },
+            {
+              "esperar": 1500
+            }
+          ]
+        },
+        {
+          "archivo": "unseen-03-linea-1.jpg",
+          "pasos": [
+            {
+              "rueda": 3000
+            },
+            {
+              "esperar": 1500
+            }
+          ]
+        },
+        {
+          "archivo": "unseen-04-linea-cursor.jpg",
+          "pasos": [
+            {
+              "moverXY": [
+                400,
+                300
+              ]
+            },
+            {
+              "moverXY": [
+                1000,
+                600
+              ]
+            },
+            {
+              "esperar": 800
+            }
+          ]
+        },
+        {
+          "archivo": "unseen-05-linea-2.jpg",
+          "pasos": [
+            {
+              "rueda": 2400
+            },
+            {
+              "esperar": 1500
+            }
+          ]
+        },
+        {
+          "archivo": "unseen-06-linea-3.jpg",
+          "pasos": [
+            {
+              "rueda": 2400
+            },
+            {
+              "esperar": 1500
+            }
+          ]
+        },
+        {
+          "archivo": "unseen-07-linea-4.jpg",
+          "pasos": [
+            {
+              "rueda": 3600
+            },
+            {
+              "esperar": 1500
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "notie",
+      "$que": "Candidato del formulario: creación por pasos (salió como muro el 2026-10-31).",
+      "url": "https://makestickynotes.com/",
+      "anchos": [
+        [
+          1440,
+          900
+        ],
+        [
+          390,
+          844
+        ]
+      ],
+      "tomas": [
+        {
+          "archivo": "notie-01-paso-1.jpg",
+          "pasos": [
+            {
+              "esperar": 2500
+            }
+          ]
+        },
+        {
+          "archivo": "notie-02-paso-2.jpg",
+          "pasos": [
+            {
+              "clic": "text=Next →"
+            },
+            {
+              "esperar": 1200
+            }
+          ]
+        },
+        {
+          "archivo": "notie-03-paso-3.jpg",
+          "pasos": [
+            {
+              "clic": "text=Next →"
+            },
+            {
+              "esperar": 1200
+            }
+          ]
+        },
+        {
+          "archivo": "notie-04-abajo.jpg",
+          "pasos": [
+            {
+              "rueda": 1800
+            },
+            {
+              "esperar": 1200
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "vitra",
+      "$que": "Candidato del formulario: una pregunta por pantalla y un resultado.",
+      "url": "https://findmy.vitra.com/en-en",
+      "tomas": [
+        {
+          "archivo": "vitra-01-inicio.jpg",
+          "pasos": [
+            {
+              "esperar": 2500
+            }
+          ]
+        },
+        {
+          "archivo": "vitra-02-pregunta.jpg",
+          "pasos": [
+            {
+              "clic": "text=Start"
+            },
+            {
+              "esperar": 2000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "nocode",
+      "$que": "Candidato del formulario: registro por pasos.",
+      "url": "https://www.nocodecommunity.nl/",
+      "tomas": [
+        {
+          "archivo": "nocode-01-inicio.jpg",
+          "pasos": [
+            {
+              "esperar": 2500
+            }
+          ]
+        },
+        {
+          "archivo": "nocode-02-registro.jpg",
+          "pasos": [
+            {
+              "clic": "text=JOIN DE SLACK-COMMUNITY"
+            },
+            {
+              "esperar": 2000
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "tarea": "Tono visual y diagramación",
+  "alcance": "La estética colorida y desbordada y la diagramación espaciada de las secciones se calcan de leadoff.fr: bloque de color a sangre con titular condensado e imagen dentro de la frase, y retícula de columnas con hilos finos y mucho aire.",
+  "fecha": "2026-11-09",
+  "evidencia": {
+    "capturas": "referentes/capturas/leadoff-01..04.jpg y leadoff-scroll-00..11.jpg + hoja-leadoff-scroll.jpg (2026-11-09, 1440×900, 900 px de rueda entre tomas)",
+    "codigo": "https://www.leadoff.fr/wp-content/themes/leadoff/dist/bundle.68ec1454.js y .css, leídos el 2026-11-09 en el scratchpad."
+  },
+  "librerias": {
+    "GSAP": "3.11.0 (cabecera) con ScrollTrigger (18 usos) y SplitText",
+    "Barba": "transiciones entre páginas (15 usos de «barba»)",
+    "jQuery": "3.7.1 (wp-includes)",
+    "fuentes": "NewTitle-Variable (titulares condensados en mayúscula) y GeneralSans-Variable (texto)"
+  },
+  "referentes": [
+    {
+      "sitio": "https://www.leadoff.fr/",
+      "se_toma": [
+        { "id": "A1", "aspecto": "Intro a pantalla negra con una frase que se arma palabra por palabra, desalineada, y un enlace «Skip intro»", "fuente": "captura leadoff-01", "referente": "referentes/capturas/leadoff-01.jpg", "estado": "intro" },
+        { "id": "A2", "aspecto": "Primer bloque a sangre de un solo color saturado, con titular centrado en mayúsculas condensadas y una foto pequeña y redondeada metida entre las palabras de la frase", "fuente": "captura leadoff-scroll-00", "referente": "referentes/capturas/leadoff-scroll-00.jpg", "estado": "portada" },
+        { "id": "A3", "aspecto": "La frase entra por líneas desde abajo y después la foto crece desde cero hasta su tamaño dentro del titular", "fuente": "bundle: lines yPercent 110 → 0 (0,6 s, power2.out, +0,05 entre líneas); visual scale/width/height 0 → tamaño (0,6 s); tagline y etiquetas opacity 0 → 1 (0,8 s)", "referente": "referentes/capturas/leadoff-02.jpg", "estado": "portada" },
+        { "id": "A4", "aspecto": "Después del color, fondo blanco con retícula de columnas separadas por hilos verticales finos; cada columna un servicio con texto gris arriba y negro abajo, y una flecha ↗", "fuente": "capturas leadoff-scroll-03..05", "referente": "referentes/capturas/leadoff-scroll-04.jpg", "estado": "reticula" },
+        { "id": "A5", "aspecto": "Esa franja de columnas corre en horizontal con el scroll", "fuente": "capturas leadoff-scroll-03 a -05 (las columnas avanzan a la izquierda entre tomas)", "referente": "referentes/capturas/leadoff-scroll-05.jpg", "estado": "reticula" },
+        { "id": "A6", "aspecto": "Bloques negros a sangre que cortan el blanco, y casos en retícula editorial: etiquetas en pastilla, titular condensado, foto y texto en columnas con mucho aire", "fuente": "capturas leadoff-scroll-08..11", "referente": "referentes/capturas/leadoff-scroll-09.jpg", "estado": "casos" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "El azul eléctrico y el blanco/negro como paleta", "por_que": "Identidad: los bloques a sangre usan el cobalto, ácido, tomate y magenta del manual" },
+        { "aspecto": "NewTitle (condensada)", "por_que": "Tipografía: manda el manual (DM Serif Text para titulares); ver dudas" },
+        { "aspecto": "Transiciones entre páginas (Barba)", "por_que": "La convocatoria es una sola página" }
+      ]
+    }
+  ],
+  "tecnica": [
+    { "id": "K1", "que": "Entrada del titular con imagen", "como": "Se parte el titular en líneas; cada línea arranca en yPercent 110 con origen abajo y sube a 0. La imagen interna arranca con scale 0, ancho y alto 0, display inline-block y overflow oculto, y crece a su tamaño medido. Luego aparecen tagline, etiquetas y cabecera.", "constantes": { "duracion_s": 0.6, "ease": "power2.out", "entre_lineas_s": 0.05, "fade_resto_s": 0.8 }, "tiempos": "después de la intro; mientras corre, el body tiene «noscroll»", "fuente": "bundle: Ms.set(r,{yPercent:110…}) y p.to(e,{scale:1,width:l,height:o,duration:.6})" },
+    { "id": "K2", "que": "Medidas fluidas", "como": "Todos los espacios usan max(mínimo, min(vw, tope)), por ejemplo margen lateral max(24px, min(3vw, 100vw)) y titulares max(48px, min(4vw, …)).", "constantes": { "margen": "max(24px, 3vw)", "gutter": "max(12px, min(2vw, 48px))" }, "tiempos": "—", "fuente": "bundle.css" }
+  ],
+  "estados": [
+    { "nombre": "intro", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 1500 }] },
+    { "nombre": "portada", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 6000 }] },
+    { "nombre": "reticula", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 6000 }, { "rueda": 3600 }, { "esperar": 1300 }] },
+    { "nombre": "casos", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 6000 }, { "rueda": 8100 }, { "esperar": 1300 }] }
+  ],
+  "dudas": [
+    "Lo «desbordado» de Leadoff es un solo color por bloque y titulares condensados enormes. El manual usa DM Serif Text: ¿los titulares XXL siguen en DM Serif (como el prototipo) o se suma una condensada para esos bloques?",
+    "¿Se toma la intro a pantalla negra con «Skip intro» (A1)? Choca con la precarga de Unseen: el inicio solo puede tener una.",
+    "La retícula de columnas con hilos (A4–A5) sirve para «Cómo funciona» o para las carreras: ¿cuál?"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "required": ["veredicto", "ronda", "hallazgos"],
+  "additionalProperties": false,
+  "properties": {
+    "veredicto": { "type": "string", "enum": ["PASA", "NO PASA", "ESCALADO"] },
+    "ronda": { "type": "integer", "minimum": 1 },
+    "hallazgos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severidad", "titulo"],
+        "properties": {
+          "id": { "type": "string" },
+          "severidad": { "type": "string", "enum": ["Crítico", "Mayor", "Menor"] },
+          "titulo": { "type": "string" }
+        }
+      }
+    }
+  }
+}

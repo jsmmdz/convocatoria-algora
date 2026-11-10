@@ -1,0 +1,46 @@
+{
+  "tarea": "Portada y transiciones (3D sutil y parallax)",
+  "alcance": "La profundidad de la portada y el paso entre secciones se calcan de tabletales.crz.studio: capas en parallax con el scroll y un marco que se abre como tinta.",
+  "fecha": "2026-11-09",
+  "evidencia": {
+    "capturas": "referentes/capturas/tabletales-01..04.jpg (2026-11-09, 1440×900)",
+    "codigo": "https://tabletales.crz.studio/_next/static/immutable/chunks/*.js (Next.js + Turbopack), leídos el 2026-11-09 en el scratchpad. Se reimplementa la técnica."
+  },
+  "librerias": {
+    "GSAP": "3.11.0 (cabecera «GSAP 3.11.0») con ScrollTrigger y SplitText (create(el,{type:\"words\"}))",
+    "Lenis": "scroll suave (clase con fromTo(…,{lerp,duration,easing}))",
+    "WebGL2": "dos programas propios: getContext(\"webgl2\",{premultipliedAlpha:!0,antialias:!1}); no usa Three.js"
+  },
+  "referentes": [
+    {
+      "sitio": "https://tabletales.crz.studio/",
+      "se_toma": [
+        { "id": "A1", "aspecto": "Portada con título enorme y una ilustración por capas delante y detrás de las letras (la figura tapa parte de «TABLE TALES»; piezas sueltas alrededor)", "fuente": "captura tabletales-01", "referente": "referentes/capturas/tabletales-01.jpg", "estado": "portada" },
+        { "id": "A2", "aspecto": "Al bajar, la imagen principal baja más lento y se encoge un poco; cada capa se mueve a su propia velocidad", "fuente": "chunk: fromTo(img,{yPercent:0,scale:1},{yPercent:14,scale:.94, scrub, start top top, end bottom top}); capas y = alto·d[i]", "referente": "referentes/capturas/tabletales-02.jpg", "estado": "portada-scroll" },
+        { "id": "A3", "aspecto": "Un marco blanco con borde dorado crece desde una tarjeta hasta ocupar la pantalla, con el borde irregular como tinta que se expande, y el texto aparece dentro", "fuente": "capturas tabletales-02 y -03; shader con u_rect, u_spread, fbm", "referente": "referentes/capturas/tabletales-03.jpg", "estado": "marco" },
+        { "id": "A4", "aspecto": "Piezas del juego que llegan volando a su sitio con un giro, ligadas al scroll", "fuente": "chunk: set(pieza,{x,y desde un punto común, rotation, scale:.94}) y timeline scrub .55", "referente": "referentes/capturas/tabletales-01.jpg", "estado": "portada-scroll" },
+        { "id": "A5", "aspecto": "Los titulares entran letra por letra desde abajo (yPercent 100 → 0) con stagger corto", "fuente": "chunk: to(chars,{yPercent:0,duration:.9,stagger:.03,ease:\"power4.out\"})", "referente": "referentes/capturas/tabletales-04.jpg", "estado": "seccion" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "La ilustración art nouveau dorada y el azul marino", "por_que": "Identidad: manda el manual de Creación Digital" },
+        { "aspecto": "Lenis (scroll suave global)", "por_que": "Se decide en el arranque: puede chocar con el scroll horizontal y con la accesibilidad (ver dudas)" }
+      ]
+    }
+  ],
+  "tecnica": [
+    { "id": "K1", "que": "Parallax de la portada", "como": "Imagen principal: yPercent 0 → 14 y scale 1 → 0,94, scrub, desde que la portada toca arriba hasta que sale. Capas: y = alto_portada · factor_i con su propio factor.", "constantes": { "yPercent_final": 14, "scale_final": 0.94 }, "tiempos": "start «top top», end «bottom top», scrub true", "fuente": "chunk con «hero:reveal»" },
+    { "id": "K2", "que": "Marco que se abre como tinta", "como": "Shader de pantalla completa: distancia con signo a un rectángulo redondeado (u_rect = centro y medio tamaño) más lóbulos de ruido fbm según la dirección desde el borde (fbm(dir·1,6 + tiempo·0,03)); u_spread hace crecer el borde (tope 120 px de pincel). Pinta u_paint dentro y u_ink en el borde.", "constantes": { "pincel_max_px": 120, "ruido_escala": 1.6, "ruido_tiempo": 0.03 }, "tiempos": "scrub true: palabras se apagan 0,12–0,26; marco progress 0 → 1 de 0,26 a 0,90 (power2.in); siguiente capa 0,34–0,94", "fuente": "shader 1 (uniforms u_view,u_dpr,u_rect,u_spread,u_time,u_paint,u_ink) y timeline scrub del chunk" },
+    { "id": "K3", "que": "Tinta dorada con el cursor", "como": "Una textura máscara acumula trazos entre la posición anterior y la actual del puntero (segmento u_from → u_to con radio); cada cuadro se seca restando u_dry. Se compone con una textura dorada usando un umbral con grano: umbral = 0,16 + 0,6·fbm(uv·240), smoothstep ±0,05.", "constantes": { "umbral_base": 0.16, "umbral_grano": 0.6, "grano_escala": 240, "borde": 0.05 }, "tiempos": "por cuadro mientras el puntero se mueve", "fuente": "shaders 3 y 4 (u_mask, u_from, u_to, u_radius, u_ink, u_dry, u_gold)" },
+    { "id": "K4", "que": "Piezas que vuelan a su sitio", "como": "Cada pieza arranca en un punto común (x = 1,12·ancho, o 1,22 en angosto; y = 0,52·alto) con rotación y scale 0,94 y llega a su posición con un timeline scrub 0,55. La entrada inicial: duración 1,3, stagger 0,09, expo.out, cuando la sección toca el 55 %.", "constantes": { "scrub": 0.55, "duracion": 1.3, "stagger": 0.09, "ease": "expo.out" }, "tiempos": "start «top 55%» (una vez) y scrub top top → bottom bottom", "fuente": "chunk con «.52*window.innerHeight»" }
+  ],
+  "estados": [
+    { "nombre": "portada", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }] },
+    { "nombre": "portada-scroll", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 600 }, { "esperar": 1200 }] },
+    { "nombre": "marco", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 1800 }, { "esperar": 1200 }] }
+  ],
+  "dudas": [
+    "Los factores de velocidad de cada capa de la portada (d[i]) no se pudieron leer del bundle: se miden con la grabación o se fijan en el pulido.",
+    "Nuestra portada no tiene ilustración. ¿Las capas son los objetos 3D por código (prototipo v2) y después los assets de Antigravity, o se espera la ilustración?",
+    "¿Se toma la tinta con el cursor (K3)? El encargo pide 3D sutil y parallax; la tinta no se mencionó."
+  ]
+}

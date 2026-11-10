@@ -1,0 +1,138 @@
+{
+  "$comentario": "Compuertas deterministas de esta web. Las lee fabrica/scripts/compuertas.mjs y el hook. Viene del preset con lo que sirve a cualquier web; en el arranque el orquestador agrega lo propio (patrones prohibidos por el stack, presupuestos, rutas personales). Solo el orquestador edita este archivo.",
+  "raizSitio": "sitio",
+  "buzon": "fabrica/buzon",
+  "tareas": "fabrica/proyecto/tareas",
+  "datos": "fabrica/datos",
+  "$regresion": "Tareas cerradas cuyas pruebas corren siempre como regresión, aunque su buzón ya no esté en el repo.",
+  "regresion": [],
+  "comandos": [
+    {
+      "id": "check",
+      "cmd": "npm run check",
+      "exigirTexto": ["- 0 errors", "- 0 warnings", "- 0 hints"]
+    },
+    {
+      "id": "build",
+      "cmd": "npm run build",
+      "exigirTexto": ["Complete!"],
+      "prohibirRegex": "\\[WARN\\]|\\berror\\b"
+    },
+    {
+      "id": "e2e",
+      "cmd": "npx playwright test {pruebas} --reporter=line",
+      "exigirTexto": [" passed"],
+      "prohibirRegex": "\\d+ (failed|flaky)",
+      "reintentar": "npx playwright test --last-failed --reporter=line",
+      "reintentarHasta": 3
+    }
+  ],
+  "$rutasPersonales": "Material del autor que ningún agente lee, nombra ni sube (fotos personales, datos de terceros). Se llena en el arranque si el encargo trae algo así.",
+  "rutasPersonales": [],
+  "rutasProtegidas": [
+    "ENCARGO.md",
+    "CLAUDE.md",
+    "docs/**",
+    "referentes/**",
+    "fabrica/nucleo/**",
+    "fabrica/proyecto/**",
+    "fabrica/scripts/**",
+    ".claude/**",
+    ".github/**",
+    "sitio/tests/**",
+    "sitio/playwright.config.ts"
+  ],
+  "rutasLibres": [
+    "fabrica/buzon/**",
+    "fabrica/datos/**",
+    "sitio/dist/**",
+    "sitio/.astro/**",
+    "fabrica/.tarea-activa.json",
+    "fabrica/.herramientas-sin-tarea.jsonl",
+    "sitio/test-results/**",
+    "sitio/playwright-report/**"
+  ],
+  "patrones": [
+    {
+      "id": "any",
+      "descripcion": "Tipo any explícito",
+      "regex": ":\\s*any\\b|<any>|as any\\b",
+      "extensiones": [".ts", ".astro"],
+      "bloquea": true
+    },
+    {
+      "id": "silenciar-compilador",
+      "descripcion": "@ts-ignore, @ts-expect-error o doble casteo",
+      "regex": "@ts-ignore|@ts-expect-error|as unknown as",
+      "extensiones": [".ts", ".astro"],
+      "bloquea": true
+    },
+    {
+      "id": "hex-suelto",
+      "descripcion": "Hex literal fuera de los tokens (F6). Todo color sale de sitio/src/styles/tokens.css",
+      "regex": "#[0-9a-fA-F]{3,8}\\b",
+      "extensiones": [".css", ".ts", ".astro"],
+      "ignorarComentarios": true,
+      "permitidos": ["sitio/src/styles/tokens.css"],
+      "bloquea": true
+    },
+    {
+      "id": "mobiliario",
+      "descripcion": "box-shadow o bordes decorativos. Revisar a mano: un borde de foco o de 0 es válido",
+      "regex": "box-shadow\\s*:|border(-top|-bottom|-left|-right)?\\s*:\\s*(?!0|none)",
+      "extensiones": [".css", ".astro"],
+      "ignorarComentarios": true,
+      "bloquea": false
+    },
+    {
+      "id": "degradado",
+      "descripcion": "Degradados. Solo con justificación escrita en la entrega",
+      "regex": "(linear|radial|conic)-gradient\\(",
+      "extensiones": [".css", ".astro", ".ts"],
+      "ignorarComentarios": true,
+      "bloquea": false
+    },
+    {
+      "id": "console-log",
+      "descripcion": "console.log olvidado",
+      "regex": "console\\.log\\(",
+      "extensiones": [".ts", ".astro"],
+      "ignorarComentarios": true,
+      "bloquea": true
+    },
+    {
+      "id": "ruta-sin-base",
+      "descripcion": "Ruta interna o asset escrito desde la raíz: en GitHub Pages el sitio vive bajo /<repo>/. Todo pasa por import.meta.env.BASE_URL",
+      "regex": "(href|src|poster)=[\"']/(?!/)",
+      "extensiones": [".astro", ".ts", ".css", ".json", ".mdx"],
+      "ignorarComentarios": true,
+      "bloquea": true
+    },
+    {
+      "id": "voseo",
+      "descripcion": "Voseo en textos o comentarios (regla 0)",
+      "regex": "\\b(tenés|podés|querés|sabés|decís|mirá|andá|fijate|vos|sos|che)\\b",
+      "flags": "i",
+      "extensiones": [".ts", ".astro", ".css", ".md", ".mjs"],
+      "bloquea": true
+    }
+  ],
+  "presupuestos": [
+    {
+      "id": "fuentes",
+      "descripcion": "Fuentes WOFF2 en dist (aviso; referencia < 250 KB)",
+      "glob": "sitio/dist/_astro/*.woff2",
+      "medida": "bytes",
+      "maximo": 250000,
+      "bloquea": false
+    },
+    {
+      "id": "js-inicial",
+      "descripcion": "JS que carga / en gzip (aviso; referencia < 220 KB)",
+      "html": "sitio/dist/index.html",
+      "medida": "gzip-scripts-del-html",
+      "maximo": 220000,
+      "bloquea": false
+    }
+  ]
+}

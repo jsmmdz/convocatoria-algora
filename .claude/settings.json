@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "workflowSizeGuideline": "small",
+  "subagentPromptCacheTtl": "1h",
+  "permissions": {
+    "allow": [
+      "Workflow(construir-tarea)",
+      "Bash(npm run check)",
+      "Bash(npm run build)",
+      "Bash(npx astro check*)",
+      "Bash(npx astro build*)",
+      "Bash(npx playwright test *)",
+      "Bash(node fabrica/scripts/compuertas.mjs *)",
+      "Bash(node fabrica/scripts/capturas.mjs *)",
+      "Bash(node fabrica/scripts/referentes.mjs*)",
+      "Bash(cd sitio && npm run *)",
+      "Bash(cd sitio && npx playwright test *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(date*)"
+    ]
+  }
+}

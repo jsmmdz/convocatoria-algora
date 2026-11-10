@@ -1,0 +1,47 @@
+{
+  "tarea": "Inicio (introducción y línea en horizontal)",
+  "alcance": "La introducción y el recorrido del inicio (posibilidad → hitos → productos) se calcan de 2025.unseen.co: precarga con contador, portada sobre trama de caracteres y línea de tiempo que corre en horizontal con el scroll.",
+  "fecha": "2026-11-09",
+  "evidencia": {
+    "capturas": "referentes/capturas/unseen-01..07-1440.jpg y -390.jpg (referentes.mjs, 2026-10-30)",
+    "codigo": "wp-content/themes/yiw/public/build/js-265ae611.js, leído el 2026-10-31 (ver docs/3-ESTADO.md § Lo medido)."
+  },
+  "librerias": {
+    "GSAP": "3.14.2 (cabecera de SplitText 3.14.2) con ScrollTrigger, SplitText y Flip",
+    "Lenis": "smoothWheel, orientation",
+    "Three.js": "WebGLRenderer en la portada (pase ASCII con simulación de fluido tFluid)",
+    "Taxi": "transiciones de página"
+  },
+  "referentes": [
+    {
+      "sitio": "https://2025.unseen.co/",
+      "se_toma": [
+        { "id": "A1", "aspecto": "Precarga con porcentaje entre corchetes «[93%]» y la mascota al centro, sobre negro", "fuente": "captura unseen-01", "referente": "referentes/capturas/unseen-01-entrada-1440.jpg", "estado": "precarga" },
+        { "id": "A2", "aspecto": "Portada con titular enorme en dos líneas sobre una trama de caracteres que dibuja una figura y se deforma con el cursor", "fuente": "captura unseen-02; pase ASCII « .,-+=*UNSEEN2025» con tFluid", "referente": "referentes/capturas/unseen-02-titular-1440.jpg", "estado": "portada" },
+        { "id": "A3", "aspecto": "La línea de tiempo corre en horizontal con la rueda: hitos en fila unidos por una línea ondulada punteada; lo recorrido se vuelve línea sólida", "fuente": "capturas unseen-03..07; SVG .js-line 32000×300 y copia sólida trasladada −progreso×100 %", "referente": "referentes/capturas/unseen-03-linea-1-1440.jpg", "estado": "linea" },
+        { "id": "A4", "aspecto": "Cada hito lleva etiquetas entre corchetes «[MOTION] [JAN_25]», titular grande y «OPEN [+]»; algunos hitos pasan a fondo oscuro", "fuente": "capturas unseen-03..07", "referente": "referentes/capturas/unseen-05-linea-2-1440.jpg", "estado": "linea" },
+        { "id": "A5", "aspecto": "Un personaje viaja por la línea y se inclina según la velocidad del scroll", "fuente": "bundle: rot = lerp(rot, clamp(−40, 40, velocidad), 0,04); rotate(rot) translateX(−8·rot px)", "referente": "referentes/capturas/unseen-04-linea-cursor-1440.jpg", "estado": "linea" },
+        { "id": "A6", "aspecto": "En celular la línea se apila en vertical y cada mes aparece en serif cursiva gigante", "fuente": "capturas unseen-0X-390", "referente": "referentes/capturas/unseen-05-linea-2-390.jpg", "estado": "linea-390" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "La mascota con alas y la palabra UNSEEN en la trama", "por_que": "Son de su marca; aquí el personaje y los caracteres salen del manual y de la convocatoria" },
+        { "aspecto": "Casos de éxito como hitos", "por_que": "Decisión del autor 2026-10-31 y 2026-11-09: los hitos son consecuencias de un buen proyecto" }
+      ]
+    }
+  ],
+  "tecnica": [
+    { "id": "K1", "que": "Línea recorrida", "como": "Dos copias de una línea ondulada en SVG: la punteada fija y la sólida dentro de un contenedor recortado que se traslada −progreso × 100 %; ScrollTrigger horizontal con scrub.", "constantes": { "svg": "32000 × 300 px" }, "tiempos": "toda la sección horizontal", "fuente": ".js-line y .js-line:alt" },
+    { "id": "K2", "que": "Inclinación por velocidad", "como": "rot = lerp(rot, clamp(−40, 40, velocidad_scroll), 0,04) cada cuadro; transform: rotate(rot deg) translateX(−8·rot px).", "constantes": { "lerp": 0.04, "clamp_deg": 40, "desplazamiento": 8 }, "tiempos": "por cuadro", "fuente": ".js-balloon" },
+    { "id": "K3", "que": "Horizontal / vertical", "como": "Un matchMedia decide el modo; a 1440 horizontal, a 390 vertical.", "constantes": {}, "tiempos": "—", "fuente": "matchMedia «horizontal»" }
+  ],
+  "estados": [
+    { "nombre": "precarga", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 600 }] },
+    { "nombre": "portada", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 4000 }] },
+    { "nombre": "linea", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 4000 }, { "rueda": 2400 }, { "esperar": 1500 }] },
+    { "nombre": "linea-390", "ruta": "/", "ancho": 390, "alto": 844, "pasos": [{ "esperar": 4000 }, { "rueda": 2400 }, { "esperar": 1500 }] }
+  ],
+  "dudas": [
+    "El punto de corte entre horizontal y vertical no está medido. El prototipo v2 se queda en horizontal también en celular: ¿se calca el modo vertical de Unseen?",
+    "¿Qué viaja por la línea en lugar de la mascota? Opciones: la gema de Algora, el «$» del prototipo, o nada."
+  ]
+}
