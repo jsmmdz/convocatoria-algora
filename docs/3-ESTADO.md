@@ -10,10 +10,14 @@ fichas y mapa hechos, decisiones D-1…D-8 cerradas, plan aprobado con el orden 
 fábrica: `F25` y arreglos sin commit). La revisión del orquestador confirmó E1–E7 y dejó `F23`–`F25`
 (hook también desde `.claude/settings.json`, prueba de foco reescrita, limpieza del servidor de capturas).
 Visto bueno firmado por el orquestador: **el autor pidió no revisar tareas sin contenido visible**
-(`orquestador.md` § 6). Fábrica v4.1. **Sigue:** escribir `T02` con sus pruebas y lanzarla.
+(`orquestador.md` § 6). Fábrica v4.1. **`T02` lista para lanzar (2026-11-10):** tarea en `fabrica/proyecto/tareas/T02-portada.md`, ficha
+`fabrica/proyecto/referentes/T02.json` y 13 pruebas en `sitio/tests/T02/`, validadas en un worktree
+desechable: pasan con una portada correcta (40/40 con T01 y comunes) y atrapan los 18 defectos sembrados.
+Las comunes y la nav de T01 ahora esperan `data-listo` (hay precarga encima). `capturas.mjs` admite
+`asentar: false` para fotografiar la precarga. Decisiones del orquestador (reversibles por token): portada
+cobalto, pastilla ácida con la mascota en la frase. **Sigue:** `/construir-tarea T02 high`.
 
-**Para T02 (al escribirla):** el respaldo de `data-listo` en CSS (`2-TECNICO` § 2), que en T01 no hacía
-falta porque nada se oculta; y comprobar que `fabrica/datos/hook.jsonl` registra las llamadas del constructor.
+**Al auditar T02:** comprobar que `fabrica/datos/hook.jsonl` registra las llamadas del constructor (`F23`).
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -61,7 +65,7 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 | ID | Qué entrega | Calca | Depende de | Estado |
 |---|---|---|---|---|
 | T01 | Andamio: Astro + TS estricto, tokens del manual (paleta, fuentes, espacios fluidos max(min, vw)), tema claro/oscuro con botón, `data-listo` con respaldo, GSAP + Lenis base con movimiento reducido, navegación y pie, despliegue a Pages con los secrets de Supabase | manual · leadoff K2 | — | DONE |
-| T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | PENDING |
+| T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | LISTA |
 | T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K2 | T02 | PENDING |
 | T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | PENDING |
 | T05 | Cómo funciona y carreras: 4 columnas fijas con hilos y mucho aire; carreras en bloques de color a sangre con lo que aporta cada una | leadoff A4, A6 | T04 | PENDING |

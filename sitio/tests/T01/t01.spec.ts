@@ -185,6 +185,8 @@ test.describe('T01 · andamio', () => {
   test('navegación: logo al inicio, botón de tema y «Postúlate» a #postulate, fija al bajar', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
+    // Desde T02 hay precarga: se navega con la página ya entrada (contrato data-listo).
+    await page.locator('html[data-listo]').waitFor({ state: 'attached', timeout: 6000 });
     const nav = page.getByRole('navigation').first();
     await expect(nav).toBeVisible();
     await expect(nav.getByRole('link', { name: /algora/i })).toBeVisible();

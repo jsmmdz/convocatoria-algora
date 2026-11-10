@@ -179,8 +179,10 @@ try {
     const capturaDe = new Map();
     for (const e of ref.estados ?? []) {
       const pagina = await navegador.newPage({ viewport: { width: e.ancho ?? 1440, height: e.alto ?? 900 }, reducedMotion: e.movimiento ?? 'no-preference' });
-      await pagina.goto(`http://localhost:${PUERTO}${e.ruta}`, { waitUntil: e.esperarRed === false ? 'load' : 'networkidle' }).catch(() => {});
-      await asentar(pagina, `estado ${e.nombre}`);
+      // `asentar: false` fotografía lo que pasa antes de data-listo (una precarga): se cuenta desde que llega el HTML.
+      const espera = e.asentar === false ? 'commit' : e.esperarRed === false ? 'load' : 'networkidle';
+      await pagina.goto(`http://localhost:${PUERTO}${e.ruta}`, { waitUntil: espera }).catch(() => {});
+      if (e.asentar !== false) await asentar(pagina, `estado ${e.nombre}`);
       for (const p of e.pasos ?? []) {
         if (p.esperar) await pagina.waitForTimeout(p.esperar);
         if (p.rueda) { await pagina.mouse.move((e.ancho ?? 1440) / 2, (e.alto ?? 900) / 2); await pagina.mouse.wheel(0, p.rueda); }

@@ -28,6 +28,11 @@ async function rgb(page: Page, color: string): Promise<[number, number, number] 
   }, color);
 }
 
+// Contrato data-listo (docs/2-TECNICO § 2): se mide la página ya entrada, no la precarga encima.
+async function listo(page: Page): Promise<void> {
+  await page.locator('html[data-listo]').waitFor({ state: 'attached', timeout: 6000 });
+}
+
 function contraste(a: [number, number, number], b: [number, number, number]): number {
   const lum = ([r, g, b]: [number, number, number]) => {
     const lin = (v: number) => {
@@ -49,6 +54,7 @@ for (const ruta of RUTAS) {
       });
       page.on('pageerror', (e) => problemas.push(`pageerror: ${e.message}`));
       const respuesta = await page.goto(ruta, { waitUntil: 'networkidle' });
+      await listo(page);
       expect(respuesta?.status(), 'código HTTP').toBe(200);
       expect(problemas, 'consola').toEqual([]);
     });
@@ -56,6 +62,7 @@ for (const ruta of RUTAS) {
     test('a 375 px no hay scroll horizontal', async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
       await page.goto(ruta, { waitUntil: 'networkidle' });
+      await listo(page);
       const anchos = await page.evaluate(() => ({ documento: document.documentElement.scrollWidth, cuerpo: document.body.scrollWidth, ventana: window.innerWidth }));
       expect(anchos.documento, JSON.stringify(anchos)).toBeLessThanOrEqual(anchos.ventana);
       expect(anchos.cuerpo, JSON.stringify(anchos)).toBeLessThanOrEqual(anchos.ventana);
@@ -63,6 +70,7 @@ for (const ruta of RUTAS) {
 
     test('axe: sin violaciones serias ni críticas (WCAG 2.2 A/AA)', async ({ page }) => {
       await page.goto(ruta, { waitUntil: 'networkidle' });
+      await listo(page);
       const resultado = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
       const graves = resultado.violations
         .filter((v) => v.impact === 'serious' || v.impact === 'critical')
@@ -73,6 +81,7 @@ for (const ruta of RUTAS) {
     test('con movimiento reducido: sin scroll secuestrado y con el contenido visible', async ({ page }) => {
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.goto(ruta, { waitUntil: 'networkidle' });
+      await listo(page);
       const estado = await page.evaluate(() => {
         const overflow = (el: Element) => getComputedStyle(el).overflowY;
         const escenario = document.querySelector('main');
@@ -97,6 +106,7 @@ for (const ruta of RUTAS) {
       test(`teclado (${modo.nombre}): cada elemento enfocable muestra foco con contraste ≥ 3:1 contra lo que tiene detrás`, async ({ page }) => {
         await page.emulateMedia({ colorScheme: modo.esquema });
         await page.goto(ruta, { waitUntil: 'networkidle' });
+        await listo(page);
         if (modo.forzar) await page.evaluate((t) => { document.documentElement.dataset.theme = t; }, modo.forzar);
         // La sombra dura del manual existe también sin foco: solo cuenta como foco si cambia al enfocar.
         const sombraSinFoco = await page.evaluate(() => {

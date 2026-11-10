@@ -1,0 +1,62 @@
+{
+  "tarea": "T02 · Precarga y portada",
+  "alcance": "La precarga se calca de Unseen (A1); la portada junta el bloque de color con el objeto dentro de la frase de Leadoff (A2–A3, K1), la trama de caracteres de Unseen (A2) y las capas en parallax de Table Tales (A1–A2, K1).",
+  "fecha": "2026-11-10",
+  "evidencia": {
+    "capturas": "referentes/capturas/unseen-01..02-1440.jpg, leadoff-scroll-00.jpg, leadoff-02.jpg, tabletales-01..02.jpg (2026-10-30 y 2026-11-09)",
+    "codigo": "Lo medido en las fichas de cada sitio (fabrica/proyecto/referentes/unseen.json, leadoff.json, tabletales.json). Se reimplementa la técnica."
+  },
+  "librerias": {
+    "GSAP": "3.15.1 en el sitio (ScrollTrigger); Unseen 3.14.2, Leadoff y Table Tales 3.11.0",
+    "OGL": "1.0.11 para la trama (Unseen usa Three con un pase ASCII)",
+    "Three": "0.187.0 para las piezas 3D, cargado diferido (Table Tales usa WebGL2 propio)"
+  },
+  "referentes": [
+    {
+      "sitio": "https://2025.unseen.co/",
+      "se_toma": [
+        { "id": "A1", "aspecto": "Precarga sobre negro con la mascota al centro y la cuenta «[93%]» entre corchetes debajo, pequeña y en monoespaciada", "fuente": "captura unseen-01", "referente": "referentes/capturas/unseen-01-entrada-1440.jpg", "estado": "precarga" },
+        { "id": "A2", "aspecto": "Trama de caracteres que cubre la portada, más densa en una figura central, detrás del titular; el cursor la deforma donde pasa", "fuente": "captura unseen-02; pase ASCII « .,-+=*UNSEEN2025» con tFluid", "referente": "referentes/capturas/unseen-02-titular-1440.jpg", "estado": "trama-cursor" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "La mascota con alas y la palabra UNSEEN en la trama", "por_que": "La mascota es un unicornio (D-5) y los caracteres salen de la convocatoria: . $ 0 1 + = y ALGORA" },
+        { "aspecto": "El fondo negro de la portada", "por_que": "La portada es un bloque cobalto del manual (leadoff A2)" }
+      ]
+    },
+    {
+      "sitio": "https://www.leadoff.fr/",
+      "se_toma": [
+        { "id": "A2", "aspecto": "Bloque a sangre de un solo color saturado con el titular enorme centrado en dos líneas y una pieza redondeada metida entre las palabras", "fuente": "captura leadoff-scroll-00", "referente": "referentes/capturas/leadoff-scroll-00.jpg", "estado": "portada" },
+        { "id": "A3", "aspecto": "Las líneas suben desde abajo y la pieza crece desde cero dentro de la frase", "fuente": "bundle: yPercent 110 → 0 (0,6 s, power2.out, +0,05 s); visual scale/width/height 0 → tamaño (0,6 s)", "referente": "referentes/capturas/leadoff-02.jpg", "estado": "portada" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "NewTitle condensada en mayúsculas", "por_que": "D-3: DM Serif Text del manual" },
+        { "aspecto": "La foto dentro de la frase", "por_que": "Aquí es una pastilla ácida con la mascota (orquestador, 2026-11-10)" },
+        { "aspecto": "La intro negra palabra por palabra (A1)", "por_que": "D-1: solo cabe una entrada y es la precarga de Unseen" }
+      ]
+    },
+    {
+      "sitio": "https://tabletales.crz.studio/",
+      "se_toma": [
+        { "id": "A1", "aspecto": "Piezas delante y detrás de las letras del titular, repartidas alrededor", "fuente": "captura tabletales-01", "referente": "referentes/capturas/tabletales-01.jpg", "estado": "portada" },
+        { "id": "A2", "aspecto": "Al bajar, cada capa se mueve más lento que la página y a su propia velocidad", "fuente": "chunk: yPercent 0 → 14, scale 1 → 0,94, scrub; capas y = alto · d[i]", "referente": "referentes/capturas/tabletales-02.jpg", "estado": "portada-scroll" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "La ilustración art nouveau dorada", "por_que": "Las capas son piezas 3D por código, reemplazables por los .glb del autor" }
+      ]
+    }
+  ],
+  "tecnica": [
+    { "id": "K1", "que": "Entrada del titular con objeto", "como": "Líneas en máscaras con overflow oculto; cada una sube de yPercent 110 a 0; el objeto crece de ancho 0 y scale 0 a su tamaño medido; las etiquetas aparecen al final.", "constantes": { "duracion_s": 0.6, "ease": "power2.out", "entre_lineas_s": 0.05, "fundido_etiquetas_s": 0.8 }, "tiempos": "después de que se va la precarga", "fuente": "leadoff K1" },
+    { "id": "K2", "que": "Cuenta de la precarga", "como": "Sube a ~90 en 1,5 s y a 100 solo con load; la capa se funde y se oculta; respaldo CSS a los 3,5 s.", "constantes": { "hasta_90_s": 1.5, "fundido_max_s": 0.4, "respaldo_s": 3.5 }, "tiempos": "desde la navegación", "fuente": "unseen A1 + prototipo v2" },
+    { "id": "K3", "que": "Parallax de capas", "como": "Cada [data-capa] baja con scrub mientras la portada sale (start top top, end bottom top), cada una con su factor; resultado: va más lento que la página.", "constantes": { "yPercent_final_tabletales": 14, "scale_final_tabletales": 0.94 }, "tiempos": "scrub", "fuente": "tabletales K1" },
+    { "id": "K4", "que": "Trama ASCII", "como": "Shader OGL que reparte la pantalla en celdas, elige el glifo según una densidad (figura central) y desplaza las celdas con un campo que deja el cursor y se disipa.", "constantes": { "celda_px_1440": "12–14", "radio_cursor_px_1440": 160, "vuelta_al_reposo_s": 1 }, "tiempos": "por cuadro, solo mientras hay movimiento", "fuente": "unseen A2 (pase ASCII con tFluid)" }
+  ],
+  "estados": [
+    { "nombre": "precarga", "ruta": "/", "ancho": 1440, "alto": 900, "asentar": false, "pasos": [{ "esperar": 700 }] },
+    { "nombre": "portada", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 400 }] },
+    { "nombre": "trama-cursor", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 400 }, { "barrido": [[200, 300], [520, 620]] }] },
+    { "nombre": "portada-scroll", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 400 }, { "rueda": 600 }, { "esperar": 1200 }] }
+  ],
+  "dudas": []
+}
