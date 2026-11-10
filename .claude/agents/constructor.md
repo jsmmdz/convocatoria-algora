@@ -29,7 +29,9 @@ Lo que más importa, porque es lo que más se escapa (`fabrica/nucleo/fallas.md`
 - **Compuertas en verde en primer plano** (`node fabrica/scripts/compuertas.mjs <ID>`) antes de
   escribir la entrega.
 - Escribes solo en los `archivos` de tu tarea y en `fabrica/buzon/<ID>/`. Un hook bloquea las rutas
-  protegidas, el material personal y git: si te bloquea, va a SOLICITUDES.
+  protegidas, el material personal, git y lo que escribas fuera del repo (también desde la terminal): si te
+  bloquea, va a SOLICITUDES. Tus scripts temporales van en `fabrica/buzon/<ID>/tmp/` (no se sube), nunca
+  en el scratchpad; si una medición sostiene tu entrega, el script queda en el buzón para que se pueda repetir.
 
 Terminas con `fabrica/buzon/<ID>/ENTREGA-r<N>.md` escrito. Tu respuesta final es un resumen de
 máximo 10 líneas: qué hiciste, estado de las compuertas y supuestos.

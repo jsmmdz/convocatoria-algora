@@ -10,7 +10,7 @@
  *
  * Rutas: las del campo `rutas` del encabezado de la tarea (por defecto «/»). Por cada
  * ruta, en JPEG, en fabrica/buzon/<ID>/capturas/:
- *   - La matriz de 19 pantallas del responsive (matriz/vistas.mjs; celular y tablet
+ *   - La matriz de 20 pantallas del responsive (matriz/vistas.mjs; celular y tablet
  *     con dedo), cada una en capturas/matriz/<ruta>/ y juntas en tres hojas por ruta:
  *     <ruta>-telefonos.jpg, <ruta>-acostado-tablet.jpg y <ruta>-escritorio-ancho.jpg. Mira las hojas.
  *     Y todas en una sola foto, <ruta>-breakpoints.jpg (autor, 2026-10-18): la que se le muestra al autor.
@@ -50,13 +50,13 @@ const CON_MATRIZ = !process.argv.includes('--sin-matriz');
 const GRUPOS = {
   telefonos: { vistas: ['320x568', '360x780', '375x667', '390x844', '430x932'], alto: 620 },
   'acostado-tablet': { vistas: ['667x375', '844x390', '768x1024', '1024x1366', '1180x820', '1024x768'], alto: 420 },
-  'escritorio-ancho': { vistas: ['1366x650', '1440x900', '1920x1080', '2560x1440', '2560x1080', '3440x1440', '5120x1440', '3840x2160'], alto: 300 },
+  'escritorio-ancho': { vistas: ['1280x720', '1366x650', '1440x900', '1920x1080', '2560x1440', '2560x1080', '3440x1440', '5120x1440', '3840x2160'], alto: 300 },
 };
-// La foto con todos los breakpoints (autor, 2026-10-18): las 19 pantallas de la ruta en una sola imagen, por grupos.
+// La foto con todos los breakpoints (autor, 2026-10-18): las 20 pantallas de la ruta en una sola imagen, por grupos.
 const FOTO = [
   ['Celulares', ['320x568', '360x780', '375x667', '390x844', '430x932'], 640],
   ['Celular acostado y tablets', ['667x375', '844x390', '768x1024', '1024x1366', '1180x820', '1024x768'], 440],
-  ['Portátiles y escritorio', ['1366x650', '1440x900', '1920x1080', '2560x1440'], 380],
+  ['Portátiles y escritorio', ['1280x720', '1366x650', '1440x900', '1920x1080', '2560x1440'], 380],
   ['Ultraanchos y 4K', ['2560x1080', '3440x1440', '5120x1440', '3840x2160'], 300],
 ];
 
@@ -97,7 +97,7 @@ async function asentar(pagina, etiqueta) {
   await pagina.waitForTimeout(600); // la entrada termina de asentarse
 }
 
-// La ruta en las 19 pantallas, como la ve el visitante (celular y tablet con dedo y su navegador),
+// La ruta en las 20 pantallas, como la ve el visitante (celular y tablet con dedo y su navegador),
 // y las tres hojas que la juntan.
 async function matriz(navegador, ruta) {
   const dir = join(destino, 'matriz', nombre(ruta));

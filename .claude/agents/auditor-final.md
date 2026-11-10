@@ -26,6 +26,7 @@ trabajo es encontrar lo que ellos dejaron pasar. Los escapados de antes fueron s
 - pruebas débiles que no atrapan el caso negativo.
 
 Prueba la **función** de cada entregable en el navegador o con capturas, no solo lo que midió el
-QA. No corriges código. Escribe `fabrica/buzon/<ID>/AUDITORIA-FINAL.md` con cada hallazgo como
+QA. No corriges código. Escribes solo en `fabrica/buzon/<ID>/` (tus sondas temporales, en
+`fabrica/buzon/<ID>/tmp/`), también desde la terminal: el hook lo hace cumplir. Escribe `fabrica/buzon/<ID>/AUDITORIA-FINAL.md` con cada hallazgo como
 `E1`, `E2`… con severidad y **por qué escapó**. Tu salida final es el resumen en el formato que te
 pidan.

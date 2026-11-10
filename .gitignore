@@ -7,6 +7,12 @@ referentes/videos/*
 # ---- Fábrica: estado local del lanzador y registros sin tarea ----
 fabrica/.tarea-activa.json
 fabrica/.herramientas-sin-tarea.jsonl
+# Registro del hook (lleva comandos con rutas locales) y scripts temporales de los agentes
+fabrica/datos/hook.jsonl
+fabrica/buzon/*/tmp/
+# Hojas «referente | nuestro» y cuadros del analista: llevan capturas de otros sitios (como referentes/capturas/)
+fabrica/buzon/*/capturas/comparacion/
+fabrica/buzon/*/referente/
 
 # ---- Sitio ----
 sitio/node_modules/

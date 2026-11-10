@@ -27,6 +27,15 @@ const DESDE_SETTINGS = process.argv.includes('--desde-settings');
 const AUDITORES = new Set(['qa', 'auditor-final', 'analista-referente']);
 
 // Cada llamada de un agente queda en fabrica/datos/hook.jsonl: así se comprueba que el hook corre.
+// Lleva el comando (recortado) o la ruta, para poder cruzar una negación con lo que el agente hizo después
+// (E1 de T02). Si la negación es por material personal, el detalle no se guarda.
+let OCULTAR_DETALLE = false;
+function detalle(entrada) {
+  if (OCULTAR_DETALLE) return '[personal]';
+  const d = entrada?.tool_input ?? {};
+  const t = d.command ?? d.file_path ?? d.notebook_path ?? d.path ?? d.pattern ?? null;
+  return t == null ? null : String(t).slice(0, 300);
+}
 function registrar(entrada, decision) {
   try {
     mkdirSync(path.join(RAIZ, 'fabrica/datos'), { recursive: true });
@@ -35,9 +44,11 @@ function registrar(entrada, decision) {
       origen: DESDE_SETTINGS ? 'settings' : 'agente',
       agente: entrada?.agent_type ?? null,
       herramienta: entrada?.tool_name ?? null,
+      detalle: detalle(entrada),
       decision,
     };
-    appendFileSync(path.join(RAIZ, 'fabrica/datos/hook.jsonl'), `${JSON.stringify(linea)}
+    // HOOK_REGISTRO solo lo usa probar-hook.mjs, para no ensuciar el registro real con sus casos.
+    appendFileSync(process.env.HOOK_REGISTRO || path.join(RAIZ, 'fabrica/datos/hook.jsonl'), `${JSON.stringify(linea)}
 `);
   } catch {
     // el registro nunca decide
@@ -56,6 +67,71 @@ function relativa(ruta) {
   if (!ruta || typeof ruta !== 'string') return '';
   const abs = path.resolve(RAIZ, ruta);
   return path.relative(RAIZ, abs).split(path.sep).join('/');
+}
+
+// ---- Escrituras desde la terminal (E1 de T02) ----
+// El hook antes solo miraba git en los comandos: un `cat > C:/…/scratchpad/x.mjs` o un `Out-File` escribían
+// fuera del repo (o un auditor fuera del buzón) sin que nadie lo negara. Aquí se sacan los destinos de
+// escritura de un comando y se juzgan igual que los de Write/Edit.
+const LUGAR_TEMPORAL = 'fabrica/buzon/<ID>/tmp/ (no se sube)';
+// Carpetas temporales del sistema y el scratchpad del orquestador: un agente no tiene nada que hacer ahí.
+const TEMPORALES = /appdata[\\/]+local[\\/]+temp|[\\/]scratchpad([\\/]|\b)|(^|[\s"'=(])\/tmp\/|\$env:te?mp\b|\$\{?te?mpdir\b|\$\{?te?mp\}?[\\/]|%te?mp%|\bgettemppath\b|\bos\.tmpdir\b|\btmpdir\(\)/i;
+
+// Tapa (con espacios, sin mover posiciones) el cuerpo de los heredocs y lo que va entre comillas, para que
+// un `>` dentro de código o de texto no cuente como redirección.
+function enmascarar(cmd) {
+  let m = cmd.replace(/<<-?\s*(['"]?)(\w+)\1[^\n]*\n([\s\S]*?)\n(\2)(?=\s|$)/g, (todo, _q, _d, cuerpo, fin) => {
+    const inicio = todo.length - cuerpo.length - fin.length - 1;
+    return todo.slice(0, inicio) + cuerpo.replace(/[^\n]/g, ' ') + '\n' + fin;
+  });
+  m = m.replace(/"(?:[^"\\\n]|\\.)*"|'[^'\n]*'/g, (s) => s[0] + ' '.repeat(s.length - 2) + s[s.length - 1]);
+  return m;
+}
+
+const TOKEN = String.raw`("[^"]*"|'[^']*'|[^\s;&|<>()]+)`;
+function destinosDeEscritura(cmd) {
+  const m = enmascarar(cmd);
+  const salida = [];
+  const tomar = (re, grupo = 1) => {
+    for (const x of m.matchAll(re)) {
+      const [i, f] = x.indices[grupo];
+      salida.push(cmd.slice(i, f));
+    }
+  };
+  // Redirecciones: `>`, `>>`, `2>`, `&>` (no `2>&1`, no `=>`, no `->`).
+  tomar(new RegExp(String.raw`(?<![<>=\-])\d*>{1,2}(?![&>])\s*${TOKEN}`, 'dg'));
+  // tee / Tee-Object
+  tomar(new RegExp(String.raw`\b(?:tee|tee-object)\b(?:\s+-[\w-]+)*\s+${TOKEN}`, 'dgi'));
+  // Comandos que crean, mueven o borran: todo argumento con pinta de ruta en ese tramo. Los que copian o
+  // bajan algo: solo el destino (el último), porque leer de una fuente no es escribir en ella. El verbo
+  // cuenta solo al principio de un comando (si no, «QA.md» sería un `md`).
+  const verbos = /(?<=^|[;&|(\n{]\s*|\bxargs\s+(?:-\S+\s+)*|\bsudo\s+)(cp|mv|rm|mkdir|md|touch|install|rsync|curl|wget|out-file|set-content|add-content|new-item|copy-item|move-item|remove-item|rename-item|invoke-webrequest|iwr)\b([^;&|\n]*)/dgi;
+  const soloDestino = /^(cp|install|rsync|curl|wget|copy-item|invoke-webrequest|iwr)$/i;
+  for (const x of m.matchAll(verbos)) {
+    const [i, f] = x.indices[2];
+    const tramo = cmd.slice(i, f).split(/(?<![\w"'])\d*[<>]/)[0]; // las redirecciones ya se juzgaron arriba
+    const rutas = [];
+    for (const t of tramo.match(/"[^"]*"|'[^']*'|[^\s"']+/g) ?? []) {
+      const limpio = t.replace(/^["']|["']$/g, '');
+      if (/^-/.test(limpio) || /^[a-z][\w+.-]*:\/\//i.test(limpio)) continue; // opciones y URL
+      if (/[\\/]|^[a-z]:|^~|^\$|^%/i.test(limpio)) rutas.push(limpio);
+    }
+    salida.push(...(soloDestino.test(x[1]) ? rutas.slice(-1) : rutas));
+  }
+  // Escrituras desde node -e / python -c: writeFileSync('ruta'), open('ruta', 'w')…
+  for (const x of cmd.matchAll(/\b(?:writeFile(?:Sync)?|appendFile(?:Sync)?|createWriteStream|copyFile(?:Sync)?|mkdirSync|cpSync|renameSync)\(\s*(['"`])([^'"`]+)\1/g)) salida.push(x[2]);
+  return salida.map((d) => d.replace(/^["']|["']$/g, '').trim()).filter(Boolean);
+}
+
+// ¿Dónde cae un destino? Los relativos se prueban contra la raíz y contra sitio/ (los dos cwd de siempre).
+function juzgarDestino(destino) {
+  if (/^(\/dev\/(null|stdout|stderr)|\$null|nul)$/i.test(destino)) return { fuera: false, rels: [] };
+  if (TEMPORALES.test(destino) || /^(~|\$home|\$env:|\$\{?home|%)/i.test(destino)) return { fuera: true, rels: [] };
+  let d = destino;
+  if (/^\/[a-z]\//i.test(d)) d = `${d[1]}:${d.slice(2)}`; // /c/… de Git Bash
+  const absolutos = path.isAbsolute(d) ? [path.resolve(d)] : [path.resolve(RAIZ, d), path.resolve(RAIZ, 'sitio', d)];
+  const rels = absolutos.map((a) => path.relative(RAIZ, a).split(path.sep).join('/')).filter((r) => !r.startsWith('..') && !path.isAbsolute(r));
+  return { fuera: rels.length === 0, rels };
 }
 
 try {
@@ -80,12 +156,12 @@ try {
   const texto = JSON.stringify(datos).replace(/\\\\/g, '/').toLowerCase();
   for (const p of personales) {
     const base = p.replace(/\/?\*.*$/, '').toLowerCase();
-    if (base && texto.includes(base)) negar(`${p} es material personal del autor`);
+    if (base && texto.includes(base)) { OCULTAR_DETALLE = true; negar(`${p} es material personal del autor`); }
   }
 
   const rutas = [datos.file_path, datos.notebook_path, datos.path].filter(Boolean).map(relativa);
   for (const r of rutas) {
-    if (coincide(r, personales, 'i')) negar(`${r} es material personal del autor`);
+    if (coincide(r, personales, 'i')) { OCULTAR_DETALLE = true; negar(`${r} es material personal del autor`); }
   }
 
   if (herramienta === 'Bash' || herramienta === 'PowerShell') {
@@ -101,12 +177,23 @@ try {
     if (/\bgit\b[^\n;&|]*?(?<![0-9&])>(?!\s*&|\s*\/dev\/null|\s*\$null)/i.test(cmd)) {
       negar('la salida de git no se redirige a archivos: reescribiría el árbol');
     }
+    if (TEMPORALES.test(cmd)) {
+      negar(`las carpetas temporales del sistema y el scratchpad no son tuyas; tus scripts y salidas temporales van en ${LUGAR_TEMPORAL}`);
+    }
+    for (const destino of destinosDeEscritura(cmd)) {
+      const { fuera, rels } = juzgarDestino(destino);
+      if (fuera) negar(`${destino} está fuera del repo; lo temporal va en ${LUGAR_TEMPORAL}`);
+      if (SOLO_BUZON && !rels.some((r) => coincide(r, ['fabrica/buzon/**'], 'i'))) {
+        negar(`un auditor solo escribe en fabrica/buzon/, también desde la terminal (intentó ${destino})`);
+      }
+      for (const r of rels) if (coincide(r, personales, 'i')) { OCULTAR_DETALLE = true; negar('material personal del autor'); }
+    }
   }
 
   const escribe = ['Write', 'Edit', 'MultiEdit', 'NotebookEdit'].includes(herramienta);
   if (escribe) {
     for (const r of rutas) {
-      if (r.startsWith('..')) negar(`${r} está fuera del repo`);
+      if (r.startsWith('..')) negar(`${r} está fuera del repo; lo temporal va en ${LUGAR_TEMPORAL}`);
       if (SOLO_BUZON && !coincide(r, ['fabrica/buzon/**'], 'i')) negar(`un auditor solo escribe en fabrica/buzon/ (intentó ${r})`);
       if (coincide(r, protegidas, 'i') && !coincide(r, libres, 'i')) negar(`${r} es una ruta protegida`);
     }

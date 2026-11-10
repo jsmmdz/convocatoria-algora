@@ -111,7 +111,9 @@ deja `AUDITORIA-FINAL.md`. El orquestador la revisa, no la da por buena:
 4. Revisar en `/workflows` qué intentó cada agente y qué le negó el hook. Un intento de rodear
    una negación es un hallazgo aunque no haya funcionado (`F17`). `fabrica/datos/hook.jsonl` tiene
    una línea por llamada de cada agente: si está vacío para la corrida, el hook no corrió (`F23`) y eso
-   es Crítico del proceso.
+   es Crítico del proceso. Cada línea trae el comando o la ruta (`detalle`): cruza cada `negado` con lo que
+   el agente hizo en sus llamadas siguientes y con lo que dice su entrega (`F26`). Si tocas el hook, corre
+   `node fabrica/scripts/probar-hook.mjs`.
 5. Probar la **función** de cada entregable, no solo lo que midieron los auditores (regla 4.2).
 6. Lo que encuentres va a `AUDITORIA-FINAL.md` como `E1`, `E2`… con **por qué escapó**.
    Si escapó porque faltaba una prueba, la prueba se escribe ahora.

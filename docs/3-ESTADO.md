@@ -10,14 +10,19 @@ fichas y mapa hechos, decisiones D-1…D-8 cerradas, plan aprobado con el orden 
 fábrica: `F25` y arreglos sin commit). La revisión del orquestador confirmó E1–E7 y dejó `F23`–`F25`
 (hook también desde `.claude/settings.json`, prueba de foco reescrita, limpieza del servidor de capturas).
 Visto bueno firmado por el orquestador: **el autor pidió no revisar tareas sin contenido visible**
-(`orquestador.md` § 6). Fábrica v4.1. **`T02` lista para lanzar (2026-11-10):** tarea en `fabrica/proyecto/tareas/T02-portada.md`, ficha
-`fabrica/proyecto/referentes/T02.json` y 13 pruebas en `sitio/tests/T02/`, validadas en un worktree
-desechable: pasan con una portada correcta (40/40 con T01 y comunes) y atrapan los 18 defectos sembrados.
-Las comunes y la nav de T01 ahora esperan `data-listo` (hay precarga encima). `capturas.mjs` admite
-`asentar: false` para fotografiar la precarga. Decisiones del orquestador (reversibles por token): portada
-cobalto, pastilla ácida con la mascota en la frase. **Sigue:** `/construir-tarea T02 high`.
+(`orquestador.md` § 6).
+**`T02` DONE (2026-11-10), con visto bueno del autor.** Precarga y portada: dos corridas, 3 rondas de QA y
+2 correcciones del constructor. La auditoría y la revisión del orquestador dejaron:
+- `F26`: el hook juzga lo que escriben los comandos de terminal y hay un lugar legal para lo temporal en
+  `fabrica/buzon/<ID>/tmp/`. Se prueba con `probar-hook.mjs`.
+- La matriz de capturas pasa a 20 pantallas (con 1280 × 720).
+- Cuatro pruebas nuevas: `load` tardío, contraste contra la trama tocada, solape y cruce de las piezas, y
+  cambio de tamaño con scroll.
 
-**Al auditar T02:** comprobar que `fabrica/datos/hook.jsonl` registra las llamadas del constructor (`F23`).
+El hook sí registró al constructor (`F23` cerrada). En el pulido, el autor decidió que las piezas cruzan el
+titular y que el titular crece con la pantalla. La fábrica queda en v4.2.
+
+**Sigue:** preparar `T03` (hitos), con la ficha de unseen A3–A5 y K1–K2, y las pruebas antes de lanzar.
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -44,7 +49,7 @@ así que va casi último.» Por eso:
    1280 y 1024 para que nada se rompa). Lo único que se exige en angosto mientras tanto es que no haya
    scroll horizontal de página ni contenido inalcanzable: nada de diseño de celular todavía.
 2. **Con el prototipo al 80 %, el responsive**, como se resolvió en el portafolio (`T39`–`T43`):
-   - **`R0` (orquestador):** los referentes y nuestro sitio en la matriz de 19 pantallas
+   - **`R0` (orquestador):** los referentes y nuestro sitio en la matriz de 20 pantallas
      (`fabrica/scripts/matriz/vistas.mjs`, de 320 × 568 a 5120 × 1440, táctil con UA de iOS), los cortes
      reales leídos en el código de cada referente y **maquetas de las opciones en imágenes** (390, 768,
      1024, 1440) de cada mecánica que no cabe igual en celular, como `PORTAFOLIO/fabrica/buzon/T41/maquetas/`.
@@ -52,7 +57,7 @@ así que va casi último.» Por eso:
    - **`R1`–`Rn`:** tareas de responsive por sección con el rol `@responsive`
      (`fabrica/nucleo/roles/responsive.md`): a 1440 nada cambia; toques ≥ 44 px, texto ≥ 16 px, sin
      secuestrar el gesto nativo; visto bueno sobre `capturas/<ruta>-breakpoints.jpg`.
-3. **`T09`:** cierre, rendimiento, axe en las 19 pantallas y publicación.
+3. **`T09`:** cierre, rendimiento, axe en las 20 pantallas y publicación.
 
 Ya decidido y que se respeta desde las primeras tareas para no rehacer: D-4 (hitos verticales en celular)
 se construye en `R`, no en `T03`; los componentes usan medidas fluidas (`max(min, vw)`) y tokens, para que el
@@ -65,7 +70,7 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 | ID | Qué entrega | Calca | Depende de | Estado |
 |---|---|---|---|---|
 | T01 | Andamio: Astro + TS estricto, tokens del manual (paleta, fuentes, espacios fluidos max(min, vw)), tema claro/oscuro con botón, `data-listo` con respaldo, GSAP + Lenis base con movimiento reducido, navegación y pie, despliegue a Pages con los secrets de Supabase | manual · leadoff K2 | — | DONE |
-| T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | LISTA |
+| T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | DONE |
 | T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K2 | T02 | PENDING |
 | T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | PENDING |
 | T05 | Cómo funciona y carreras: 4 columnas fijas con hilos y mucho aire; carreras en bloques de color a sangre con lo que aporta cada una | leadoff A4, A6 | T04 | PENDING |
@@ -73,9 +78,9 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 | T07 | Postulación y datos: formulario de dos caminos con validación, trampa y Ley 1581; Supabase (esquema, envío, `proyectos_publicos` en la hélice) y modo demostración; recibe `algora:sumarse` | manual (componentes) | T06 | PENDING |
 | T08 | Panel del equipo `/equipo/`: entrar, filtrar, aprobar ideas para la hélice, marcar equipo completo, borrar con confirmación, descargar CSV | — (utilitario, manual) | T07 | PENDING |
 | — | **Prototipo al 80 %: revisión del autor sobre el sitio completo en escritorio** | — | T08 | — |
-| R0 | Auditoría responsive: matriz de 19 pantallas, cortes de los referentes, maquetas de opciones y decisiones R-1…R-n (orquestador) | unseen A6 y lo que midan los referentes en celular | revisión | PENDING |
+| R0 | Auditoría responsive: matriz de 20 pantallas, cortes de los referentes, maquetas de opciones y decisiones R-1…R-n (orquestador) | unseen A6 y lo que midan los referentes en celular | revisión | PENDING |
 | R1–Rn | Responsive por sección, según R-1…R-n (`@responsive`) | según R0 | R0 | PENDING |
-| T09 | Cierre: pie en bloque negro, rendimiento (presupuestos, Three y modelos diferidos), axe en las 19 pantallas, publicación real (repo público, secrets, Pages) | leadoff A6 | R1–Rn | PENDING |
+| T09 | Cierre: pie en bloque negro, rendimiento (presupuestos, Three y modelos diferidos), axe en las 20 pantallas, publicación real (repo público, secrets, Pages) | leadoff A6 | R1–Rn | PENDING |
 
 **Del autor, en paralelo:** el unicornio (Antigravity; `.glb` o PNG/WebP con transparencia) y, cuando
 quiera, los objetos 3D de la portada. Supabase: crear el proyecto y pasar URL y clave anon antes de `T07`.

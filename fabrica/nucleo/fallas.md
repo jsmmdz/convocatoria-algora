@@ -1,4 +1,4 @@
-# Fallas ya pagadas — catálogo F1–F25
+# Fallas ya pagadas — catálogo F1–F26
 
 Lo que se escapó al construir webs con esta fábrica, agrupado por la fase en la que se previene. Cada
 falla tiene su contramedida ya puesta en un rol, una regla, una compuerta o una prueba. **Si una falla
@@ -14,7 +14,7 @@ se repite después de su contramedida, la contramedida no sirvió:** se anota aq
 | Estados del preloader que no salen | Con el sitio en caché la carga corre más rápido y se salta estados | Capturar en la primera visita (contexto nuevo) y comparar antes de reemplazar |
 | El sitio cambió | Los referentes se rediseñan | Capturas fechadas y con los mismos pasos siempre (`referentes.mjs`) |
 | `WebFetch` devuelve 429 | El sitio bloquea la petición | Navegador integrado (`get_page_text` + captura); no reintentar |
-| Copiar código del bundle | Licencia y dependencias ajenas | Bundles solo al scratchpad; la ficha describe la técnica con fórmulas y constantes propias |
+| Copiar código del bundle | Licencia y dependencias ajenas | Bundles solo a `fabrica/buzon/<ID>/tmp/` (no se sube); la ficha describe la técnica con fórmulas y constantes propias |
 | Subir capturas ajenas a un repo público | Son de otros sitios | `referentes/capturas/` va en `.gitignore`; se quedan en el computador |
 | Verificación anti-bots (Cloudflare) | El navegador automático recibe un «Verify you are human» y no el sitio | Capturar en el navegador integrado, donde el sitio carga normal. **El captcha nunca se resuelve** |
 | Dominio del referente cambió de dueño | Un enlace viejo de Awwwards redirige a un sitio sin relación (pasó con una tabla periódica interactiva) | Verificar en vivo cada candidato antes de presentarlo; si redirige a otra cosa, se descarta sin interactuar |
@@ -51,6 +51,7 @@ La mayoría de los defectos nacen en las pruebas del orquestador, no en el const
 | F10 | El agente termina su turno esperando un proceso en segundo plano | Comandos largos en primer plano |
 | F23 | El hook del agente no corre: el declarado en la cabecera de `.claude/agents/*.md` no se disparó dentro del workflow, y el constructor corrió `git checkout` sin que nadie lo negara (T01, E1). El patrón tampoco veía `git -C … checkout` ni `git show … >` | Hook también en `.claude/settings.json` (`--desde-settings`, decide por `agent_type`); cada llamada de agente queda en `fabrica/datos/hook.jsonl` y el orquestador revisa que no esté vacío |
 | F25 | Un script de la fábrica deja vivo el servidor que lanzó: en Windows `kill()` mata el `cmd` de `shell:true` y no el árbol `npx → cmd → node`, que conserva el candado de `astro preview` y tumba la compuerta e2e (T01, r1) | Matar el árbol entero (`taskkill /PID <pid> /T /F`) de forma síncrona |
+| F26 | F17 repetida por la terminal: el hook le niega al constructor un `Write` al scratchpad y en la ronda siguiente escribe tres scripts allí con `cat >`; el QA hace lo mismo fuera del buzón. El hook solo miraba git en los comandos, el registro no guardaba el comando y el entorno les dice a los agentes que usen el scratchpad (T02, E1) | El hook saca los destinos de escritura de cada comando (`>`, `tee`, `cp`, `Out-File`, `writeFileSync`…) y niega las carpetas temporales; lugar legal en `fabrica/buzon/<ID>/tmp/` (ignorado por git); `hook.jsonl` guarda el comando; el QA cruza cada negación con la entrega siguiente; `node fabrica/scripts/probar-hook.mjs` después de tocar el hook |
 
 ## Al revisar
 

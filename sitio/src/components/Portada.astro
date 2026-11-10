@@ -1,0 +1,116 @@
+---
+import Mascota from './Mascota.astro';
+---
+<section class="portada" data-portada aria-labelledby="portada-titulo">
+  <canvas class="portada__trama" data-trama aria-hidden="true"></canvas>
+  <div class="portada__capa portada__capa--atras" data-capa aria-hidden="true"><canvas></canvas></div>
+  <div class="portada__contenido">
+    <p class="portada__etiquetas etiqueta" data-etiquetas>
+      <span>[SEMILLERO ALGORA]</span> <span>[CREACIÓN DIGITAL]</span> <span>[CONVOCATORIA_27]</span>
+    </p>
+    <h1 class="portada__titular" id="portada-titulo">
+      <span class="portada__linea" data-linea><span>¿Y si esta vez sí</span></span>
+      <span class="portada__linea" data-linea><span><span class="portada__objeto" data-objeto aria-hidden="true"><Mascota /></span> lo haces <em>realidad?</em></span></span>
+    </h1>
+  </div>
+  <div class="portada__capa portada__capa--delante" data-capa aria-hidden="true"><canvas></canvas></div>
+</section>
+
+<style>
+  .portada {
+    position: relative;
+    overflow: hidden;
+    min-height: 100svh;
+    display: grid;
+    place-items: center;
+    padding: calc(var(--alto-nav) + var(--espacio-l)) var(--margen) var(--espacio-xl);
+    /* Bloque de marca: cobalto con texto en papel, igual en los dos temas */
+    background: var(--color-cobalto);
+    color: var(--color-papel);
+    /* El foco sobre cobalto va en ácido (el cobalto no se vería) */
+    --foco: var(--color-acido);
+  }
+
+  .portada__trama {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: var(--capa-trama);
+    pointer-events: none;
+  }
+  .portada__capa {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .portada__capa canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .portada__capa--atras {
+    z-index: var(--capa-atras);
+    --parallax: var(--parallax-atras);
+  }
+  .portada__capa--delante {
+    z-index: var(--capa-delante);
+    --parallax: var(--parallax-delante);
+  }
+
+  .portada__contenido {
+    position: relative;
+    z-index: var(--capa-contenido);
+    display: grid;
+    justify-items: center;
+    /* El aire y las etiquetas crecen con el titular en pantallas grandes (en 1440 dan lo mismo que antes) */
+    gap: max(var(--espacio-l), calc(var(--titular-portada) * 0.27));
+    text-align: center;
+    max-width: 100%;
+  }
+  .portada__etiquetas {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--espacio-s) var(--espacio-m);
+    font-size: max(var(--texto-etiqueta), calc(var(--titular-portada) * 0.1));
+    color: var(--color-papel);
+  }
+
+  .portada__titular {
+    font-size: var(--titular-portada);
+    color: var(--color-papel);
+  }
+  /* Cada línea es una máscara con un solo hijo que se mueve (leadoff K1). El relleno inferior deja
+     ver los descendentes y se compensa con el margen para no cambiar el ritmo de las líneas. El hijo queda
+     pegado al borde superior de la línea (la prueba mide su desfase contra ese borde). */
+  .portada__linea {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.16em;
+    margin-bottom: -0.16em;
+  }
+  .portada__linea > span {
+    display: block;
+  }
+  .portada__titular em {
+    font-style: italic;
+  }
+
+  /* Pastilla ácida con la mascota, entre «sí» y «lo» (leadoff A2: la pieza redondeada metida en la frase) */
+  .portada__objeto {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    width: var(--objeto-ancho);
+    height: var(--objeto-alto);
+    margin-inline: 0.08em;
+    border-radius: var(--radio-pastilla);
+    background: var(--color-acido);
+    color: var(--color-tinta);
+    overflow: hidden;
+    --mascota-tam: var(--objeto-mascota);
+  }
+</style>

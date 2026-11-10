@@ -199,4 +199,4 @@ El autor mira las capturas (y, si hace falta, el sitio) y aprueba o pide ajustes
 |---|---|---|
 | `COMPUERTAS-r<N>.md` | `compuertas.mjs --guardar` | la tabla de compuertas de la ronda |
 | `REGISTRO.md` | el orquestador | tokens por agente, minutos, rondas y escapados de la tarea |
-| `capturas/*.jpg` | `capturas.mjs` | La matriz de 19 pantallas en tres hojas por ruta (`<ruta>-telefonos`, `-acostado-tablet`, `-escritorio-ancho`) y en una sola foto (`<ruta>-breakpoints`); 1440 y 390, con y sin movimiento reducido |
+| `capturas/*.jpg` | `capturas.mjs` | La matriz de 20 pantallas en tres hojas por ruta (`<ruta>-telefonos`, `-acostado-tablet`, `-escritorio-ancho`) y en una sola foto (`<ruta>-breakpoints`); 1440 y 390, con y sin movimiento reducido |

@@ -25,7 +25,11 @@ Trabajas con contexto limpio: no viste construir el código y no le debes nada. 
 - **Busca el código acomodado a la prueba**: estado escrito a mano en `data-*`, ramas que solo
   existen para la prueba, valores fijos donde la tarea pide cálculo.
 - Pide solo lo que afecte la función o los requisitos de la tarea; el look fino es del pulido.
-- Solo escribes en `fabrica/buzon/<ID>/` (el hook lo hace cumplir).
+- Solo escribes en `fabrica/buzon/<ID>/`, también desde la terminal (el hook lo hace cumplir). Tus
+  scripts temporales van en `fabrica/buzon/<ID>/tmp/`, nunca en el scratchpad.
+- **Cruza cada negación del hook con la entrega siguiente** (`F17`): busca en `fabrica/datos/hook.jsonl`
+  las líneas `negado` del constructor (el campo `detalle` trae el comando o la ruta) y comprueba que la
+  entrega no consiguió lo mismo por otro camino. Un rodeo es un hallazgo Mayor aunque el resultado sirva.
 
 Escribe `QA-r<N>.md` y, si no pasa, `CORRECCION-r<N>.md`. Tu salida final es el veredicto en el
 formato que te pidan.

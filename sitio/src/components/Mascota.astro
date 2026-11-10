@@ -1,0 +1,32 @@
+---
+// Mascota provisional: silueta de unicornio por código (D-5). El dibujo final llega como asset del autor
+// y se cambia aquí y en nada más: el tamaño sale de --mascota-tam y los cascos apoyan en la base del cuadro.
+---
+<svg class="mascota" data-mascota viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+  <!-- cola y cuerpo -->
+  <path d="M25 47C10 40 3 54 8 70C9 59 15 56 24 59Z" />
+  <ellipse cx="44" cy="54" rx="24" ry="14" />
+  <!-- patas: los cascos apoyan en y = 96 -->
+  <rect x="24" y="58" width="7.5" height="38" rx="3" />
+  <rect x="34" y="58" width="7.5" height="38" rx="3" />
+  <rect x="56" y="58" width="7.5" height="38" rx="3" />
+  <rect x="65" y="58" width="7.5" height="38" rx="3" />
+  <!-- cuello, melena y cabeza -->
+  <path d="M55 50L63 24L77 28L73 58Z" />
+  <circle cx="60" cy="27" r="4.6" />
+  <circle cx="57" cy="36" r="4.6" />
+  <circle cx="54" cy="45" r="4.2" />
+  <path d="M63 25C62 16 71 11 80 14L93 25C95 29 91 33 86 32L77 30Z" />
+  <!-- oreja y cuerno -->
+  <path d="M64 19L65 8L72 15Z" />
+  <path d="M73 15L84 1L80 18Z" />
+</svg>
+
+<style>
+  .mascota {
+    display: block;
+    width: var(--mascota-tam);
+    height: var(--mascota-tam);
+    fill: currentColor;
+  }
+</style>

@@ -89,3 +89,5 @@ postularse. El mensaje se vive, no se dice; nunca se prometen ingresos.
 | 2026-11-09 | D-7 · Cómo funciona: 4 columnas fijas con hilos (retícula de Leadoff, sin scroll horizontal) | columnas que corren |
 | 2026-11-09 | D-8 · Tarjetas de la hélice: color a sangre por facultad + tipografía; zoom y deriva sobre una trama del fondo | imagen por categoría; papel |
 | 2026-11-10 | Pie en tema oscuro: la tinta se aclara un punto (90 % tinta + 10 % papel, `--pie-fondo`) para que el bloque no se funda con el fondo | borde de papel; pie de papel invertido; dejarlo igual |
+| 2026-11-10 | Portada: piezas 3D que **cruzan el titular** (Table Tales A1). Una pieza de delante pasa por la parte alta de una línea sin tapar una palabra y otra va detrás de las letras. La pastilla y las etiquetas no se tocan nunca | piezas solo en las esquinas, nada encimado |
+| 2026-11-10 | Portada: el titular **crece con la pantalla** por encima de 1440 (proporcional al ancho, con tope por alto en ultraanchos); las etiquetas y el aire crecen con él | tope en el tamaño de 1440 |

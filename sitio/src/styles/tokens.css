@@ -26,6 +26,9 @@
   --titular-xl: clamp(3rem, 2rem + 6vw, 9rem);
   --titular-l: clamp(2.25rem, 1.5rem + 4vw, 6rem);
   --titular-m: clamp(1.75rem, 1.25rem + 2.5vw, 3.5rem);
+  /* Titular de la portada: igual que el xl hasta 1440 y, en pantallas grandes, proporcional al ancho con tope
+     por alto (decisión del autor 2026-11-10: que crezca con la pantalla; en 4K quedaba diminuto). */
+  --titular-portada: max(var(--titular-xl), min(8.2vw, 15vh));
   --texto-base: 1rem;
   --texto-etiqueta: 0.75rem;
 
@@ -45,7 +48,11 @@
   --radio: 8px;
   --radio-pastilla: 999px;
 
-  /* Capas */
+  /* Capas: dentro de la portada (0–3), la nav y la precarga por encima de todo */
+  --capa-trama: 0;
+  --capa-atras: 1;
+  --capa-contenido: 2;
+  --capa-delante: 3;
   --capa-nav: 50;
   --capa-precarga: 100;
 
@@ -55,6 +62,35 @@
   --dur-lenta: 600ms;
   --curva-salida: cubic-bezier(0.215, 0.61, 0.355, 1); /* power2.out */
   --curva-suave: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Mascota (unicornio provisional): una sola medida; el contexto la cambia con la misma variable */
+  --mascota-tam: clamp(6rem, 12vw, 9rem);
+
+  /* Precarga (unseen A1): cuenta hasta ~90 en --precarga-cuenta, a 100 solo con load */
+  --precarga-cuenta: 1500ms;
+  --precarga-subida: 300ms;
+  --precarga-fundido: 350ms;
+  --precarga-respaldo: 3500ms;
+  --precarga-espacio: 1.25rem;
+
+  /* Portada: entrada del titular (leadoff K1) y objeto dentro de la frase (leadoff A3) */
+  --entrada-linea: 600ms;
+  --entrada-escalon: 50ms;
+  --entrada-etiquetas: 800ms;
+  --objeto-ancho: 1.8em;
+  --objeto-alto: 0.82em;
+  --objeto-mascota: 0.74em;
+
+  /* Trama de caracteres (unseen A2): celda y radio medidos a 1440 px de ancho */
+  --trama-celda: 13px;
+  --trama-radio: 160px;
+  --trama-empuje: 22px;
+  --trama-estela: 1000ms;
+  --trama-opacidad: 0.3;
+
+  /* Parallax de las capas 3D (tabletales K1): fracción de la página que NO acompañan; 0 = fija a la página */
+  --parallax-atras: 0.32;
+  --parallax-delante: 0.12;
 
   /* Tema claro (por defecto) */
   --fondo: var(--color-papel);

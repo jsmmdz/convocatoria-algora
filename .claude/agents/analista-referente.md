@@ -32,7 +32,8 @@ en `docs/3-ESTADO.md` (lo que ya se midió; no lo repitas, compruébalo y compl�
 2. **El sitio en vivo**, con Playwright de `sitio/` (`require('@playwright/test')`): capturas a
    1440×900 de los mismos estados, para que el QA compare contra algo del mismo tamaño que las
    nuestras. Si el sitio usa WebGL y la captura sale negra, dilo y usa los cuadros del video.
-3. **Su código**: baja el HTML y los bundles con `curl` al scratchpad (nunca al repo). Busca los
+3. **Su código**: baja el HTML y los bundles con `curl` a `fabrica/buzon/<ID>/tmp/` (no se sube; nunca a otra
+   parte del repo ni al scratchpad). Busca los
    shaders (`gl_FragColor`, `void main`, `uniform`), las constantes, las curvas de easing y los
    tiempos de las líneas de tiempo, y las librerías que usa (por ejemplo GSAP, Lenis o Three.js).
    **Nunca copies código a la ficha**: describe la técnica (qué calcula, con qué fórmula, con qué

@@ -31,4 +31,5 @@ Resume al autor dónde va la web y cuál es el siguiente paso antes de tocar nad
 ## Qué no se sube
 
 - `referentes/capturas/` y `referentes/videos/`: material de otros sitios; se queda en el computador.
+- `fabrica/buzon/*/capturas/comparacion/` y `fabrica/buzon/*/referente/`: llevan capturas de los referentes (ignorados en `.gitignore`).
 - Lo que `ENCARGO.md` § 6 marque como personal (va a `rutasPersonales` de `fabrica/proyecto/compuertas.json`).

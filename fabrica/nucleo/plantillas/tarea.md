@@ -65,7 +65,7 @@ Solo lo que el encabezado no puede decir: «en `package.json` solo agregas X».
 - `node fabrica/scripts/compuertas.mjs TX` en **VERDE**: incluye las pruebas de
   `sitio/tests/TX/`, que el agente no edita.
 - `node fabrica/scripts/capturas.mjs TX` corrido, y mirada la foto con todos los breakpoints de cada ruta
-  (`capturas/<ruta>-breakpoints.jpg`, las 19 pantallas en una imagen): nada encimado, cortado ni diminuto.
+  (`capturas/<ruta>-breakpoints.jpg`, las 20 pantallas en una imagen): nada encimado, cortado ni diminuto.
 - Lo que **ninguna prueba** puede comprobar, dicho explícitamente: eso lo juzga el autor en
   el visto bueno. Nada de «probaste en el navegador»: sin interfaz no hay navegador.
 - Entrega en `fabrica/buzon/TX/ENTREGA-r1.md`.

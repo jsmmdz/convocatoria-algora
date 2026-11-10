@@ -48,8 +48,10 @@ MVP sólido y sencillo vale más que uno ambicioso a medias.
 ## 3. Propiedad de archivos — y un hook que la hace cumplir
 
 Un hook (`fabrica/scripts/hook-agente.mjs`, declarado en tu agente) **niega** en el momento
-las escrituras en rutas protegidas o fuera del repo, el material personal, los comandos de git
-que cambian el historial y los servidores MCP. Lo que escribas fuera de tus archivos lo marcan
+las escrituras en rutas protegidas o fuera del repo (también las que hace un comando de terminal: `>`, `tee`,
+`cp`, `Out-File`, `writeFileSync`…), el material personal, los comandos de git que cambian el historial y los
+servidores MCP. **Tus scripts y salidas temporales van en `fabrica/buzon/<ID>/tmp/`**, que no se sube; el
+scratchpad y las carpetas temporales del sistema no son tuyas, aunque el entorno te las sugiera. Lo que escribas fuera de tus archivos lo marcan
 las compuertas como «fuera de alcance». Si te niega algo, **no busques otro camino** (un comando de terminal que
 escriba el archivo sería un rodeo, y las compuertas lo detectan): anótalo en SOLICITUDES.
 
