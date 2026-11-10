@@ -21,7 +21,7 @@
  * `data-listo` en <html>. Las capturas esperan esa señal hasta 25 s; si no llega, capturan igual y
  * lo avisan. Así ninguna captura sale a mitad del preloader (falla F21).
  */
-import { spawn } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -65,7 +65,7 @@ const archivo = readdirSync(dirTareas).find((f) => f.startsWith(`${ID}-`) && f.e
 const tarea = archivo ? leerFrontmatter(readFileSync(join(dirTareas, archivo), 'utf8')) : {};
 const rutas = tarea.rutas?.length ? tarea.rutas : ['/'];
 
-// El puerto es fijo (4331), así el taskkill del final solo mata lo suyo.
+// El puerto es fijo (4331) y el taskkill del final mata el árbol del servidor que lanzó este script.
 // Las capturas cargan el procesador como una suite: toman el turno de pruebas.
 const PUERTO = puertos().capturas;
 const destino = join(RAIZ, 'fabrica/buzon', ID, 'capturas');
@@ -228,7 +228,16 @@ try {
   console.log(`${hechas.length} capturas en fabrica/buzon/${ID}/capturas/:\n${hechas.map((h) => `  - ${h}`).join('\n')}`);
 } finally {
   soltarTurno();
-  servidor.kill();
-  // En Windows, matar npx no siempre mata a astro: se libera el puerto por las dudas.
-  if (process.platform === 'win32') spawn(`for /f "tokens=5" %p in ('netstat -ano ^| findstr :${PUERTO}') do taskkill /PID %p /F`, { stdio: 'ignore', shell: true });
+  // En Windows, servidor.kill() solo mata el cmd de shell:true y deja vivo el árbol npx → cmd → node
+  // de astro, que conserva el candado de «astro preview» y tumba la compuerta e2e. Se mata el árbol
+  // entero desde el PID del hijo (/T), de forma síncrona para que no quede nada al salir.
+  if (process.platform === 'win32') {
+    try {
+      execSync(`taskkill /PID ${servidor.pid} /T /F`, { stdio: 'ignore' });
+    } catch {
+      // ya había salido
+    }
+  } else {
+    servidor.kill();
+  }
 }
