@@ -88,3 +88,4 @@ postularse. El mensaje se vive, no se dice; nunca se prometen ingresos.
 | 2026-11-09 | D-6 · Sin tinta de cursor de Table Tales | tinta en ácido |
 | 2026-11-09 | D-7 · Cómo funciona: 4 columnas fijas con hilos (retícula de Leadoff, sin scroll horizontal) | columnas que corren |
 | 2026-11-09 | D-8 · Tarjetas de la hélice: color a sangre por facultad + tipografía; zoom y deriva sobre una trama del fondo | imagen por categoría; papel |
+| 2026-11-10 | Pie en tema oscuro: la tinta se aclara un punto (90 % tinta + 10 % papel, `--pie-fondo`) para que el bloque no se funda con el fondo | borde de papel; pie de papel invertido; dejarlo igual |

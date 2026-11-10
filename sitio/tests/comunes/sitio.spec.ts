@@ -87,30 +87,55 @@ for (const ruta of RUTAS) {
       expect(estado.escenarioVisible, '<main> visible').toBe(true);
     });
 
-    test('teclado: cada elemento enfocable muestra foco con contraste ≥ 3:1 contra el fondo', async ({ page }) => {
-      await page.goto(ruta, { waitUntil: 'networkidle' });
-      const fondoTexto = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-      const fondo = await rgb(page, fondoTexto);
-      test.skip(!fondo, `no se pudo leer el fondo (${fondoTexto})`);
-      const vistos = new Set<string>();
-      for (let i = 0; i < 40; i++) {
-        await page.keyboard.press('Tab');
-        const foco = await page.evaluate(() => {
-          const el = document.activeElement;
-          if (!el || el === document.body) return null;
-          const s = getComputedStyle(el);
-          const id = `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}:${(el.textContent ?? '').trim().slice(0, 30)}`;
-          return { id, estilo: s.outlineStyle, ancho: parseFloat(s.outlineWidth), color: s.outlineColor, sombra: s.boxShadow };
+    // El foco se mide en los tres modos del tema: el color del anillo cambia con el tema (E2/H3 de T01).
+    const MODOS = [
+      { nombre: 'claro del sistema', esquema: 'light' as const, forzar: null },
+      { nombre: 'oscuro del sistema', esquema: 'dark' as const, forzar: null },
+      { nombre: 'oscuro forzado', esquema: 'light' as const, forzar: 'dark' },
+    ];
+    for (const modo of MODOS) {
+      test(`teclado (${modo.nombre}): cada elemento enfocable muestra foco con contraste ≥ 3:1 contra lo que tiene detrás`, async ({ page }) => {
+        await page.emulateMedia({ colorScheme: modo.esquema });
+        await page.goto(ruta, { waitUntil: 'networkidle' });
+        if (modo.forzar) await page.evaluate((t) => { document.documentElement.dataset.theme = t; }, modo.forzar);
+        // La sombra dura del manual existe también sin foco: solo cuenta como foco si cambia al enfocar.
+        const sombraSinFoco = await page.evaluate(() => {
+          const id = (el: Element) => `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}:${(el.textContent ?? '').trim().slice(0, 30)}`;
+          const mapa: Record<string, string> = {};
+          for (const el of document.querySelectorAll('a[href], button, input, select, textarea, [tabindex]')) mapa[id(el)] = getComputedStyle(el).boxShadow;
+          return mapa;
         });
-        if (!foco || vistos.has(foco.id)) break; // se dio la vuelta o no hay nada enfocable
-        vistos.add(foco.id);
-        const visible = (foco.estilo !== 'none' && foco.ancho > 0) || foco.sombra !== 'none';
-        expect(visible, `foco visible en ${foco.id}`).toBe(true);
-        if (foco.estilo !== 'none' && foco.ancho > 0) {
-          const color = await rgb(page, foco.color);
-          if (color && fondo) expect(contraste(color, fondo), `contraste del foco en ${foco.id} (${foco.color} sobre ${fondoTexto})`).toBeGreaterThanOrEqual(3);
+        const vistos = new Set<string>();
+        for (let i = 0; i < 40; i++) {
+          await page.keyboard.press('Tab');
+          const foco = await page.evaluate(() => {
+            const el = document.activeElement;
+            if (!el || el === document.body) return null;
+            const s = getComputedStyle(el);
+            const id = `${el.tagName.toLowerCase()}${el.id ? '#' + el.id : ''}:${(el.textContent ?? '').trim().slice(0, 30)}`;
+            // El anillo se pinta por fuera del elemento: se mide contra el primer fondo opaco de sus ancestros.
+            let detras = 'rgba(0, 0, 0, 0)';
+            for (let p = el.parentElement; p; p = p.parentElement) {
+              const f = getComputedStyle(p).backgroundColor;
+              if (f !== 'transparent' && !/rgba\(.*,\s*0\)$/.test(f)) { detras = f; break; }
+            }
+            if (detras === 'rgba(0, 0, 0, 0)') detras = getComputedStyle(document.documentElement).backgroundColor;
+            return { id, estilo: s.outlineStyle, ancho: parseFloat(s.outlineWidth), color: s.outlineColor, sombra: s.boxShadow, detras };
+          });
+          if (!foco || vistos.has(foco.id)) break; // se dio la vuelta o no hay nada enfocable
+          vistos.add(foco.id);
+          const conAnillo = foco.estilo !== 'none' && foco.ancho > 0;
+          const sombraNueva = foco.sombra !== 'none' && foco.sombra !== sombraSinFoco[foco.id];
+          expect(conAnillo || sombraNueva, `foco visible en ${foco.id} (anillo o sombra que cambie al enfocar)`).toBe(true);
+          if (conAnillo) {
+            const color = await rgb(page, foco.color);
+            const fondo = await rgb(page, foco.detras);
+            expect(color && fondo, `colores legibles en ${foco.id} (${foco.color} sobre ${foco.detras})`).toBeTruthy();
+            if (color && fondo) expect(contraste(color, fondo), `contraste del foco en ${foco.id} (${foco.color} sobre ${foco.detras})`).toBeGreaterThanOrEqual(3);
+          }
         }
-      }
-    });
+        expect(vistos.size, 'hay al menos un elemento enfocable').toBeGreaterThan(0);
+      });
+    }
   });
 }

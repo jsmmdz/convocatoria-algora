@@ -109,7 +109,9 @@ deja `AUDITORIA-FINAL.md`. El orquestador la revisa, no la da por buena:
 3. Leer `AUDITORIA-FINAL.md` y el último `QA-r<N>.md` **verificando cada afirmación y cada
    nombre** que mencionan (`F7`).
 4. Revisar en `/workflows` qué intentó cada agente y qué le negó el hook. Un intento de rodear
-   una negación es un hallazgo aunque no haya funcionado (`F17`).
+   una negación es un hallazgo aunque no haya funcionado (`F17`). `fabrica/datos/hook.jsonl` tiene
+   una línea por llamada de cada agente: si está vacío para la corrida, el hook no corrió (`F23`) y eso
+   es Crítico del proceso.
 5. Probar la **función** de cada entregable, no solo lo que midieron los auditores (regla 4.2).
 6. Lo que encuentres va a `AUDITORIA-FINAL.md` como `E1`, `E2`… con **por qué escapó**.
    Si escapó porque faltaba una prueba, la prueba se escribe ahora.
@@ -139,6 +141,13 @@ la tarea**, con el autor al lado:
 `node fabrica/scripts/capturas.mjs <ID>` y se le muestran las capturas del resultado pulido, empezando por la
 foto con todos los breakpoints de cada ruta (`capturas/<ruta>-breakpoints.jpg`).
 Su decisión va a `VISTO-BUENO.md`. Sin `VISTO BUENO` la tarea no pasa a `DONE`: el gusto no tiene compuerta.
+
+**Solo se llama al autor cuando hay algo que ver** (orden del autor, 2026-11-10: «no dejes tareas así de
+sencillas para mi revisión»). Una tarea técnica o sin contenido visible propio (andamio, infraestructura,
+pruebas, arreglos de la fábrica) la cierra el orquestador: pulido, capturas y `VISTO-BUENO.md` firmado por
+él, con la nota «sin revisión del autor por ser técnica». Lo que tenga de visible se le muestra junto con la
+siguiente tarea que sí tenga contenido. Las tareas con contenido se planean para que cada revisión muestre
+una sección que ya se vea como la web, no un marcador.
 
 ## 7. Cerrar
 

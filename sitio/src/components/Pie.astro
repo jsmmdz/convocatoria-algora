@@ -1,0 +1,25 @@
+<footer class="pie">
+  <p class="pie__linea">Semillero Algora · Creación Digital · Universidad El Bosque</p>
+  <p class="pie__estado">Convocatoria abierta · fechas por confirmar</p>
+</footer>
+
+<style>
+  .pie {
+    background: var(--pie-fondo);
+    color: var(--color-papel);
+    /* Sobre tinta el foco va en ácido en los dos temas: el cobalto daría 2,4:1 */
+    --foco: var(--color-acido);
+    padding: var(--espacio-xl) var(--margen);
+    display: grid;
+    gap: var(--espacio-m);
+  }
+  .pie p { margin: 0; }
+  .pie__linea {
+    font-family: var(--fuente-titular);
+    font-size: var(--titular-m);
+    line-height: 1;
+    text-wrap: balance;
+  }
+  /* Texto de cuerpo (Zalando Sans) sobre la tinta fija, igual en los dos temas */
+  .pie__estado { font-family: var(--fuente-texto); }
+</style>

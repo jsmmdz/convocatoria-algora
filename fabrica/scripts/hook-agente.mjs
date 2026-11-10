@@ -14,14 +14,39 @@
  * salir con código 2 bloquea y el texto de stderr le llega al agente. Falla cerrado: cualquier
  * error propio también sale con 2.
  */
-import { readFileSync } from 'node:fs';
+import { appendFileSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { coincide } from './lib/globs.mjs';
 
 const RAIZ = path.resolve(process.env.CLAUDE_PROJECT_DIR || process.cwd());
-const SOLO_BUZON = process.argv.includes('--solo-buzon');
+let SOLO_BUZON = process.argv.includes('--solo-buzon');
+// --desde-settings: el mismo hook enganchado en .claude/settings.json, que corre para todas las llamadas.
+// El de la cabecera de cada agente no se disparó dentro del workflow (E1 de T01), así que este es el que
+// manda: sin `agent_type` es el orquestador y pasa; con él, el modo sale del tipo de agente.
+const DESDE_SETTINGS = process.argv.includes('--desde-settings');
+const AUDITORES = new Set(['qa', 'auditor-final', 'analista-referente']);
+
+// Cada llamada de un agente queda en fabrica/datos/hook.jsonl: así se comprueba que el hook corre.
+function registrar(entrada, decision) {
+  try {
+    mkdirSync(path.join(RAIZ, 'fabrica/datos'), { recursive: true });
+    const linea = {
+      fecha: new Date().toISOString(),
+      origen: DESDE_SETTINGS ? 'settings' : 'agente',
+      agente: entrada?.agent_type ?? null,
+      herramienta: entrada?.tool_name ?? null,
+      decision,
+    };
+    appendFileSync(path.join(RAIZ, 'fabrica/datos/hook.jsonl'), `${JSON.stringify(linea)}
+`);
+  } catch {
+    // el registro nunca decide
+  }
+}
+let ENTRADA = null;
 
 function negar(motivo) {
+  registrar(ENTRADA, `negado: ${motivo}`);
   process.stderr.write(`Bloqueado por la fábrica: ${motivo}. No busques otro camino; anótalo en SOLICITUDES de tu entrega.\n`);
   process.exit(2);
 }
@@ -35,6 +60,12 @@ function relativa(ruta) {
 
 try {
   const entrada = JSON.parse(readFileSync(0, 'utf8'));
+  ENTRADA = entrada;
+  if (DESDE_SETTINGS) {
+    const tipo = entrada.agent_type;
+    if (!tipo) process.exit(0); // el orquestador
+    if (AUDITORES.has(tipo)) SOLO_BUZON = true;
+  }
   const herramienta = String(entrada.tool_name ?? '');
   const datos = entrada.tool_input ?? {};
   const config = JSON.parse(readFileSync(path.join(RAIZ, 'fabrica/proyecto/compuertas.json'), 'utf8'));
@@ -59,8 +90,16 @@ try {
 
   if (herramienta === 'Bash' || herramienta === 'PowerShell') {
     const cmd = String(datos.command ?? '');
-    if (/\bgit\s+(commit|push|reset|checkout|switch|restore|stash|rebase|merge|tag|clean|revert|cherry-pick|am|branch\s+-[dDmM])\b/i.test(cmd)) {
+    // Las opciones globales van antes del subcomando: `git -C sitio checkout`, `git --no-pager checkout`,
+    // `git -c x=y reset` (E1 de T01: la versión anterior solo miraba `git <subcomando>`).
+    const opcionesGlobales = String.raw`(?:\s+(?:-[Cc]\s+(?:"[^"]*"|'[^']*'|\S+)|--?[\w-]+(?:=\S+)?))*`;
+    const cambia = String.raw`(commit|push|reset|checkout|switch|restore|stash|rebase|merge|tag|clean|revert|cherry-pick|am|apply|rm|mv|worktree|update-ref|update-index|read-tree|checkout-index|branch\s+-[dDmMfc])\b`;
+    if (new RegExp(String.raw`\bgit\b${opcionesGlobales}\s+${cambia}`, 'i').test(cmd)) {
       negar('los comandos de git que cambian el historial o el árbol son del orquestador');
+    }
+    // `git show HEAD:archivo > archivo` reescribe el árbol sin nombrar checkout.
+    if (/\bgit\b[^\n;&|]*?(?<![0-9&])>(?!\s*&|\s*\/dev\/null|\s*\$null)/i.test(cmd)) {
+      negar('la salida de git no se redirige a archivos: reescribiría el árbol');
     }
   }
 
@@ -73,6 +112,7 @@ try {
     }
   }
 
+  if (entrada.agent_type || !DESDE_SETTINGS) registrar(entrada, 'permitido');
   process.exit(0);
 } catch (error) {
   negar(`el hook falló (${error instanceof Error ? error.message : String(error)})`);

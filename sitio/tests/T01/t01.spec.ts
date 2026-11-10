@@ -135,6 +135,44 @@ test.describe('T01 · andamio', () => {
     await expect(page.locator('html[data-listo]')).toHaveCount(1, { timeout: 4000 });
   });
 
+  test('respaldo de data-listo: con load colgado llega por tiempo a los 3,5 s de la navegación', async ({ page }) => {
+    // Se cuelgan las fuentes para que `load` no llegue y solo quede el respaldo por tiempo (H3 de T01).
+    await page.route('**/*.woff2', () => new Promise(() => {}));
+    await page.addInitScript(() => {
+      const w = window as unknown as { __listo?: number; __load?: boolean };
+      window.addEventListener('load', () => { w.__load = true; });
+      // Sondeo y no MutationObserver: al correr el script de inicio el <html> definitivo aún no existe.
+      const vigia = setInterval(() => {
+        if (document.documentElement?.hasAttribute('data-listo')) {
+          w.__listo = performance.now();
+          clearInterval(vigia);
+        }
+      }, 10);
+    });
+    await page.goto('/', { waitUntil: 'commit' });
+    await expect(page.locator('html[data-listo]')).toHaveCount(1, { timeout: 6000 });
+    const { listo, load } = await page.evaluate(() => {
+      const w = window as unknown as { __listo?: number; __load?: boolean };
+      return { listo: w.__listo ?? -1, load: Boolean(w.__load) };
+    });
+    expect(load, 'load no llegó: lo que marcó fue el respaldo').toBe(false);
+    expect(listo, 'no se marca antes del respaldo').toBeGreaterThanOrEqual(3300);
+    expect(listo, 'tope de 3,5 s desde la navegación (con margen de reloj)').toBeLessThanOrEqual(3650);
+  });
+
+  test('«Postúlate» lleva a la sección del inicio también desde otra página', async ({ page }) => {
+    await page.goto('/no-existe-esta-ruta/');
+    const nav = page.getByRole('navigation').first();
+    const destinos = await nav.evaluate((el) => {
+      const logo = el.querySelector<HTMLAnchorElement>('a[aria-label*="inicio"]');
+      const cta = [...el.querySelectorAll<HTMLAnchorElement>('a')].find((a) => /postúlate/i.test(a.textContent ?? ''));
+      return { inicio: logo ? new URL(logo.href).pathname : null, cta: cta ? { ruta: new URL(cta.href).pathname, ancla: new URL(cta.href).hash } : null };
+    });
+    expect(destinos.cta, 'existe el CTA').not.toBeNull();
+    expect(destinos.cta?.ruta, 'el CTA apunta a la página de inicio, no a la actual').toBe(destinos.inicio);
+    expect(destinos.cta?.ancla).toBe('#postulate');
+  });
+
   test('Lenis se monta con movimiento normal y no con movimiento reducido', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
     await expect.poll(() => page.evaluate(() => document.documentElement.classList.contains('lenis'))).toBe(true);

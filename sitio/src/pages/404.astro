@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import { inicio } from '../lib/rutas';
+---
+<Base titulo="Página no encontrada · Convocatoria Algora">
+  <main class="error">
+    <p class="etiqueta">[404]</p>
+    <h1>Esta página no existe</h1>
+    <p><a href={inicio}>Volver al inicio</a></p>
+  </main>
+</Base>
+
+<style>
+  .error {
+    min-height: 70vh;
+    padding: calc(var(--alto-nav) + var(--espacio-xl)) var(--margen) var(--espacio-xl);
+    display: grid;
+    align-content: center;
+    gap: var(--espacio-m);
+  }
+  .error p { margin: 0; }
+  .error h1 { font-size: var(--titular-l); }
+</style>

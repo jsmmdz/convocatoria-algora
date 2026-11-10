@@ -1,0 +1,46 @@
+---
+import '@fontsource/dm-serif-text/latin-400.css';
+import '@fontsource/dm-serif-text/latin-400-italic.css';
+import '@fontsource/rubik-bubbles/latin-400.css';
+import '../styles/fuentes.css';
+import '../styles/tokens.css';
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Pie from '../components/Pie.astro';
+
+interface Props {
+  titulo?: string;
+  descripcion?: string;
+}
+
+const {
+  titulo = 'Convocatoria Algora',
+  descripcion = 'Convocatoria del semillero Algora (Creación Digital, Universidad El Bosque) para estudiantes de cualquier carrera.',
+} = Astro.props;
+---
+<!doctype html>
+<html lang="es-CO">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <!-- Aplica el tema guardado antes de pintar, para evitar el parpadeo -->
+    <script is:inline>
+      try {
+        var t = localStorage.getItem('algora-tema');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <Nav />
+    <slot />
+    <Pie />
+    <script>
+      import '../lib/movimiento';
+      import { iniciarListo } from '../lib/listo';
+      iniciarListo();
+    </script>
+  </body>
+</html>

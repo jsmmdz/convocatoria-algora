@@ -1,0 +1,117 @@
+/* Único archivo con colores hex. Todo valor de diseño sale de aquí (docs/2-TECNICO § 2). */
+
+:root {
+  /* Marca (manual de Creación Digital v0.1): iguales en claro y oscuro */
+  --color-papel: #F6F8FB;
+  --color-tinta: #0D0D0D;
+  --color-acido: #D1FF22;
+  --color-cobalto: #2C08FF;
+  --color-tomate: #FF103E;
+  --color-magenta: #FF3D8A;
+
+  /* Apoyos del manual para los temas (el cobalto no contrasta sobre fondo oscuro) */
+  --color-violeta-suave: #8C7BFF;
+  --color-superficie-clara: #FFFFFF;
+  --color-superficie-oscura: #17171A;
+  --color-suave-claro: #5A5550;
+  --color-suave-oscuro: #A8A39C;
+
+  /* Tipografía, cada una con su respaldo de sistema */
+  --fuente-titular: "DM Serif Text", "Times New Roman", serif;
+  --fuente-texto: "Zalando Sans Variable", "Zalando Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --fuente-etiqueta: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --fuente-acento: "Rubik Bubbles", "DM Serif Text", serif;
+
+  /* Escala de titulares fluida (al estilo Leadoff: grande y con aire) */
+  --titular-xl: clamp(3rem, 2rem + 6vw, 9rem);
+  --titular-l: clamp(2.25rem, 1.5rem + 4vw, 6rem);
+  --titular-m: clamp(1.75rem, 1.25rem + 2.5vw, 3.5rem);
+  --texto-base: 1rem;
+  --texto-etiqueta: 0.75rem;
+
+  /* Espacios fluidos (leadoff K2) */
+  --margen: max(24px, 3vw);
+  --gutter: max(12px, min(2vw, 48px));
+  --espacio-s: 0.5rem;
+  --espacio-m: 1rem;
+  --espacio-l: 2rem;
+  --espacio-xl: clamp(4rem, 8vw, 8rem);
+  --alto-nav: 64px;
+
+  /* Bordes de tinta, sombra dura y radios del manual */
+  --borde-ancho: 2px;
+  --sombra: 4px 4px 0 var(--borde);
+  --sombra-hover: 2px 2px 0 var(--borde);
+  --radio: 8px;
+  --radio-pastilla: 999px;
+
+  /* Capas */
+  --capa-nav: 50;
+  --capa-precarga: 100;
+
+  /* Duraciones y curvas */
+  --dur-rapida: 150ms;
+  --dur-media: 300ms;
+  --dur-lenta: 600ms;
+  --curva-salida: cubic-bezier(0.215, 0.61, 0.355, 1); /* power2.out */
+  --curva-suave: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Tema claro (por defecto) */
+  --fondo: var(--color-papel);
+  --superficie: var(--color-superficie-clara);
+  --texto: var(--color-tinta);
+  --texto-suave: var(--color-suave-claro);
+  --borde: var(--color-tinta);
+  --linea: color-mix(in srgb, var(--color-tinta) 18%, transparent);
+  --acento: var(--color-cobalto);
+  --foco: var(--color-cobalto);
+  /* Pie: bloque de tinta a sangre */
+  --pie-fondo: var(--color-tinta);
+  color-scheme: light;
+}
+
+/* Sin atributo manda el sistema */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: var(--color-tinta);
+    --superficie: var(--color-superficie-oscura);
+    --texto: var(--color-papel);
+    --texto-suave: var(--color-suave-oscuro);
+    --borde: var(--color-papel);
+    --linea: color-mix(in srgb, var(--color-papel) 18%, transparent);
+    --acento: var(--color-violeta-suave);
+    --foco: var(--color-acido);
+    /* En oscuro la tinta se aclara un punto para que el pie no se funda con el fondo (decisión 2026-11-10) */
+    --pie-fondo: color-mix(in srgb, var(--color-tinta) 90%, var(--color-papel));
+    color-scheme: dark;
+  }
+}
+
+/* El botón fuerza el tema en los dos sentidos */
+:root[data-theme="dark"] {
+  --fondo: var(--color-tinta);
+  --superficie: var(--color-superficie-oscura);
+  --texto: var(--color-papel);
+  --texto-suave: var(--color-suave-oscuro);
+  --borde: var(--color-papel);
+  --linea: color-mix(in srgb, var(--color-papel) 18%, transparent);
+  --acento: var(--color-violeta-suave);
+  --foco: var(--color-acido);
+  /* En oscuro la tinta se aclara un punto para que el pie no se funda con el fondo (decisión 2026-11-10) */
+  --pie-fondo: color-mix(in srgb, var(--color-tinta) 90%, var(--color-papel));
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --fondo: var(--color-papel);
+  --superficie: var(--color-superficie-clara);
+  --texto: var(--color-tinta);
+  --texto-suave: var(--color-suave-claro);
+  --borde: var(--color-tinta);
+  --linea: color-mix(in srgb, var(--color-tinta) 18%, transparent);
+  --acento: var(--color-cobalto);
+  --foco: var(--color-cobalto);
+  /* Pie: bloque de tinta a sangre */
+  --pie-fondo: var(--color-tinta);
+  color-scheme: light;
+}

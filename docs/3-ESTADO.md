@@ -6,7 +6,14 @@
 
 **Fase:** arranque, retomado el 2026-11-09. Encargo reescrito, referentes capturados y su código leído,
 fichas y mapa hechos, decisiones D-1…D-8 cerradas, plan aprobado con el orden del autor (2026-11-10).
-**`T01` lista para lanzar (2026-11-10):** tarea en `fabrica/proyecto/tareas/T01-andamio.md` y 12 pruebas en `sitio/tests/T01/` (17 con las comunes), validadas en un andamio desechable del scratchpad: pasan con el sitio correcto y atrapan los 12 defectos sembrados (hex, marca en oscuro forzado, tema del sistema, tema guardado, contraste, fuente externa, fuente faltante, `data-listo`, Lenis con movimiento reducido, nav fija, pie a sangre, 404). El despliegue ya lleva los secrets de Supabase. Playwright nuevo necesita `npx playwright install chromium` (ya corrido en este computador). **Falta:** el commit inicial (con permiso del autor) y `/construir-tarea T01` desde una sesión abierta en esta carpeta.
+**`T01` DONE (2026-11-10).** Pasó la auditoría final tras 3 rondas de QA (las dos primeras bloqueadas por la
+fábrica: `F25` y arreglos sin commit). La revisión del orquestador confirmó E1–E7 y dejó `F23`–`F25`
+(hook también desde `.claude/settings.json`, prueba de foco reescrita, limpieza del servidor de capturas).
+Visto bueno firmado por el orquestador: **el autor pidió no revisar tareas sin contenido visible**
+(`orquestador.md` § 6). Fábrica v4.1. **Sigue:** escribir `T02` con sus pruebas y lanzarla.
+
+**Para T02 (al escribirla):** el respaldo de `data-listo` en CSS (`2-TECNICO` § 2), que en T01 no hacía
+falta porque nada se oculta; y comprobar que `fabrica/datos/hook.jsonl` registra las llamadas del constructor.
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -53,7 +60,7 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 
 | ID | Qué entrega | Calca | Depende de | Estado |
 |---|---|---|---|---|
-| T01 | Andamio: Astro + TS estricto, tokens del manual (paleta, fuentes, espacios fluidos max(min, vw)), tema claro/oscuro con botón, `data-listo` con respaldo, GSAP + Lenis base con movimiento reducido, navegación y pie, despliegue a Pages con los secrets de Supabase | manual · leadoff K2 | — | LISTA |
+| T01 | Andamio: Astro + TS estricto, tokens del manual (paleta, fuentes, espacios fluidos max(min, vw)), tema claro/oscuro con botón, `data-listo` con respaldo, GSAP + Lenis base con movimiento reducido, navegación y pie, despliegue a Pages con los secrets de Supabase | manual · leadoff K2 | — | DONE |
 | T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | PENDING |
 | T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K2 | T02 | PENDING |
 | T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | PENDING |

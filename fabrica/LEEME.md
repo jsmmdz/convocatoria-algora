@@ -1,6 +1,6 @@
 # La fábrica — construir webs con agentes
 
-> **Preset v4.0** · 2026-10-29. Es la fábrica v3.6 hecha genérica: la misma maquinaria (agentes, workflow,
+> **Preset v4.1** · 2026-11-10 (v4.0 del 2026-10-29 + F23–F25: hook también desde `settings.json`, limpieza del servidor de capturas y prueba de foco que no se deja engañar). Es la fábrica v3.6 hecha genérica: la misma maquinaria (agentes, workflow,
 > hooks, compuertas, pruebas comunes, capturas) sin nada de la web en la que nació. Se copia entera a
 > cada web nueva (`node fabrica/scripts/nueva-web.mjs <carpeta>`) y arranca desde `ENCARGO.md`.
 > **Qué se construye y cómo** está en `docs/`: `1-PRODUCTO.md`, `2-TECNICO.md` y `3-ESTADO.md`. Es la

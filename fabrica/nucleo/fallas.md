@@ -1,4 +1,4 @@
-# Fallas ya pagadas — catálogo F1–F22
+# Fallas ya pagadas — catálogo F1–F25
 
 Lo que se escapó al construir webs con esta fábrica, agrupado por la fase en la que se previene. Cada
 falla tiene su contramedida ya puesta en un rol, una regla, una compuerta o una prueba. **Si una falla
@@ -35,6 +35,7 @@ La mayoría de los defectos nacen en las pruebas del orquestador, no en el const
 | F20 | Pruebas de tiempos que fallan al azar bajo carga | Menos procesos; WebGL en GPU; medir constantes (τ) y no duraciones |
 | F21 | La prueba mide un instante de una animación que no controla | Serie de capturas; esperar `data-listo`; medir la región que cambia |
 | F22 | `?? 0` convierte «todavía no pasó» en «terminó a los 0 ms» | Lo ausente es `Infinity` |
+| F24 | La prueba pasa igual sin lo que mide: el foco «visible» por la sombra dura que el componente ya tenía, el contraste contra el `body` y no contra lo que hay detrás (T01, E2) | Sembrar el defecto exacto que la prueba debe atrapar (quitar el foco, no solo romper el color) y medir contra el fondo real |
 | — | Decisiones repartidas en muchos documentos que se contradicen | Tres documentos (`docs/1-2-3`); nada se decide fuera de ellos |
 
 ## Al construir
@@ -48,6 +49,8 @@ La mayoría de los defectos nacen en las pruebas del orquestador, no en el const
 | F8 | Estado sin salida (navegación bloqueada si un video no dispara `ended`) | Toda espera tiene un respaldo por tiempo |
 | F17 | El agente rodea la restricción (hex partidos en `'#' + '1C3F94'`, excepciones para pasar una prueba) | Regla explícita: si la prueba contradice el producto, se reporta; el hook niega |
 | F10 | El agente termina su turno esperando un proceso en segundo plano | Comandos largos en primer plano |
+| F23 | El hook del agente no corre: el declarado en la cabecera de `.claude/agents/*.md` no se disparó dentro del workflow, y el constructor corrió `git checkout` sin que nadie lo negara (T01, E1). El patrón tampoco veía `git -C … checkout` ni `git show … >` | Hook también en `.claude/settings.json` (`--desde-settings`, decide por `agent_type`); cada llamada de agente queda en `fabrica/datos/hook.jsonl` y el orquestador revisa que no esté vacío |
+| F25 | Un script de la fábrica deja vivo el servidor que lanzó: en Windows `kill()` mata el `cmd` de `shell:true` y no el árbol `npx → cmd → node`, que conserva el candado de `astro preview` y tumba la compuerta e2e (T01, r1) | Matar el árbol entero (`taskkill /PID <pid> /T /F`) de forma síncrona |
 
 ## Al revisar
 

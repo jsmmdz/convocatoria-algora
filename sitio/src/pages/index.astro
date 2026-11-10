@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base>
+  <main class="portada">
+    <p class="etiqueta">[CONVOCATORIA_27]</p>
+    <h1>[CONTENIDO DE T02]</h1>
+  </main>
+</Base>
+
+<style>
+  .portada {
+    min-height: 70vh;
+    padding: calc(var(--alto-nav) + var(--espacio-xl)) var(--margen) var(--espacio-xl);
+    display: grid;
+    align-content: center;
+    gap: var(--espacio-m);
+  }
+  .portada p { margin: 0; }
+  .portada h1 { font-size: var(--titular-xl); }
+</style>

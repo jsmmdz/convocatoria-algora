@@ -13,6 +13,10 @@ export function rutasDelBuild(dist = join(process.cwd(), 'dist')): string[] {
       else if (nombre === 'index.html') {
         const rel = relative(dist, dir).split(sep).join('/');
         rutas.push(rel ? `/${rel}/` : '/');
+      } else if (nombre === '404.html' && dir === dist) {
+        // La 404 también es una página del sitio. Se pide por su archivo, que el servidor
+        // entrega con 200; que una ruta inexistente responda 404 lo prueba la tarea (E6 de T01).
+        rutas.push('/404.html');
       }
     }
   };
