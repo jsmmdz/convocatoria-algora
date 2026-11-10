@@ -22,7 +22,15 @@ Visto bueno firmado por el orquestador: **el autor pidió no revisar tareas sin 
 El hook sí registró al constructor (`F23` cerrada). En el pulido, el autor decidió que las piezas cruzan el
 titular y que el titular crece con la pantalla. La fábrica queda en v4.2.
 
-**Sigue:** preparar `T03` (hitos), con la ficha de unseen A3–A5 y K1–K2, y las pruebas antes de lanzar.
+**`T03` lista para lanzar (2026-11-10):**
+- Tarea en `fabrica/proyecto/tareas/T03-hitos.md` y ficha en `fabrica/proyecto/referentes/T03.json` (unseen
+  A3, A4, A4b y A5; K1–K4).
+- 13 pruebas en `sitio/tests/T03/`, validadas en un worktree desechable: pasan con una referencia correcta
+  (57/57 junto con T01, T02 y las comunes) y atrapan los 23 defectos sembrados.
+- Dos decisiones del autor (el bloque de color con la palabra en cursiva; el fondo del tema con pasos a
+  tinta) y las del orquestador, anotadas en la tarea.
+
+**Sigue:** `/construir-tarea T03` (sin `high`: no hay shaders).
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -71,7 +79,7 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 |---|---|---|---|---|
 | T01 | Andamio: Astro + TS estricto, tokens del manual (paleta, fuentes, espacios fluidos max(min, vw)), tema claro/oscuro con botón, `data-listo` con respaldo, GSAP + Lenis base con movimiento reducido, navegación y pie, despliegue a Pages con los secrets de Supabase | manual · leadoff K2 | — | DONE |
 | T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | DONE |
-| T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K2 | T02 | PENDING |
+| T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K4 | T02 | LISTA |
 | T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | PENDING |
 | T05 | Cómo funciona y carreras: 4 columnas fijas con hilos y mucho aire; carreras en bloques de color a sangre con lo que aporta cada una | leadoff A4, A6 | T04 | PENDING |
 | T06 | Hélice de proyectos: tarjetas curvas en WebGL (OGL) que giran con el scroll de una sección fija, más flechas y teclado; tarjetas reales en el DOM; color por facultad; zoom y deriva con la velocidad; `[EJEMPLO]`; «Sumarme» → evento al formulario | ryan A1–A6, K1–K4 | T05 | PENDING |

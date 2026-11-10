@@ -1,0 +1,43 @@
+{
+  "tarea": "T03 · Hitos",
+  "alcance": "La línea de tiempo horizontal de Unseen (A3–A5, K1–K3): cinco hitos en fila unidos por una línea ondulada que se vuelve sólida al recorrerla, con el unicornio viajando por ella e inclinándose con la velocidad del scroll. En escritorio; el modo vertical de celular (A6, D-4) va en las tareas de responsive.",
+  "fecha": "2026-11-10",
+  "evidencia": {
+    "capturas": "referentes/capturas/unseen-03..07-1440.jpg y -390.jpg (2026-10-30)",
+    "codigo": "Bundle de Unseen leído el 2026-10-31 (fabrica/proyecto/referentes/unseen.json y docs/3-ESTADO.md § Lo medido). Se reimplementa la técnica."
+  },
+  "librerias": {
+    "GSAP": "3.15.1 en el sitio (ScrollTrigger con pin y scrub); Unseen usa 3.14.2",
+    "Lenis": "la instancia de src/lib/movimiento.ts; su velocidad alimenta la inclinación (Unseen usa la de su Lenis)"
+  },
+  "referentes": [
+    {
+      "sitio": "https://2025.unseen.co/",
+      "se_toma": [
+        { "id": "A3", "aspecto": "La sección corre en horizontal con la rueda: hitos en fila unidos por una línea ondulada fina; lo que falta por recorrer va punteado y lo recorrido, sólido", "fuente": "capturas unseen-05..07; SVG .js-line y su copia sólida recortada", "referente": "referentes/capturas/unseen-06-linea-3-1440.jpg", "estado": "hitos-2" },
+        { "id": "A4", "aspecto": "Cada hito: etiquetas mono entre corchetes «[MOTION] [JAN_25]», titular grande de dos a cuatro líneas en sans ligera y, al lado, un panel grande; algunos hitos pasan a fondo oscuro", "fuente": "capturas unseen-05 y unseen-07", "referente": "referentes/capturas/unseen-05-linea-2-1440.jpg", "estado": "hitos-1" },
+        { "id": "A4b", "aspecto": "Hito sobre fondo oscuro: el panel de texto en tinta con las etiquetas en color y el titular en papel", "fuente": "captura unseen-07", "referente": "referentes/capturas/unseen-07-linea-4-1440.jpg", "estado": "hitos-tinta" },
+        { "id": "A5", "aspecto": "El personaje va justo donde la línea sólida se vuelve punteada y se inclina según la velocidad del scroll", "fuente": "capturas unseen-06 y unseen-07; bundle .js-balloon", "referente": "referentes/capturas/unseen-06-linea-3-1440.jpg", "estado": "hitos-2" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "La imagen o el video del proyecto en el panel de cada hito", "por_que": "Los hitos son consecuencias, no proyectos: el panel es un bloque de color a sangre con la palabra del hito en serif cursiva gigante (autor, 2026-11-10)" },
+        { "aspecto": "«OPEN [+]» debajo de cada hito", "por_que": "No hay nada que abrir: los hitos no tienen detalle (orquestador, 2026-11-10)" },
+        { "aspecto": "La mascota de ojos con alas", "por_que": "D-5: viaja el unicornio" },
+        { "aspecto": "El modo vertical de celular con el mes en cursiva gigante (A6)", "por_que": "D-4 se construye en las tareas de responsive (orden del autor 2026-11-10); aquí, en angosto, solo apilado sin pin y sin scroll horizontal de página" },
+        { "aspecto": "La sans ligera del titular (su grotesca)", "por_que": "Los titulares de hitos van en Zalando Sans del manual, peso ligero" }
+      ]
+    }
+  ],
+  "tecnica": [
+    { "id": "K1", "que": "Línea recorrida", "como": "Dos copias de la misma línea ondulada en SVG a lo ancho de toda la pista: la punteada fija y la sólida dentro de un contenedor recortado que deja ver solo lo recorrido (hasta la x del viajero). El recorte avanza con el mismo progreso del scroll horizontal (scrub).", "constantes": { "trazo": "1–1,5 px", "punteado": "≈ 6 px trazo / 6 px hueco", "amplitud": "≈ 10–15 % del alto de la pantalla" }, "tiempos": "toda la sección horizontal", "fuente": ".js-line y .js-line:alt (SVG 32000 × 300)" },
+    { "id": "K2", "que": "Inclinación por velocidad", "como": "Cada cuadro: rot = lerp(rot, clamp(−40, 40, velocidad del scroll), 0,04); transform: rotate(rot deg) translateX(−8·rot px). Hacia adelante se inclina para un lado y hacia atrás para el otro; quieto vuelve a 0.", "constantes": { "lerp": 0.04, "clamp_deg": 40, "desplazamiento_px_por_grado": 8 }, "tiempos": "por cuadro (ticker de GSAP)", "fuente": ".js-balloon" },
+    { "id": "K3", "que": "Modo horizontal", "como": "Un matchMedia decide el modo: horizontal con pin y scrub en escritorio; apilado sin pin en angosto y con movimiento reducido.", "constantes": { "corte_T03": "min-width: 1024px (el corte de Unseen no está medido; el diseño de celular lo decide R0)" }, "tiempos": "—", "fuente": "matchMedia «horizontal»" },
+    { "id": "K4", "que": "El viajero sobre la línea", "como": "El viajero queda a una x fija de la pantalla mientras la pista corre; su y es la de la línea en esa x (se muestrea el trazado), con los pies apoyados sobre el trazo. La parte sólida termina en esa x.", "constantes": { "x_en_pantalla": "≈ 30–35 % del ancho" }, "tiempos": "por cuadro", "fuente": "capturas unseen-06 y unseen-07 (el personaje está en la unión sólida/punteada)" }
+  ],
+  "estados": [
+    { "nombre": "hitos-1", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "rueda": 1100 }, { "esperar": 1600 }] },
+    { "nombre": "hitos-2", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "rueda": 1100 }, { "esperar": 800 }, { "rueda": 1500 }, { "esperar": 1600 }] },
+    { "nombre": "hitos-tinta", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "rueda": 1100 }, { "esperar": 800 }, { "rueda": 1500 }, { "esperar": 800 }, { "rueda": 1500 }, { "esperar": 1600 }] }
+  ],
+  "dudas": []
+}
