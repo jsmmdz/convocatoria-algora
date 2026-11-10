@@ -218,7 +218,11 @@ try {
             <figure style="margin:0"><img src="${aUrl(izq)}" style="width:100%"><figcaption style="color:#999">Referente · ${esc(r.sitio ?? '')}</figcaption></figure>
             <figure style="margin:0"><img src="${aUrl(der)}" style="width:100%"><figcaption style="color:#999">Nuestro · estado «${esc(a.estado)}»</figcaption></figure>
           </div></body>`);
-        const salida = join(dirComp, `${a.id}.jpg`);
+        // El id se repite entre referentes (A1 de Unseen y A1 de Table Tales): el nombre lleva el sitio
+        // para que una hoja no pise a otra (T02 r1). Si aun así se repite, se avisa.
+        const sitio = String(r.sitio ?? 'referente').replace(/^https?:\/\/(www\.)?/, '').split(/[./]/).find((t) => t && !/^\d+$/.test(t)) || 'referente';
+        const salida = join(dirComp, `${sitio}-${a.id}.jpg`);
+        if (hechas.includes(salida.slice(RAIZ.length + 1).replace(/\\/g, '/'))) console.log(`  ⚠ ${sitio}-${a.id}: id repetido en la ficha; la hoja se sobrescribe`);
         await hoja.screenshot({ path: salida, type: 'jpeg', quality: 75, fullPage: true });
         hechas.push(salida.slice(RAIZ.length + 1).replace(/\\/g, '/'));
       }
