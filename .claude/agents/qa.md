@@ -30,6 +30,9 @@ Trabajas con contexto limpio: no viste construir el código y no le debes nada. 
 - **Cruza cada negación del hook con la entrega siguiente** (`F17`): busca en `fabrica/datos/hook.jsonl`
   las líneas `negado` del constructor (el campo `detalle` trae el comando o la ruta) y comprueba que la
   entrega no consiguió lo mismo por otro camino. Un rodeo es un hallazgo Mayor aunque el resultado sirva.
+  Desde la v5 el constructor es Gemini y el hook lo registra como **`gemini:<ID>`** (o `gemini:<ID>/S<n>` y
+  `gemini:<ID>/integracion` cuando hay subtareas); `relevo-gemini` es solo el relevo que lo lanza. Las horas de la ronda se toman de esas líneas
+  del hook o de `date`, nunca estimadas (E3 de la auditoría r4 de T03).
 
 Escribe `QA-r<N>.md` y, si no pasa, `CORRECCION-r<N>.md`. Tu salida final es el veredicto en el
 formato que te pidan.

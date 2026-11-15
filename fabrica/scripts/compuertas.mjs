@@ -8,7 +8,7 @@
  * lo corren igual, así que las dos partes discuten sobre la misma salida.
  *
  * Uso (desde la raíz del repo):
- *   node fabrica/scripts/compuertas.mjs <TAREA> [--completas] [--todos] [--sin-build] [--guardar]
+ *   node fabrica/scripts/compuertas.mjs <TAREA> [--completas] [--todos] [--sin-build] [--guardar] [--ronda=N]
  *
  *   --completas  corre como regresión las pruebas de todas las tareas cerradas (la auditoría final y el
  *                orquestador). Sin ella (constructor y QA, v3.6) corren las comunes, las de la tarea y las
@@ -17,6 +17,8 @@
  *   --sin-build  salta check y build (para iterar rápido; nunca en una entrega)
  *   --guardar    escribe COMPUERTAS-r<N>.md en el buzón y una línea en
  *                compuertas.jsonl de las métricas de la fábrica (`datos` en compuertas.json)
+ *   --ronda=N    la ronda con que se guarda. Sin ella: FABRICA_RONDA (la pone gemini.mjs a sus sesiones) y,
+ *                si no hay, la última ENTREGA-r<N>.md del buzón
  *
  * Sale con código 1 si falla alguna compuerta que bloquea. Sin dependencias.
  */
@@ -303,7 +305,11 @@ if (OPC.has('--guardar')) {
   const rondas = existsSync(dirBuzon)
     ? readdirSync(dirBuzon).map((f) => f.match(/^ENTREGA-r(\d+)\.md$/)).filter(Boolean).map((m) => Number(m[1]))
     : [];
-  const ronda = rondas.length ? Math.max(...rondas) : 0;
+  // La ronda explícita manda: un constructor guarda sus compuertas antes de escribir su ENTREGA-r<N>, y contar
+  // las entregas le daba la ronda anterior (E4 de la auditoría r4 de T03).
+  const explicita = [...OPC].map((o) => o.match(/^--ronda=(\d+)$/)).find(Boolean)?.[1]
+    ?? (process.env.FABRICA_TAREA === TAREA ? process.env.FABRICA_RONDA : undefined);
+  const ronda = explicita ? Number(explicita) : rondas.length ? Math.max(...rondas) : 0;
   // v3.2: una segunda corrida de la misma ronda ya no pisa la primera: va con sufijo.
   let nombre = `COMPUERTAS-r${ronda}.md`;
   for (let i = 2; existsSync(join(dirBuzon, nombre)); i++) nombre = `COMPUERTAS-r${ronda}-${i}.md`;

@@ -183,7 +183,9 @@ async function sesion({ sub, archivos, entrega, prompt }) {
   const mod = modelo(sub === 'integracion' ? null : sub);
   const nombre = sub ?? 'única';
   const destino = join(SALIDA, entrega);
-  const entorno = { FABRICA_TAREA: ID, FABRICA_SUBTAREA: sub ?? '', FABRICA_ARCHIVOS: JSON.stringify(archivos) };
+  // FABRICA_RONDA: compuertas.mjs --guardar numera la corrida con ella; antes de escribir ENTREGA-r<N> la sacaba de la
+  // entrega anterior y la ronda 4 de T03 quedó como COMPUERTAS-r3-5 (E4 de la auditoría r4).
+  const entorno = { FABRICA_TAREA: ID, FABRICA_SUBTAREA: sub ?? '', FABRICA_ARCHIVOS: JSON.stringify(archivos), FABRICA_RONDA: String(N) };
   let conversacion = null;
   let registro = null;
   for (let intento = 1; intento <= 2; intento++) {
