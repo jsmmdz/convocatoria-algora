@@ -151,6 +151,65 @@ async function esperarQuieto(page: Page): Promise<void> {
   }
 }
 
+// Cuánto corre la pista en horizontal (lo que dura el pin).
+async function recorridoPista(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const s = document.querySelector<HTMLElement>('section[data-hitos]');
+    const p = document.querySelector<HTMLElement>('[data-hitos-pista]');
+    return s && p ? p.scrollWidth - s.clientWidth : 0;
+  });
+}
+
+// Espera a que la pista deje de moverse (el scrub la lleva con retraso), para comparar dos capturas seguidas.
+async function esperarPistaQuieta(page: Page): Promise<void> {
+  let antes = Infinity;
+  for (let i = 0; i < 30; i++) {
+    const x = await page.evaluate(() => document.querySelector('[data-hitos-pista]')?.getBoundingClientRect().left ?? NaN);
+    if (Math.abs(x - antes) < 0.25) return;
+    antes = x;
+    await page.waitForTimeout(80);
+  }
+}
+
+async function ocultarViajero(page: Page, ocultar: boolean): Promise<void> {
+  await page.evaluate((ocultar) => {
+    const id = 'prueba-ocultar-viajero';
+    document.getElementById(id)?.remove();
+    if (!ocultar) return;
+    const s = document.createElement('style');
+    s.id = id;
+    s.textContent = '[data-viajero] { visibility: hidden !important; }';
+    document.head.append(s);
+  }, ocultar);
+  await page.waitForTimeout(60);
+}
+
+// Fracción de píxeles que cambian entre dos capturas del mismo recorte.
+async function fraccionDistinta(page: Page, a: Buffer, b: Buffer): Promise<number> {
+  return page.evaluate(
+    async ({ a, b }) => {
+      const leer = async (b64: string) => {
+        const img = new Image();
+        img.src = `data:image/png;base64,${b64}`;
+        await img.decode();
+        const cv = document.createElement('canvas');
+        cv.width = img.width;
+        cv.height = img.height;
+        const ctx = cv.getContext('2d');
+        ctx?.drawImage(img, 0, 0);
+        return ctx?.getImageData(0, 0, cv.width, cv.height).data ?? new Uint8ClampedArray();
+      };
+      const [da, db] = await Promise.all([leer(a), leer(b)]);
+      let distintos = 0;
+      for (let k = 0; k < da.length; k += 4) {
+        if (Math.abs(da[k] - db[k]) + Math.abs(da[k + 1] - db[k + 1]) + Math.abs(da[k + 2] - db[k + 2]) > 60) distintos++;
+      }
+      return da.length ? distintos / (da.length / 4) : 1;
+    },
+    { a: a.toString('base64'), b: b.toString('base64') },
+  );
+}
+
 test.describe('T03 · hitos', () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -473,6 +532,224 @@ test.describe('T03 · hitos', () => {
     expect(Math.sign(pa), 'hacia atrás se inclina para el otro lado').toBe(-Math.sign(pb));
     for (const a of [...adelante, ...atras]) expect(Math.abs(a), 'nunca pasa de 40°').toBeLessThanOrEqual(40.5);
   });
+
+  // --- Escapados de la auditoría final (E2, E3, E4), con las decisiones del autor del 2026-11-14 ---
+
+  // E2 (autor: el viajero pasa por debajo de los bloques, como la línea). Se mide el resultado en píxeles:
+  // donde la caja del viajero cruza un bloque, la región se ve igual con el viajero y sin él (F15). En los
+  // bordes del rango de escritorio (F13).
+  for (const vp of [
+    { width: 1440, height: 900 },
+    { width: 1024, height: 768 },
+  ]) {
+    test(`viajero a ${vp.width}×${vp.height}: cuando cruza un bloque, el bloque lo tapa (pasa por debajo, como la línea)`, async ({ page }) => {
+      test.setTimeout(150_000);
+      await page.setViewportSize(vp);
+      await page.goto('/');
+      await esperarListo(page);
+      const inicio = await inicioSeccion(page);
+      const recorrido = await recorridoPista(page);
+      expect(recorrido, 'la pista corre en horizontal').toBeGreaterThan(vp.width);
+      let solapes = 0;
+      let peor = 0;
+      let dondePeor = '';
+      for (let y = inicio + 80; y < inicio + recorrido; y += 160) {
+        await irA(page, y, 200);
+        await esperarPistaQuieta(page);
+        const zona = await page.evaluate(() => {
+          const v = document.querySelector('[data-viajero]')?.getBoundingClientRect();
+          if (!v || v.width === 0) return null;
+          let mejor: { x: number; y: number; w: number; h: number } | null = null;
+          for (const b of document.querySelectorAll('[data-hito-bloque]')) {
+            const r = b.getBoundingClientRect();
+            const x = Math.max(v.left, r.left, 0);
+            const yy = Math.max(v.top, r.top, 0);
+            const w = Math.min(v.right, r.right, innerWidth) - x;
+            const h = Math.min(v.bottom, r.bottom, innerHeight) - yy;
+            if (w > 0 && h > 0 && (!mejor || w * h > mejor.w * mejor.h)) mejor = { x, y: yy, w, h };
+          }
+          return mejor;
+        });
+        if (!zona || zona.w * zona.h < 600) continue;
+        solapes++;
+        // Se encoge 3 px por lado: las esquinas redondeadas del bloque no cuentan.
+        const clip = { x: Math.ceil(zona.x) + 3, y: Math.ceil(zona.y) + 3, width: Math.floor(zona.w) - 6, height: Math.floor(zona.h) - 6 };
+        const con = await page.screenshot({ clip });
+        await ocultarViajero(page, true);
+        const sin = await page.screenshot({ clip });
+        await ocultarViajero(page, false);
+        const dif = await fraccionDistinta(page, con, sin);
+        if (dif > peor) {
+          peor = dif;
+          dondePeor = `scroll ${Math.round(y - inicio)} px dentro de la sección`;
+        }
+      }
+      expect(solapes, 'el recorrido lleva al viajero a cruzar bloques (si no, esta prueba no mide nada)').toBeGreaterThanOrEqual(3);
+      expect(peor, `donde cruza un bloque, el viajero no se pinta encima (peor: ${dondePeor})`).toBeLessThanOrEqual(0.01);
+    });
+  }
+
+  // E3 (autor: desplazamiento bajo al inclinarse, 1–2 px por grado). Se mide en movimiento, con rueda real:
+  // la distancia de los cascos (y = 96 % del cuadro de la mascota) a la unión sólida/punteada de la línea.
+  test('inclinación en movimiento: los cascos se quedan en la unión sólida/punteada, como mucho 2 px por grado de inclinación', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/');
+    await esperarListo(page);
+    const inicio = await inicioSeccion(page);
+    await irA(page, inicio + 2 * 1440, 300);
+    await esperarQuieto(page);
+    await page.evaluate(() => {
+      const v = document.querySelector<HTMLElement>('[data-viajero]');
+      if (!v) return;
+      // Marcador de los cascos: un punto en el 48 % / 96 % del cuadro del viajero, que gira con él.
+      const s = document.createElement('style');
+      s.textContent = '[data-viajero] { position: relative; } #prueba-cascos { position: absolute; left: 48%; top: 96%; width: 0; height: 0; }';
+      document.head.append(s);
+      const m = document.createElement('i');
+      m.id = 'prueba-cascos';
+      v.append(m);
+      const w = window as unknown as { __cascos: { hx: number; hy: number; jx: number; ctm: number[]; rot: number }[] };
+      w.__cascos = [];
+      setInterval(() => {
+        const r = m.getBoundingClientRect();
+        const sol = document.querySelector('[data-linea-solida]')?.getBoundingClientRect();
+        const ctm = document.querySelector<SVGPathElement>('[data-linea-punteada] path')?.getScreenCTM();
+        const t = getComputedStyle(v).transform;
+        const mt = !t || t === 'none' ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(t);
+        if (!sol || !ctm) return;
+        w.__cascos.push({ hx: r.left, hy: r.top, jx: sol.right, ctm: [ctm.a, ctm.d, ctm.e, ctm.f], rot: (Math.atan2(mt.b, mt.a) * 180) / Math.PI });
+      }, 24);
+    });
+    await page.mouse.move(720, 450);
+    for (const delta of [240, -240]) {
+      for (let i = 0; i < 12; i++) {
+        await page.mouse.wheel(0, delta);
+        await page.waitForTimeout(30);
+      }
+      await page.waitForTimeout(600);
+    }
+    // Altura de la línea en la x de la unión, leída del trazado real (la línea es función de x).
+    const muestras = await page.evaluate(() => {
+      const w = window as unknown as { __cascos: { hx: number; hy: number; jx: number; ctm: number[]; rot: number }[] };
+      const path = document.querySelector<SVGPathElement>('[data-linea-punteada] path');
+      if (!path) return [];
+      const total = path.getTotalLength();
+      const yLocal = (x: number) => {
+        let a = 0;
+        let b = total;
+        for (let i = 0; i < 32; i++) {
+          const m = (a + b) / 2;
+          if (path.getPointAtLength(m).x < x) a = m;
+          else b = m;
+        }
+        return path.getPointAtLength(a).y;
+      };
+      return w.__cascos.splice(0).map((s) => {
+        const [ca, cd, ce, cf] = s.ctm;
+        const jy = cd * yLocal((s.jx - ce) / ca) + cf;
+        return { rot: s.rot, dist: Math.hypot(s.hx - s.jx, s.hy - jy) };
+      });
+    });
+    const inclinadas = muestras.filter((s) => Math.abs(s.rot) >= 10);
+    expect(inclinadas.length, 'la rueda inclinó el viajero (≥ 5 muestras de 10° o más)').toBeGreaterThanOrEqual(5);
+    const peor = muestras.reduce((p, s) => (s.dist - 2 * Math.abs(s.rot) > p.dist - 2 * Math.abs(p.rot) ? s : p), muestras[0]);
+    expect(
+      peor.dist,
+      `los cascos no se despegan de la unión más de 2 px por grado (+ 12 px): ${peor.dist.toFixed(0)} px a ${peor.rot.toFixed(1)}°`,
+    ).toBeLessThanOrEqual(2 * Math.abs(peor.rot) + 12);
+  });
+
+  // E4: la silueta del viajero (no su halo) se lee sobre el fondo de cada hito, también los invertidos. Se
+  // pinta una máscara de la silueta y se mide, píxel a píxel, la captura real contra la misma sin viajero (F24).
+  for (const modo of ['claro', 'oscuro'] as const) {
+    test(`viajero (${modo}): su silueta se lee sobre el fondo de los hitos, también los invertidos (≥ 3:1)`, async ({ page }) => {
+      test.setTimeout(120_000);
+      if (modo === 'oscuro') {
+        await page.addInitScript(() => {
+          try {
+            localStorage.setItem('algora-tema', 'dark');
+          } catch {
+            // sin almacenamiento
+          }
+        });
+      } else {
+        await page.emulateMedia({ colorScheme: 'light' });
+      }
+      await page.goto('/');
+      await esperarListo(page);
+      const inicio = await inicioSeccion(page);
+      const recorrido = await recorridoPista(page);
+      for (const i of [0, ...INVERTIDOS]) {
+        let encontrado = false;
+        for (let y = inicio; y < inicio + recorrido && !encontrado; y += 120) {
+          await irA(page, y, 120);
+          encontrado = await page.evaluate((i) => {
+            const v = document.querySelector('[data-viajero]')?.getBoundingClientRect();
+            const h = document.querySelectorAll('[data-hito]')[i]?.getBoundingClientRect();
+            if (!v || !h || v.width === 0) return false;
+            const dentroDe = (r: DOMRect, m: number) => v.left >= r.left + m && v.right <= r.right - m && v.top >= r.top + m && v.bottom <= r.bottom - m;
+            const tocaBloque = [...document.querySelectorAll('[data-hito-bloque]')].some((b) => {
+              const r = b.getBoundingClientRect();
+              return v.left < r.right + 8 && v.right > r.left - 8 && v.top < r.bottom + 8 && v.bottom > r.top - 8;
+            });
+            return dentroDe(h, 8) && !tocaBloque;
+          }, i);
+        }
+        expect(encontrado, `el viajero pasa por el hito ${i + 1} fuera de su bloque`).toBe(true);
+        await esperarQuieto(page);
+        await esperarPistaQuieta(page);
+        const caja = await page.locator('[data-viajero]').boundingBox();
+        const clip = { x: Math.round(caja?.x ?? 0), y: Math.round(caja?.y ?? 0), width: Math.round(caja?.width ?? 1), height: Math.round(caja?.height ?? 1) };
+        const real = await page.screenshot({ clip });
+        await ocultarViajero(page, true);
+        const fondo = await page.screenshot({ clip });
+        await ocultarViajero(page, false);
+        await page.addStyleTag({
+          content:
+            '[data-guia], [data-viajero], [data-viajero] * { filter: none !important; mix-blend-mode: normal !important; opacity: 1 !important; } [data-viajero], [data-viajero] * { color: rgb(255, 0, 0) !important; fill: rgb(255, 0, 0) !important; }',
+        });
+        await page.waitForTimeout(80);
+        const mascara = await page.screenshot({ clip });
+        await page.evaluate(() => document.head.lastElementChild?.remove());
+        await page.waitForTimeout(80);
+        const r = await page.evaluate(
+          async ({ imgs }) => {
+            const leer = async (b64: string) => {
+              const img = new Image();
+              img.src = `data:image/png;base64,${b64}`;
+              await img.decode();
+              const cv = document.createElement('canvas');
+              cv.width = img.width;
+              cv.height = img.height;
+              const ctx = cv.getContext('2d');
+              ctx?.drawImage(img, 0, 0);
+              return ctx?.getImageData(0, 0, cv.width, cv.height).data ?? new Uint8ClampedArray();
+            };
+            const [a, b, c] = await Promise.all(imgs.map(leer));
+            const lum = (r: number, g: number, bb: number) => {
+              const lin = (v: number) => {
+                const s = v / 255;
+                return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+              };
+              return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(bb);
+            };
+            const cs: number[] = [];
+            for (let k = 0; k < a.length; k += 4) {
+              const enSilueta = c[k] > 200 && c[k + 1] < 60 && c[k + 2] < 60 && Math.abs(c[k] - b[k]) + Math.abs(c[k + 1] - b[k + 1]) + Math.abs(c[k + 2] - b[k + 2]) > 120;
+              if (!enSilueta) continue;
+              const [l1, l2] = [lum(a[k], a[k + 1], a[k + 2]), lum(b[k], b[k + 1], b[k + 2])].sort((x, y) => y - x);
+              cs.push((l1 + 0.05) / (l2 + 0.05));
+            }
+            cs.sort((x, y) => x - y);
+            return { n: cs.length, mediana: cs.length ? cs[Math.floor(cs.length / 2)] : 0 };
+          },
+          { imgs: [real, fondo, mascara].map((p) => p.toString('base64')) },
+        );
+        expect(r.n, `hito ${i + 1}: se encontró la silueta del viajero`).toBeGreaterThanOrEqual(300);
+        expect(r.mediana, `hito ${i + 1}${INVERTIDOS.includes(i) ? ' (invertido)' : ''}: la silueta contrasta con el fondo (mediana ≥ 3:1)`).toBeGreaterThanOrEqual(3);
+      }
+    });
+  }
 
   // Apilado: movimiento reducido, por debajo de 1024 px (borde del rango, F13) y en celular.
   for (const caso of [

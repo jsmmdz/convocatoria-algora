@@ -66,6 +66,9 @@ línea de tiempo de Unseen, con el unicornio viajando por la línea. Va justo de
   - La segunda etiqueta es el contador `[01/05]` … `[05/05]`. No se ponen fechas: serían datos
     inventados (`F1`).
   - Sin «OPEN [+]» (no hay nada que abrir) ni título de sección: arranca directo en el primer hito.
+- Autor, 2026-11-14 (auditoría final, E2): el viajero **pasa por debajo de los bloques**, como la línea.
+- Autor, 2026-11-14 (auditoría final, E3): al inclinarse se desplaza **1,5 px por grado** (no los 8 de Unseen,
+  que es un globo que vuela): los cascos siguen en la unión sólida/punteada.
 
 ## Qué construyes
 
@@ -115,15 +118,17 @@ Selectores de contrato (las pruebas los leen; no los cambies):
    - `[data-linea-solida]`, sólida, en un contenedor recortado que solo deja ver lo recorrido, es decir,
      hasta la x del viajero.
 
-   Los bloques van por encima de la línea.
+   Los bloques van por encima de la línea **y del viajero**.
 5. **El viajero** (K4 y A5; `[data-viajero]` con `<Mascota />` dentro):
    - Queda en una x fija de la pantalla, en torno al 30–35 % del ancho, mientras corre la pista.
    - Su y es la de la línea en esa x: muestrea el trazado y apoya los cascos sobre el trazo.
    - Mide unos 64–80 px a 1440.
-   - Se lee sobre los dos fondos (contraste ≥ 3:1).
+   - Va por debajo de los bloques y por encima de la línea: cuando cruza un bloque, el bloque lo tapa.
+   - Su silueta (no solo un halo) se lee sobre el fondo de cada hito, también los invertidos (contraste ≥ 3:1).
 6. **Inclinación por velocidad** (K2), sobre `[data-viajero]` en el ticker de GSAP:
    - Cada cuadro: `rot = lerp(rot, clamp(−40, 40, velocidad), 0,04)`, y se aplica
-     `rotate(rot deg) translateX(−8·rot px)`. La velocidad es la de `lenis` (`lenis.velocity`).
+     `rotate(rot deg) translateX(−1,5·rot px)`, girando sobre los cascos. La velocidad es la de `lenis`
+     (`lenis.velocity`). En movimiento, los cascos no se alejan de la unión sólida/punteada más de 2 px por grado.
    - Hacia adelante se inclina para un lado y hacia atrás para el otro; quieto vuelve a 0.
    - Nunca pasa de 40°.
 7. **Apilado** (menos de 1024 px, movimiento reducido o sin JS): los cinco hitos uno debajo de otro en
