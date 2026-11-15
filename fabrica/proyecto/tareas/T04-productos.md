@@ -26,11 +26,21 @@ archivos:
   - "!sitio/src/layouts/**"
 regresion: [T01, T02, T03]
 bloqueantes: []
+esfuerzo: high
+# Fábrica v5 (división del orquestador, aprobada por el autor el 2026-11-14): dos subtareas en paralelo + integración.
+subtareas: [S1, S2]
+archivos-S1:
+  - sitio/src/components/Productos.astro
+  - sitio/src/lib/productos-fichas.ts
+archivos-S2:
+  - sitio/src/lib/marco-tinta.ts
+esfuerzo-S2: xhigh
 ---
 
 # `T04` · `@constructor` — Productos y marco de tinta
 
-> Fase 1 · corre sola · Buzón: `fabrica/buzon/T04/` · Se lanza con `high` (hay un shader).
+> Fase 1 · corre sola · Buzón: `fabrica/buzon/T04/` · Dos subtareas en paralelo (S1 fichas y bloque, S2 marco de
+> tinta con `xhigh`) y una integración. Lee «Subtarea S1», «Subtarea S2» e «Integración» al final de «Qué construyes».
 
 ## Por qué existe
 
@@ -99,6 +109,9 @@ Selectores de contrato (las pruebas los leen; no los cambies):
    - Cuando la sección toca el 55 % de la pantalla ocurre la entrada: duración 1,3 s, stagger 0,09 s,
      `expo.out`.
    - A mitad del pin, las siete fichas quedan **a la vista y en su sitio**, con el titular legible.
+   - **Un solo pin, en dos tramos** (orquestador, 2026-11-14): el vuelo va desde que la sección toca el 55 % de
+     la pantalla hasta la **mitad del pin**; la segunda mitad es del marco (punto 5). Así las fichas están
+     quietas y enteras justo a la mitad, y se apagan después.
 4. **Titulares letra por letra** (K3): el `<h2>` y la etiqueta `[PRODUCTOS]` se parten por letras, cada una
    sube desde abajo dentro de una máscara (0,9 s, stagger 0,03 s, `power4.out`). **El texto accesible se
    conserva entero**: el `<h2>` mantiene su texto completo (por ejemplo, con `aria-label` en el padre y
@@ -109,8 +122,9 @@ Selectores de contrato (las pruebas los leen; no los cambies):
    - El borde del hueco es **ácido**, de grosor variable (hasta 120 px de pincel), con ruido fbm que lo
      hace irregular como tinta; el hueco es un rectángulo redondeado que crece desde el centro hasta
      **sobrepasar los cuatro bordes** de la pantalla.
-   - El progreso lo lleva el scroll de 0 a 1 (`scrub`): el titular y las fichas se apagan primero
-     (0,12–0,26), el hueco crece de 0,26 a 0,90 (`power2.in`).
+   - El progreso del marco va de 0 a 1 con el scroll (`scrub`) en la **segunda mitad del pin**. Dentro de ese
+     tramo, el titular, la etiqueta, el botón y las fichas se apagan primero (0,12–0,26) y el hueco crece de
+     0,26 a 0,90 (`power2.in`).
    - Al final del progreso el canvas queda sin pintar nada (todo transparente) y la página sigue hacia
      «Cómo funciona».
    - El color del relleno no lo pinta el shader: se ve el fondo del tema de `[data-siguiente]`. El ácido sí
@@ -127,6 +141,105 @@ Selectores de contrato (las pruebas los leen; no los cambies):
 9. **Refresco**: `ScrollTrigger.refresh()` cuando cargan las fuentes y al cambiar de tamaño. Los dos pines
    (hitos y productos) no se pisan: tras el de hitos, la página llega a este bloque y el pie se alcanza al
    final.
+
+### Tokens (los escribe la integración en `tokens.css`; S1 y S2 ya los usan por nombre)
+
+Ningún hex fuera de `tokens.css`. Los nombres son el contrato. Los valores son un punto de partida y se
+afinan en el pulido. S1 los lee con `var()`, y S1 y S2 con `leerNumero` / `leerColor` de `src/lib/tokens.ts`.
+
+| Token | Valor inicial | Lo usa |
+|---|---|---|
+| `--productos-bloque` | `var(--color-cobalto)` | S1 (el fondo del bloque) y S2 (lo que pinta fuera del hueco) |
+| `--ficha-ancho`, `--ficha-alto` | ≈ 220 px y 150 px a 1440, fluidos (`clamp`) | S1 |
+| `--ficha-color-1` … `--ficha-color-7` | ácido · magenta · tomate · papel · ácido · magenta · tomate | S1 |
+| `--ficha-texto-1` … `--ficha-texto-7` | tinta en todas, papel sobre el tomate (3 y 7) | S1 |
+| `--ficha-giro-1` … `--ficha-giro-7` | siete ángulos distintos entre −10 y 10 (en grados, sin unidad) | S1 |
+| `--productos-scrub` | `0.55` | S1 (el vuelo) e integración |
+| `--productos-pin` | `2` (en pantallas: la distancia de scroll del pin) | integración |
+| `--marco-pincel` | `120` (px) | S2 |
+| `--marco-ruido-escala`, `--marco-ruido-tiempo` | `1.6`, `0.03` | S2 |
+| `--marco-dpr-max` | `2` | S2 |
+
+El ácido del borde es `--color-acido`, que ya existe.
+
+## Subtarea S1 · Fichas y bloque
+
+**Archivos:** `src/components/Productos.astro` y `src/lib/productos-fichas.ts`. **Puntos:** 1, 2, 3 (el vuelo),
+4, 6, 7 y 8.
+
+- `Productos.astro` lleva **todo el marcado del contrato**: `section[data-productos]` con el bloque, la etiqueta,
+  el `<h2>`, el botón, la `<ul>` de las siete fichas, el `<canvas data-marco aria-hidden="true">` vacío y
+  `[data-siguiente]` debajo. También lleva su CSS. **El CSS por defecto es el respaldo**: rejilla quieta y sin
+  canvas (`display: none`). El modo horizontal va bajo `section[data-productos][data-modo='horizontal']`, igual
+  que en los hitos. Ese atributo lo pone la integración: S1 escribe el CSS de los dos modos.
+- `productos-fichas.ts` **exporta**, sin crear ScrollTriggers ni pin (eso es de la integración):
+
+  ```ts
+  export interface Fichas {
+    /** En pausa. 0 = las siete en el origen común (origen_x/origen_y de la ficha, con rotación y scale 0,94);
+     *  1 = en su sitio y con su giro. Stagger 0,09 y expo.out dentro del timeline. */
+    vuelo: gsap.core.Timeline;
+    /** K3: parte el <h2> y [data-productos-etiqueta] en letras dentro de una máscara y las sube una vez
+     *  (0,9 s, stagger 0,03, power4.out). El texto accesible queda entero. Llamarla otra vez no hace nada. */
+    letras(): void;
+    /** Quita lo que puso (estilos en línea, letras partidas): al salir del modo horizontal. */
+    restaurar(): void;
+  }
+  export function prepararFichas(seccion: HTMLElement): Fichas;
+  ```
+- Importa `gsap` de `src/lib/movimiento.ts`. No monta nada en `index.astro`.
+
+## Subtarea S2 · Marco de tinta (shader, esfuerzo `xhigh`)
+
+**Archivo:** `src/lib/marco-tinta.ts`, con el GLSL dentro del mismo archivo, como `trama.ts`. **Punto:** 5 (el
+shader y su ciclo de vida).
+
+- **Exporta:**
+
+  ```ts
+  export interface Marco {
+    /** p de 0 a 1, ya con la curva aplicada por la integración. 0 = todo el canvas en --productos-bloque
+     *  (hueco cerrado); 1 = el hueco pasó los cuatro bordes y el canvas no pinta nada (transparente). */
+    progreso(p: number): void;
+    /** Ajusta el tamaño al de la ventana, con DPR tope --marco-dpr-max. */
+    redimensionar(): void;
+    /** Para el bucle, quita los oyentes y libera el contexto (si no se perdió ya: mira isContextLost, E7 de T03). */
+    destruir(): void;
+  }
+  /** null si no hay WebGL (hayWebGL de src/lib/webgl.ts): entonces no se crea nada y no hay avisos en consola. */
+  export function montarMarco(canvas: HTMLCanvasElement): Marco | null;
+  ```
+- Importa OGL de forma normal. La integración carga este módulo con `import()` al acercarse la sección, así que
+  OGL no entra en la carga inicial.
+- El shader: distancia con signo a un rectángulo redondeado centrado que crece con `p`, lóbulos de ruido fbm según
+  la dirección desde el borde (K2) y el borde **ácido** de grosor variable, hasta `--marco-pincel` px. Fuera del
+  hueco pinta `--productos-bloque` y dentro deja transparente. El tiempo del ruido solo avanza mientras el
+  marco existe.
+- Si se pierde el contexto, el canvas se oculta y la página sigue (como `trama.ts`).
+
+## Integración
+
+**Archivos:** todos los de la tarea. Escribe `src/lib/productos.ts` (nuevo, solo suyo), `index.astro` y `tokens.css`.
+Puntos 3 y 5 (el pin y sus tramos) y 9. Es la sesión que corre las compuertas y las capturas.
+
+- **`tokens.css`:** los tokens de la tabla de arriba.
+- **`index.astro`:** `<Productos />` debajo de `<Hitos />`, y en su script, `iniciarProductos()` de `src/lib/productos.ts`.
+- **`productos.ts` exporta `iniciarProductos(): void`.** Con `gsap.matchMedia()` y la misma consulta de los hitos
+  (`(min-width: 1024px) and (prefers-reduced-motion: no-preference)`) hace esto:
+  - pone `data-modo="horizontal"` en la sección y llama `prepararFichas(seccion)`;
+  - crea **un solo ScrollTrigger con pin** de `--productos-pin` pantallas, con `scrub: --productos-scrub`;
+  - liga `fichas.vuelo` desde `top 55%` hasta la mitad del pin, y llama `fichas.letras()` al entrar;
+  - en la segunda mitad, apaga titular, etiqueta, botón y fichas (0,12–0,26 del tramo) y le pasa al marco
+    `progreso(power2.in(t))`, con t de 0 a 1 entre 0,26 y 0,90 del tramo;
+  - carga `marco-tinta.ts` con `import()` cuando la sección está a una pantalla de distancia, monta el marco si
+    `hayWebGL()` y lo destruye al alejarse;
+  - al deshacer el modo horizontal: `fichas.restaurar()`, `marco.destruir()` y quitar `data-modo`.
+- **Que los dos pines no se peleen:** el de hitos termina antes de que empiece este, y `ScrollTrigger.refresh()`
+  corre al cargar las fuentes y al cambiar de tamaño. El pie se alcanza al final.
+- **Si S1 o S2 entregaron algo distinto de su interfaz**, la integración lo adapta en `productos.ts`. Si no se
+  puede sin cambiar lo que se ve, lo anota en SOLICITUDES; no lo decide.
+- Al juntar: compuertas completas (check, build, comunes y la regresión de T01–T03) y capturas
+  (`piezas` y `marco`).
 
 ## Queda para el pulido — no es del agente
 
