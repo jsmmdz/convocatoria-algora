@@ -68,6 +68,14 @@ const casos = [
   ['analista-referente', bash('curl -sL -o fabrica/buzon/T03/tmp/app.js https://ejemplo.com/assets/app.js'), 'permitido', 'bundle al buzón'],
   ['analista-referente', bash('curl -sL https://ejemplo.com/app.js > fabrica/buzon/T03/tmp/app.js'), 'permitido', 'bundle redirigido al buzón'],
   ['analista-referente', bash(`curl -sL -o ${SCRATCH}/app.js https://ejemplo.com/app.js`), 'negado', 'bundle al scratchpad'],
+  // E6 de T03: las rutas relativas se resuelven contra el `cd` del comando
+  ['qa', bash("cd fabrica/buzon/T03/tmp && cat > qa2.mjs <<'EOF'\nconst a = 1 > 0;\nEOF"), 'permitido', 'cd al tmp del buzón y escribe relativo'],
+  ['qa', bash(`cd fabrica/buzon/T03/tmp && node -e "require('fs').writeFileSync('af.mjs', '1')"`), 'permitido', 'writeFileSync relativo tras cd al buzón'],
+  ['qa', bash('cd sitio && echo 1 > src/x.ts'), 'negado', 'cd sitio y escribe en el sitio'],
+  ['constructor', bash('cd /c/otra && echo hola > x.txt'), 'negado', 'cd fuera del repo (Git Bash) y escribe relativo'],
+  ['constructor', bash('cd ~ && echo hola > x.txt'), 'negado', 'cd al home y escribe relativo'],
+  ['constructor', ps('Set-Location C:\\otra; "hola" | Out-File x\\y.txt'), 'negado', 'Set-Location fuera y Out-File relativo'],
+  ['constructor', bash('echo 1 > fabrica/buzon/T03/tmp/a.txt && cd /c/otra && ls'), 'permitido', 'el cd que va después no cuenta'],
   // Varios
   ['constructor', { tool_name: 'mcp__x__y', tool_input: {} }, 'negado', 'MCP'],
 ];

@@ -95,7 +95,7 @@ function destinosDeEscritura(cmd) {
   const tomar = (re, grupo = 1) => {
     for (const x of m.matchAll(re)) {
       const [i, f] = x.indices[grupo];
-      salida.push(cmd.slice(i, f));
+      salida.push({ ruta: cmd.slice(i, f), pos: i });
     }
   };
   // Redirecciones: `>`, `>>`, `2>`, `&>` (no `2>&1`, no `=>`, no `->`).
@@ -116,20 +116,45 @@ function destinosDeEscritura(cmd) {
       if (/^-/.test(limpio) || /^[a-z][\w+.-]*:\/\//i.test(limpio)) continue; // opciones y URL
       if (/[\\/]|^[a-z]:|^~|^\$|^%/i.test(limpio)) rutas.push(limpio);
     }
-    salida.push(...(soloDestino.test(x[1]) ? rutas.slice(-1) : rutas));
+    salida.push(...(soloDestino.test(x[1]) ? rutas.slice(-1) : rutas).map((ruta) => ({ ruta, pos: i })));
   }
   // Escrituras desde node -e / python -c: writeFileSync('ruta'), open('ruta', 'w')…
-  for (const x of cmd.matchAll(/\b(?:writeFile(?:Sync)?|appendFile(?:Sync)?|createWriteStream|copyFile(?:Sync)?|mkdirSync|cpSync|renameSync)\(\s*(['"`])([^'"`]+)\1/g)) salida.push(x[2]);
-  return salida.map((d) => d.replace(/^["']|["']$/g, '').trim()).filter(Boolean);
+  for (const x of cmd.matchAll(/\b(?:writeFile(?:Sync)?|appendFile(?:Sync)?|createWriteStream|copyFile(?:Sync)?|mkdirSync|cpSync|renameSync)\(\s*(['"`])([^'"`]+)\1/g)) salida.push({ ruta: x[2], pos: x.index });
+  return salida.map((d) => ({ ruta: d.ruta.replace(/^["']|["']$/g, '').trim(), pos: d.pos })).filter((d) => d.ruta);
 }
 
-// ¿Dónde cae un destino? Los relativos se prueban contra la raíz y contra sitio/ (los dos cwd de siempre).
-function juzgarDestino(destino) {
+// /c/… de Git Bash → c:/…
+const deGitBash = (d) => (/^\/[a-z](\/|$)/i.test(d) ? `${d[1]}:${d.slice(2) || '/'}` : d);
+// Una carpeta que no se sabe dónde queda (cd a ~, $HOME, %USERPROFILE%…): se juzga como fuera del repo.
+const FUERA = path.resolve(RAIZ, '..', '__fuera-del-repo__');
+
+// Carpetas desde las que se resuelve un destino relativo que está en la posición `pos` del comando: las dos
+// de siempre (raíz y sitio/), movidas por cada `cd` / `pushd` / `Set-Location` anterior (E6 de T03: un
+// `cd fabrica/buzon/T03/tmp && cat > x.mjs` se negaba, y un `cd /c/otra && echo > x.txt` pasaba).
+function carpetasEn(cmd, pos) {
+  let bases = [RAIZ, path.resolve(RAIZ, 'sitio')];
+  const m = enmascarar(cmd);
+  const re = new RegExp(String.raw`(?<=^|[;&|(\n{]\s*)(?:cd|pushd|set-location|sl)\b(?:\s+${TOKEN})?`, 'dgi');
+  for (const x of m.matchAll(re)) {
+    if (x.index >= pos) break;
+    const crudo = x.indices[1] ? cmd.slice(...x.indices[1]).replace(/^["']|["']$/g, '').trim() : '~';
+    if (crudo === '-') continue;
+    if (/^(~|\$home|\$\{?home|\$env:|%)/i.test(crudo) || TEMPORALES.test(crudo)) {
+      bases = [FUERA];
+      continue;
+    }
+    const d = deGitBash(crudo);
+    bases = path.isAbsolute(d) ? [path.resolve(d)] : [...new Set(bases.map((b) => path.resolve(b, d)))];
+  }
+  return bases;
+}
+
+// ¿Dónde cae un destino? Los relativos se prueban contra las carpetas en que puede estar el comando ahí.
+function juzgarDestino(destino, bases = [RAIZ, path.resolve(RAIZ, 'sitio')]) {
   if (/^(\/dev\/(null|stdout|stderr)|\$null|nul)$/i.test(destino)) return { fuera: false, rels: [] };
   if (TEMPORALES.test(destino) || /^(~|\$home|\$env:|\$\{?home|%)/i.test(destino)) return { fuera: true, rels: [] };
-  let d = destino;
-  if (/^\/[a-z]\//i.test(d)) d = `${d[1]}:${d.slice(2)}`; // /c/… de Git Bash
-  const absolutos = path.isAbsolute(d) ? [path.resolve(d)] : [path.resolve(RAIZ, d), path.resolve(RAIZ, 'sitio', d)];
+  const d = deGitBash(destino);
+  const absolutos = path.isAbsolute(d) ? [path.resolve(d)] : bases.map((b) => path.resolve(b, d));
   const rels = absolutos.map((a) => path.relative(RAIZ, a).split(path.sep).join('/')).filter((r) => !r.startsWith('..') && !path.isAbsolute(r));
   return { fuera: rels.length === 0, rels };
 }
@@ -180,8 +205,8 @@ try {
     if (TEMPORALES.test(cmd)) {
       negar(`las carpetas temporales del sistema y el scratchpad no son tuyas; tus scripts y salidas temporales van en ${LUGAR_TEMPORAL}`);
     }
-    for (const destino of destinosDeEscritura(cmd)) {
-      const { fuera, rels } = juzgarDestino(destino);
+    for (const { ruta: destino, pos } of destinosDeEscritura(cmd)) {
+      const { fuera, rels } = juzgarDestino(destino, carpetasEn(cmd, pos));
       if (fuera) negar(`${destino} está fuera del repo; lo temporal va en ${LUGAR_TEMPORAL}`);
       if (SOLO_BUZON && !rels.some((r) => coincide(r, ['fabrica/buzon/**'], 'i'))) {
         negar(`un auditor solo escribe en fabrica/buzon/, también desde la terminal (intentó ${destino})`);
