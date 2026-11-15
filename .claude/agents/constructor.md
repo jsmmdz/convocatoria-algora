@@ -1,6 +1,6 @@
 ---
 name: constructor
-description: Construye el MVP de una tarea de la fábrica (fabrica/proyecto/tareas/<ID>) o su corrección. Lo lanza el workflow /construir-tarea; no lo uses para otra cosa.
+description: DE RESERVA desde la fábrica v5 (2026-11-14): el workflow /construir-tarea ya no lo lanza; construye Gemini (fabrica/scripts/gemini.mjs). Constructor Sonnet del MVP de una tarea o su corrección; úsalo solo si el orquestador lo decide con el autor.
 model: sonnet
 effort: medium
 maxTurns: 400

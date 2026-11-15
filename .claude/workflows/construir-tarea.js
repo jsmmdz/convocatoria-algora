@@ -1,9 +1,9 @@
 export const meta = {
   name: 'construir-tarea',
-  description: 'Fábrica v3: constructor (Sonnet) → QA (Sonnet, contexto limpio) → correcciones → auditoría final (Opus) de una tarea',
+  description: 'Fábrica v5: constructores Gemini 4 Hydrogen (subtareas en paralelo + integración) → QA (Sonnet, contexto limpio) → correcciones (Gemini) → auditoría final (Opus) de una tarea',
   whenToUse: 'Cuando el autor pide construir una tarea de fabrica/proyecto/tareas/, por ejemplo: /construir-tarea T01. Para retomar una tarea parada sin volver a construirla: /construir-tarea T01 auditoria, T01 qa r4 o T01 correccion r4',
   phases: [
-    { title: 'Construir', detail: 'constructor · Sonnet 5.5' },
+    { title: 'Construir', detail: 'Gemini 4 Hydrogen por agy (relevo Haiku) · subtareas en paralelo + integración' },
     { title: 'QA', detail: 'qa · Sonnet 5.5 high, contexto limpio' },
     { title: 'Auditoría final', detail: 'auditor-final · Opus 5.5 high', model: 'opus' },
   ],
@@ -31,7 +31,9 @@ const INICIO = DESDE === 'construir' ? 1 : Number(entrada.ronda) || 0
 if ((DESDE === 'correccion' || DESDE === 'qa') && INICIO < 2) throw new Error(`Di la ronda en que se retoma, por ejemplo: /construir-tarea ${ID} ${DESDE} r4`)
 // Construir: 1 construcción + hasta 2 correcciones. Retomar: hasta 2 rondas.
 const RONDAS = Math.min(Math.max(Number(entrada.rondas) || (DESDE === 'construir' ? 3 : 2), 1), 3)
-const ESFUERZO = entrada.esfuerzo // opcional: 'high' para tareas de shaders; si no, el del agente
+// Opcional: el esfuerzo de Gemini (low, medium, high, xhigh; «max» se toma como xhigh). Sin él manda el
+// `esfuerzo` de la tarea (o de cada subtarea) y, si no, el de fabrica/proyecto/modelos.json.
+const ESFUERZO = entrada.esfuerzo === 'max' ? 'xhigh' : entrada.esfuerzo
 
 const VEREDICTO = {
   type: 'object',
@@ -75,12 +77,24 @@ const FINAL = {
   },
 }
 
-const opcionesConstructor = (ronda) => ({
-  agentType: 'constructor',
-  label: `constructor r${ronda}`,
-  phase: 'Construir',
-  ...(ESFUERZO ? { effort: ESFUERZO } : {}),
-})
+// v5 (autor, 2026-11-14): construye Gemini 4 Hydrogen por agy. Un workflow no corre comandos, así que un
+// relevo mínimo (Haiku) corre el lanzador fabrica/scripts/gemini.mjs hasta que la ronda termina. El lanzador
+// reparte la ronda 1 en subtareas en paralelo + integración, si la tarea las declara.
+const RELEVO = {
+  type: 'object',
+  required: ['estado', 'mensaje', 'resumen'],
+  properties: {
+    estado: { type: 'string', enum: ['ENTREGADA', 'SIN_CUOTA', 'FALLO'] },
+    entrega: { type: ['string', 'null'] },
+    mensaje: { type: 'string' },
+    resumen: { type: 'string' },
+  },
+}
+const construir = (ronda) => agent(
+  `Corre: node fabrica/scripts/gemini.mjs ${ID} r${ronda} --reintentar${ESFUERZO ? ` --esfuerzo ${ESFUERZO}` : ''}`,
+  { agentType: 'relevo-gemini', label: `gemini r${ronda}`, phase: 'Construir', schema: RELEVO },
+)
+let sinCuota = null
 
 const rondas = []
 let veredicto = null
@@ -94,15 +108,20 @@ for (let i = 0; DESDE !== 'auditoria' && i < RONDAS; i++) {
   if (sinEntrega) {
     log(`Se retoma en el QA de la ronda ${ronda}, sin construir de nuevo.`)
   } else {
-    const orden = ronda === 1
-      ? `Construye el MVP de la tarea ${ID} (fabrica/proyecto/tareas/${ID}-*.md). Es la ronda 1: tu entrega es fabrica/buzon/${ID}/ENTREGA-r1.md.`
-      : `Corrige la tarea ${ID}. Tu orden de trabajo es fabrica/buzon/${ID}/CORRECCION-r${ronda - 1}.md; lee también la entrega y el QA anteriores del buzón. Tu entrega es fabrica/buzon/${ID}/ENTREGA-r${ronda}.md.`
-    entrega = await agent(orden, opcionesConstructor(ronda))
-    if (entrega === null) {
-      log(`El constructor de la ronda ${ronda} no terminó (detenido o error de la API). Se para el ciclo.`)
-      rondas.push({ ronda, entrega: null, qa: null })
+    entrega = await construir(ronda)
+    if (entrega === null || entrega.estado === 'FALLO') {
+      log(`La construcción de la ronda ${ronda} no terminó: ${entrega ? entrega.mensaje : 'el relevo se detuvo o falló la API'}. Se para el ciclo.`)
+      rondas.push({ ronda, entrega, qa: null })
       break
     }
+    if (entrega.estado === 'SIN_CUOTA') {
+      // Decisión del autor (2026-11-14): sin cuota de Gemini, la tarea para y se avisa.
+      log(`Gemini sin cuota en la ronda ${ronda}: la tarea para (ESCALADO.md). Se retoma con el mismo comando cuando vuelva la cuota.`)
+      sinCuota = ronda
+      rondas.push({ ronda, entrega, qa: null })
+      break
+    }
+    log(`Ronda ${ronda} construida: ${entrega.resumen}`)
   }
 
   veredicto = await agent(
@@ -147,6 +166,8 @@ if (aprobada || DESDE === 'auditoria') {
     `Escribe fabrica/buzon/${ID}/AUDITORIA-FINAL.md y devuelve el resumen.`,
     { agentType: 'auditor-final', label: 'auditoría final', phase: 'Auditoría final', schema: FINAL },
   )
+} else if (sinCuota) {
+  log('Sin cuota de Gemini: no hay QA ni auditoría. Cuando vuelva la cuota se relanza con el mismo comando; lo ya entregado no se repite.')
 } else if (bloqueo.length) {
   log('Bloqueada: el orquestador arregla lo suyo y la retoma con correccion, qa o auditoria, sin volver a construir.')
 } else {
@@ -156,8 +177,8 @@ if (aprobada || DESDE === 'auditoria') {
 return {
   tarea: ID,
   desde: DESDE,
-  estado: final ? 'AUDITADA' : bloqueo.length ? 'BLOQUEADA' : (veredicto && veredicto.veredicto === 'NO_PASA' ? 'ESCALADA' : 'INCOMPLETA'),
-  rondas: rondas.map((r) => ({ ronda: r.ronda, veredicto: r.qa ? r.qa.veredicto : null, hallazgos: r.qa ? r.qa.hallazgos : [] })),
+  estado: final ? 'AUDITADA' : sinCuota ? 'SIN_CUOTA' : bloqueo.length ? 'BLOQUEADA' : (veredicto && veredicto.veredicto === 'NO_PASA' ? 'ESCALADA' : 'INCOMPLETA'),
+  rondas: rondas.map((r) => ({ ronda: r.ronda, construccion: r.entrega ? r.entrega.estado : null, veredicto: r.qa ? r.qa.veredicto : null, hallazgos: r.qa ? r.qa.hallazgos : [] })),
   auditoriaFinal: final,
   tokensDeSalida: budget.spent(),
 }
