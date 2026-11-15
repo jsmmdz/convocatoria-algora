@@ -116,6 +116,39 @@
   --inclinacion-desp: 1.5;
   --hitos-scrub: 0.2;
 
+  /* Productos (leadoff L1, tabletales A3-A5, K1-K3) */
+  --productos-bloque: var(--color-cobalto);
+  --ficha-ancho: clamp(10rem, 15.27vw, 13.75rem);
+  --ficha-alto: clamp(7rem, 10.4vw, 9.375rem);
+  --ficha-color-1: var(--color-acido);
+  --ficha-color-2: var(--color-magenta);
+  --ficha-color-3: var(--color-tomate);
+  --ficha-color-4: var(--color-papel);
+  --ficha-color-5: var(--color-acido);
+  --ficha-color-6: var(--color-magenta);
+  --ficha-color-7: var(--color-tomate);
+  --ficha-texto-1: var(--color-tinta);
+  --ficha-texto-2: var(--color-tinta);
+  /* Tinta sobre tomate da 4.99:1 (WCAG AA); papel sobre tomate da 3.66:1 (fallaría axe) */
+  --ficha-texto-3: var(--color-tinta);
+  --ficha-texto-4: var(--color-tinta);
+  --ficha-texto-5: var(--color-tinta);
+  --ficha-texto-6: var(--color-tinta);
+  --ficha-texto-7: var(--color-tinta);
+  --ficha-giro-1: -7;
+  --ficha-giro-2: 5;
+  --ficha-giro-3: -4;
+  --ficha-giro-4: 8;
+  --ficha-giro-5: -9;
+  --ficha-giro-6: 3;
+  --ficha-giro-7: -2;
+  --productos-scrub: 0.55;
+  --productos-pin: 2;
+  --marco-pincel: 120;
+  --marco-ruido-escala: 1.6;
+  --marco-ruido-tiempo: 0.03;
+  --marco-dpr-max: 2;
+
   /* Tema claro (por defecto) */
   --fondo: var(--color-papel);
   --superficie: var(--color-superficie-clara);

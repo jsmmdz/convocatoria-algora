@@ -170,7 +170,7 @@ test.describe('T01 · andamio', () => {
     });
     expect(destinos.cta, 'existe el CTA').not.toBeNull();
     expect(destinos.cta?.ruta, 'el CTA apunta a la página de inicio, no a la actual').toBe(destinos.inicio);
-    expect(destinos.cta?.ancla).toBe('#postulate');
+    expect(destinos.cta?.ancla).toBe('#postulacion');
   });
 
   test('Lenis se monta con movimiento normal y no con movimiento reducido', async ({ page }) => {
@@ -182,7 +182,7 @@ test.describe('T01 · andamio', () => {
     expect(await page.evaluate(() => document.documentElement.classList.contains('lenis'))).toBe(false);
   });
 
-  test('navegación: logo al inicio, botón de tema y «Postúlate» a #postulate, fija al bajar', async ({ page }) => {
+  test('navegación: logo al inicio, botón de tema y «Postúlate» a #postulacion, fija al bajar', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/');
     // Desde T02 hay precarga: se navega con la página ya entrada (contrato data-listo).
@@ -190,7 +190,7 @@ test.describe('T01 · andamio', () => {
     const nav = page.getByRole('navigation').first();
     await expect(nav).toBeVisible();
     await expect(nav.getByRole('link', { name: /algora/i })).toBeVisible();
-    await expect(nav.getByRole('link', { name: /postúlate/i })).toHaveAttribute('href', /#postulate$/);
+    await expect(nav.getByRole('link', { name: /postúlate/i })).toHaveAttribute('href', /#postulacion$/);
     const familia = await nav.getByRole('link', { name: /algora/i }).evaluate((el) => getComputedStyle(el).fontFamily);
     expect(familia, 'el logo usa Rubik Bubbles').toMatch(/Rubik Bubbles/i);
     // Página alta de prueba; se espera a que Lenis (si está) recalcule su límite antes de girar la rueda.

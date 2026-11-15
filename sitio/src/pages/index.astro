@@ -3,18 +3,22 @@ import Base from '../layouts/Base.astro';
 import Precarga from '../components/Precarga.astro';
 import Portada from '../components/Portada.astro';
 import Hitos from '../components/Hitos.astro';
+import Productos from '../components/Productos.astro';
 ---
 <Base>
   <Precarga />
   <main>
     <Portada />
     <Hitos />
+    <Productos />
   </main>
 </Base>
 
 <script>
   import { iniciarPortada } from '../lib/portada';
   import { iniciarHitos } from '../lib/hitos';
+  import { iniciarProductos } from '../lib/productos';
   iniciarPortada();
   iniciarHitos();
+  iniciarProductos();
 </script>

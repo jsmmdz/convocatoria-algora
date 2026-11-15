@@ -65,6 +65,21 @@ tipográficas, borde ácido con relleno del tema, titular + botón Postúlate; `
 - Distancias de rueda de sus capturas medidas con T03 cerrada (2026-11-15): `piezas` 8460 y `marco` 9135 (antes
   4200 y 5600, que caían dentro de los hitos). La medida está en la ficha.
 
+**`T04` DONE (2026-11-15).** Primera construcción real con subtareas en paralelo: S1 (206 s) y S2 (490 s, `xhigh`) a
+la vez, después la integración (904 s); ninguna acción negada. La primera corrida se cortó por falta de créditos de
+`agy` (~401 k tokens sin entrega) y se relanzó tras la recarga.
+- QA r1 de Sonnet: sin hallazgos del constructor; tres del orquestador. H1: `L1` pedía un estado «bloque» que no
+  existía, ahora se compara en «piezas». H2: tinta sobre el tomate (papel daba 3,66:1). H3: sin pruebas, se mantiene.
+  Commit `44ed5c2`.
+- Auditoría de Opus: E1–E2 Mayores (sin marco, por pérdida de contexto o `import()` fallido, quedaba una pantalla
+  cobalto vacía), E3 Menor (Shift+Tab no llegaba al Postúlate de la sección) y E4 (anclas `#postulate` y
+  `#postulacion`).
+- Autor: E1–E3 los arregla el orquestador; el ancla única es `#postulacion` (nav, prueba y tarea de T01 corregidas).
+  Pulido verificado con las sondas del auditor; compuertas en verde.
+- Visto bueno del autor. Cierre en `fabrica/buzon/T04/`: `PULIDO.md`, `VISTO-BUENO.md` y `REGISTRO.md`.
+- Para T05: el panel provisional `[data-siguiente]` («Cómo funciona») de `Productos.astro` es lo que el marco deja
+  ver; T05 lo reemplaza o lo continúa. El formulario de T07 lleva `id="postulacion"`.
+
 **Fábrica v5.0 (2026-11-14, decisión del autor): Gemini construye, Claude planea, orquesta y revisa.**
 - Construye **Gemini 4 Hydrogen** por `agy`. La ronda 1 se reparte en subtareas en paralelo con archivos
   disjuntos, más una integración; las correcciones las hace una sola sesión.
@@ -79,15 +94,15 @@ tipográficas, borde ácido con relleno del tema, titular + botón Postúlate; `
     `write_to_file` → `write_file`; quedó corregido y cubierto en los casos);
   - el supervisor sobrevive entre llamadas;
   - SIN_CUOTA simulado para y retoma sin repetir lo entregado.
-- Lo que falta probar con una tarea real: la integración con compuertas y capturas, y el QA de Sonnet sobre
-  una entrega de Gemini. Lo segundo quedó probado con la corrección r4 de T03 (2026-11-15); T04 prueba lo primero.
+- Probado con tareas reales: el QA de Sonnet sobre una entrega de Gemini (corrección r4 de T03) y la construcción
+  en paralelo con integración, compuertas y capturas (T04, 2026-11-15).
 - Con commit desde el 2026-11-14, en cinco commits: hook, lanzador, workflow, manual y planeación de T04. Además,
   el workflow y el lanzador aceptan IDs `R<n>` para las tareas de responsive (autor, 2026-11-14).
 
 **Sigue:**
-1. Autor: `/construir-tarea T04`, la primera construcción con subtareas en paralelo (S1 y S2 a la vez, luego
-   la integración → QA de Sonnet → auditoría de Opus).
-2. Orquestador: revisa la auditoría y hace el pulido con el autor. Visto bueno → DONE.
+1. Orquestador: preparar T05 (Cómo funciona y carreras) según `orquestador.md` § 1: analizar leadoff A4 y A6, traer
+   al autor en un solo bloque las decisiones de dirección, escribir la tarea con sus subtareas y sus pruebas.
+2. Autor: `/construir-tarea T05`.
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -137,7 +152,7 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 | T01 | Andamio: Astro + TS estricto, tokens del manual (paleta, fuentes, espacios fluidos max(min, vw)), tema claro/oscuro con botón, `data-listo` con respaldo, GSAP + Lenis base con movimiento reducido, navegación y pie, despliegue a Pages con los secrets de Supabase | manual · leadoff K2 | — | DONE |
 | T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | DONE |
 | T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K4 | T02 | DONE |
-| T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | PENDING (lista para lanzar) |
+| T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | DONE |
 | T05 | Cómo funciona y carreras: 4 columnas fijas con hilos y mucho aire; carreras en bloques de color a sangre con lo que aporta cada una | leadoff A4, A6 | T04 | PENDING |
 | T06 | Hélice de proyectos: tarjetas curvas en WebGL (OGL) que giran con el scroll de una sección fija, más flechas y teclado; tarjetas reales en el DOM; color por facultad; zoom y deriva con la velocidad; `[EJEMPLO]`; «Sumarme» → evento al formulario | ryan A1–A6, K1–K4 | T05 | PENDING |
 | T07 | Postulación y datos: formulario de dos caminos con validación, trampa y Ley 1581; Supabase (esquema, envío, `proyectos_publicos` en la hélice) y modo demostración; recibe `algora:sumarse` | manual (componentes) | T06 | PENDING |

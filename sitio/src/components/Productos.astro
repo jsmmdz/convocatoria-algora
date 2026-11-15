@@ -1,0 +1,367 @@
+---
+// Textos de ENCARGO.md § 2 y orden de colores de T04-productos.md.
+const fichas = [
+  { etiqueta: '[APP]', nombre: 'Una app' },
+  { etiqueta: '[JUEGO]', nombre: 'Un juego' },
+  { etiqueta: '[TIENDA]', nombre: 'Una tienda' },
+  { etiqueta: '[IA]', nombre: 'Una herramienta con IA' },
+  { etiqueta: '[PLATAFORMA]', nombre: 'Una plataforma' },
+  { etiqueta: '[SERVICIO]', nombre: 'Un servicio' },
+  { etiqueta: '[MEDIO]', nombre: 'Un medio' },
+];
+---
+<section class="productos" data-productos aria-labelledby="productos-titulo">
+  <div class="productos__bloque" data-productos-bloque>
+    <div class="productos__centro">
+      <p class="productos__etiqueta" data-productos-etiqueta>[PRODUCTOS]</p>
+      <h2 class="productos__titular" id="productos-titulo" data-productos-titular>¿Cuál es el tuyo?</h2>
+      <a class="productos__postular" data-postular href="#postulacion">Postúlate</a>
+    </div>
+
+    <ul class="productos__fichas" aria-label="Tipos de productos que puedes construir">
+      {fichas.map((f, i) => (
+        <li class={`productos__ficha productos__ficha--${i + 1}`} data-ficha>
+          <span class="productos__ficha-etiqueta" data-ficha-etiqueta>{f.etiqueta}</span>
+          <span class="productos__ficha-nombre" data-ficha-nombre>{f.nombre}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <canvas class="productos__marco" data-marco aria-hidden="true"></canvas>
+
+  <div class="productos__siguiente" data-siguiente>
+    <p class="productos__siguiente-titulo">Cómo funciona</p>
+  </div>
+</section>
+
+<style>
+  /* Por defecto (sin JS, angosto < 1024 px, movimiento reducido): bloque a sangre con rejilla quieta y sin canvas. */
+  .productos {
+    position: relative;
+    background: var(--productos-bloque, var(--color-cobalto));
+    color: var(--color-papel);
+    /* Bloque de marca igual en ambos temas: borde en tinta y foco en ácido sobre cobalto */
+    --borde: var(--color-tinta);
+    --foco: var(--color-acido);
+  }
+
+  .productos__marco {
+    display: none;
+  }
+
+  .productos__bloque {
+    position: relative;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: var(--espacio-xl);
+    min-block-size: 100svh;
+    padding: calc(var(--alto-nav) + var(--espacio-xl)) var(--margen) var(--espacio-xl);
+    background: var(--productos-bloque, var(--color-cobalto));
+  }
+
+  .productos__centro {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    justify-items: center;
+    gap: var(--espacio-l);
+    text-align: center;
+    max-inline-size: min(44rem, 100%);
+  }
+
+  .productos__etiqueta {
+    margin: 0;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-papel);
+  }
+
+  .productos__titular {
+    font-family: var(--fuente-titular);
+    font-size: var(--titular-xl);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--color-papel);
+  }
+
+  .productos__postular {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: 44px;
+    min-inline-size: 44px;
+    padding: 0.75rem 2rem;
+    border-radius: var(--radio-pastilla);
+    background: var(--color-acido);
+    color: var(--color-tinta);
+    border: var(--borde-ancho) solid var(--borde);
+    box-shadow: var(--sombra);
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform var(--dur-rapida) var(--curva-salida), box-shadow var(--dur-rapida) var(--curva-salida);
+  }
+
+  .productos__postular:hover {
+    transform: translate(2px, 2px);
+    box-shadow: var(--sombra-hover);
+  }
+
+  /* Rejilla quieta por defecto (2 columnas en celular, fluida en escritorio sin modo horizontal) */
+  .productos__fichas {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+    inline-size: 100%;
+    max-inline-size: 68rem;
+  }
+
+  @media (min-width: 1024px) {
+    .productos:not([data-modo='horizontal']) .productos__fichas {
+      grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+    }
+  }
+
+  .productos__ficha {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--espacio-s);
+    min-inline-size: 0;
+    min-block-size: var(--ficha-alto, clamp(7rem, 10.4vw, 9.375rem));
+    padding: var(--espacio-m);
+    border-radius: var(--radio);
+    border: var(--borde-ancho) solid var(--borde);
+    box-shadow: var(--sombra);
+    background: var(--ficha-color, var(--color-acido));
+    color: var(--ficha-texto, var(--color-tinta));
+  }
+
+  .productos__ficha--1 {
+    --ficha-color: var(--ficha-color-1, var(--color-acido));
+    --ficha-texto: var(--ficha-texto-1, var(--color-tinta));
+    --ficha-giro: var(--ficha-giro-1, -7);
+  }
+  .productos__ficha--2 {
+    --ficha-color: var(--ficha-color-2, var(--color-magenta));
+    --ficha-texto: var(--ficha-texto-2, var(--color-tinta));
+    --ficha-giro: var(--ficha-giro-2, 5);
+  }
+  .productos__ficha--3 {
+    --ficha-color: var(--ficha-color-3, var(--color-tomate));
+    --ficha-texto: var(--ficha-texto-3, var(--color-tinta));
+    --ficha-giro: var(--ficha-giro-3, -4);
+  }
+  .productos__ficha--4 {
+    --ficha-color: var(--ficha-color-4, var(--color-papel));
+    --ficha-texto: var(--ficha-texto-4, var(--color-tinta));
+    --ficha-giro: var(--ficha-giro-4, 8);
+  }
+  .productos__ficha--5 {
+    --ficha-color: var(--ficha-color-5, var(--color-acido));
+    --ficha-texto: var(--ficha-texto-5, var(--color-tinta));
+    --ficha-giro: var(--ficha-giro-5, -9);
+  }
+  .productos__ficha--6 {
+    --ficha-color: var(--ficha-color-6, var(--color-magenta));
+    --ficha-texto: var(--ficha-texto-6, var(--color-tinta));
+    --ficha-giro: var(--ficha-giro-6, 3);
+  }
+  .productos__ficha--7 {
+    --ficha-color: var(--ficha-color-7, var(--color-tomate));
+    --ficha-texto: var(--ficha-texto-7, var(--color-tinta));
+    --ficha-giro: var(--ficha-giro-7, -2);
+  }
+
+  .productos__ficha-etiqueta {
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+
+  .productos__ficha-nombre {
+    font-family: var(--fuente-titular);
+    font-style: italic;
+    font-size: clamp(1.25rem, 1rem + 0.9vw, 1.75rem);
+    line-height: 1.05;
+    overflow-wrap: break-word;
+  }
+
+  /* Panel provisional para T05: fondo del tema y titular sin contenido extra */
+  .productos__siguiente {
+    display: grid;
+    place-items: center;
+    min-block-size: 60svh;
+    padding: var(--espacio-xl) var(--margen);
+    background: var(--fondo);
+    color: var(--texto);
+  }
+
+  .productos__siguiente-titulo {
+    margin: 0;
+    font-family: var(--fuente-titular);
+    font-size: var(--titular-l);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    text-align: center;
+  }
+
+  /* Modo horizontal (>= 1024 px y sin movimiento reducido): lo activa productos.ts con data-modo='horizontal' */
+  .productos[data-modo='horizontal'] {
+    block-size: 100svh;
+    overflow: hidden;
+  }
+
+  .productos[data-modo='horizontal'] .productos__siguiente {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    min-block-size: 100%;
+  }
+
+  .productos[data-modo='horizontal'] .productos__marco {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+  }
+
+  .productos[data-modo='horizontal'] .productos__bloque {
+    position: relative;
+    z-index: 3;
+    block-size: 100%;
+    min-block-size: 0;
+    place-items: center;
+    gap: 0;
+    padding: var(--alto-nav) var(--margen) var(--espacio-l);
+  }
+
+  /* Cuando el marco de tinta ya está montado y pintando el cobalto en p=0, el bloque deja ver el hueco */
+  .productos[data-modo='horizontal'][data-marco-listo] .productos__bloque {
+    background: transparent;
+  }
+
+  /* Contenido apagado: sigue en el árbol accesible y en el orden de tabulación, pero no recibe clics (E3) */
+  .productos[data-modo='horizontal'][data-productos-apagado] .productos__centro {
+    pointer-events: none;
+  }
+
+  /* Respaldo si el marco no carga o pierde el contexto (E1, E2): el bloque se desvanece y deja ver «Cómo funciona» */
+  .productos[data-modo='horizontal'][data-marco-fallo] .productos__bloque {
+    transition: background-color var(--dur-lenta) var(--curva-salida);
+  }
+  .productos[data-modo='horizontal'][data-marco-fallo][data-marco-abierto] .productos__bloque {
+    background: transparent;
+  }
+
+  .productos[data-modo='horizontal'] .productos__centro {
+    max-inline-size: min(44rem, 52vw);
+  }
+
+  .productos[data-modo='horizontal'] .productos__fichas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    max-inline-size: none;
+    pointer-events: none;
+  }
+
+  .productos[data-modo='horizontal'] .productos__ficha {
+    position: absolute;
+    inline-size: var(--ficha-ancho, clamp(10rem, 15.27vw, 13.75rem));
+    block-size: var(--ficha-alto, clamp(7rem, 10.4vw, 9.375rem));
+    min-block-size: 0;
+    transform: rotate(calc(var(--ficha-giro, 0) * 1deg));
+    will-change: transform;
+  }
+
+  /* Posiciones repartidas alrededor del titular sin tapar etiqueta, h2 ni botón en 1024..1440+ */
+  .productos[data-modo='horizontal'] .productos__ficha--1 {
+    inset-block-start: 13%;
+    inset-inline-start: 5%;
+  }
+  .productos[data-modo='horizontal'] .productos__ficha--2 {
+    inset-block-start: calc(var(--alto-nav) + 0.75rem);
+    inset-inline-start: 40%;
+  }
+  .productos[data-modo='horizontal'] .productos__ficha--3 {
+    inset-block-start: 14%;
+    inset-inline-end: 6%;
+  }
+  .productos[data-modo='horizontal'] .productos__ficha--4 {
+    inset-block-start: 44%;
+    inset-inline-start: 3.5%;
+  }
+  .productos[data-modo='horizontal'] .productos__ficha--5 {
+    inset-block-start: 47%;
+    inset-inline-end: 4%;
+  }
+  .productos[data-modo='horizontal'] .productos__ficha--6 {
+    inset-block-end: 5%;
+    inset-inline-start: 6%;
+  }
+  .productos[data-modo='horizontal'] .productos__ficha--7 {
+    inset-block-end: 6%;
+    inset-inline-end: 7%;
+  }
+
+  /* En pantallas bajas (p. ej. 1280×720) desplaza la ficha superior a la izquierda de [PRODUCTOS] */
+  @media (max-height: 780px) {
+    .productos[data-modo='horizontal'] .productos__centro {
+      gap: var(--espacio-m);
+    }
+    .productos[data-modo='horizontal'] .productos__ficha--1 {
+      inset-inline-start: 3.5%;
+    }
+    .productos[data-modo='horizontal'] .productos__ficha--2 {
+      inset-block-start: calc(var(--alto-nav) + var(--espacio-s));
+      inset-inline-start: 23%;
+    }
+  }
+
+  /* Envolturas creadas por productos-fichas.ts para K3 (subida por letra dentro de máscara) */
+  .productos :global(.productos__solo-lector) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .productos :global(.productos__palabra) {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .productos :global(.productos__mascara) {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-block-end: 0.18em;
+    margin-block-end: -0.18em;
+  }
+
+  .productos :global(.productos__letra) {
+    display: inline-block;
+    will-change: transform;
+  }
+</style>

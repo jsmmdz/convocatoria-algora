@@ -1,0 +1,25 @@
+{
+  "tarea": "T04",
+  "ronda": 1,
+  "subtarea": "integracion",
+  "intento": 1,
+  "modelo": "gemini-4-hydrogen-high",
+  "fabrica": "v5.0",
+  "inicio": "2026-11-15T19:47:21.937Z",
+  "fin": "2026-11-15T20:02:25.722Z",
+  "segundos": 904,
+  "codigo": 0,
+  "status": "SUCCESS",
+  "conversacion": "08dd8065-5575-4504-8b3a-9e7f46e2eb05",
+  "usage": {
+    "input_tokens": 379556,
+    "output_tokens": 38035,
+    "thinking_tokens": 21422,
+    "cache_read_tokens": 9258870,
+    "total_tokens": 417591
+  },
+  "num_turns": 1,
+  "denied_actions": [],
+  "respuesta": "Integré S1 y S2 de `T04` en [productos.ts](file:///C:/UNIVERSIDAD/UNIVERSIDAD/PAGINA%20CONVOCATORIA/sitio/src/lib/productos.ts), agregué los tokens en [tokens.css](file:///C:/UNIVERSIDAD/UNIVERSIDAD/PAGINA%20CONVOCATORIA/sitio/src/styles/tokens.css), monté `<Productos />` e `iniciarProductos()` en [index.astro](file:///C:/UNIVERSIDAD/UNIVERSIDAD/PAGINA%20CONVOCATORIA/sitio/src/pages/index.astro) y entregué [ENTREGA-r1.md](file:///C:/UNIVERSIDAD/UNIVERSIDAD/PAGINA%20CONVOCATORIA/fabrica/buzon/T04/ENTREGA-r1.md).\n\n- **Compuertas (`node fabrica/scripts/compuertas.mjs T04`):** `COMPUERTAS: VERDE` (`0` bloquean, `1` aviso `mobiliario` justificado por las sombras duras y bordes del manual en `Productos.astro`); `check`, `build` y Playwright (`tests/comunes`, `T01`, `T02`, `T03`) pasaron, con `168.748` bytes en fuentes y `70.638` bytes gzip de JS inicial.\n- **Capturas y verificación (`node fabrica/scripts/capturas.mjs T04` y [verificar-t04.mjs](file:///C:/UNIVERSIDAD/UNIVERSIDAD/PAGINA%20CONVOCATORIA/fabrica/buzon/T04/tmp/verificar-t04.mjs)):** 15 capturas generadas y revisadas (`estado-piezas.jpg`, `estado-marco.jpg`, hojas `tabletales-A3/A4/A5.jpg`, `inicio-breakpoints.jpg`, `inicio-390-completa.jpg`); sin choques ni cortes en `1440×900`, `1280×720`, `1024×768` ni `390×844`, y con carga diferida de `marco-tinta` / OGL.\n- **Supuestos:** `fabrica/proyecto/perfil.md` no existe; fijé `--ficha-texto-3` y `--ficha-texto-7` en `var(--color-tinta)` para cumplir contraste WCAG AA (`≥ 4,5:1`); `T04.json` no define el estado `bloque` para `L1`.\n\nPaso siguiente: sigue el QA de T04 sobre `ENTREGA-r1.md`.\n",
+  "stderr": ""
+}

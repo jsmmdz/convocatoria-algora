@@ -86,7 +86,7 @@ Lenis) y una página que ya se publica. Sin contenido de secciones todavía.
    `lenis` (o `null`) y `movimientoReducido`.
 7. **Navegación** (`src/components/Nav.astro`): barra fija arriba con el logo «algora» en
    `--fuente-acento` enlazado al inicio, el botón de tema (`id="tema"`, nombre accesible «Cambiar tema»)
-   y el enlace «Postúlate» a `#postulate` (la sección llega en T07). Botón y enlace con borde de tinta y
+   y el enlace «Postúlate» a `#postulacion` (la sección llega en T07; ancla unificada con T04 el 2026-11-15, E4 de la auditoría de T04). Botón y enlace con borde de tinta y
    sombra dura del manual.
 8. **Pie** (`src/components/Pie.astro`): bloque de `--color-tinta` a sangre con «Semillero Algora ·
    Creación Digital · Universidad El Bosque» y «Convocatoria abierta · fechas por confirmar».

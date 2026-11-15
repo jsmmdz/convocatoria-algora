@@ -1,0 +1,25 @@
+{
+  "tarea": "T04",
+  "ronda": 1,
+  "subtarea": "S2",
+  "intento": 1,
+  "modelo": "gemini-4-hydrogen-xhigh",
+  "fabrica": "v5.0",
+  "inicio": "2026-11-15T19:39:11.709Z",
+  "fin": "2026-11-15T19:47:21.935Z",
+  "segundos": 490,
+  "codigo": 0,
+  "status": "SUCCESS",
+  "conversacion": "8885e68f-5787-463b-9891-3829ba4fb9f2",
+  "usage": {
+    "input_tokens": 438401,
+    "output_tokens": 81887,
+    "thinking_tokens": 69582,
+    "cache_read_tokens": 2366585,
+    "total_tokens": 520288
+  },
+  "num_turns": 1,
+  "denied_actions": [],
+  "respuesta": "Construí la subtarea S2 de `T04` en [marco-tinta.ts](file:///C:/UNIVERSIDAD/UNIVERSIDAD/PAGINA%20CONVOCATORIA/sitio/src/lib/marco-tinta.ts) y entregué [ENTREGA-r1-S2.md](file:///C:/UNIVERSIDAD/UNIVERSIDAD/PAGINA%20CONVOCATORIA/fabrica/buzon/T04/ENTREGA-r1-S2.md).\n\n- **Qué construí:** `montarMarco(canvas): Marco | null` (`progreso`, `redimensionar`, `destruir`) con shader OGL de rectángulo redondeado, lóbulos `fbm` según dirección, borde ácido variable hasta `--marco-pincel`, pausa fuera de pantalla, respaldo sin WebGL y manejo de `webglcontextlost`/re-montaje.\n- **Compuertas y chequeo:** `npx astro check` en `sitio/` → `0 errors, 0 warnings, 0 hints` (32 archivos); `node fabrica/scripts/compuertas.mjs T04 --sin-build` → `COMPUERTAS: VERDE` (0 bloquean; 4 avisos por `--sin-build` y 5 de `mobiliario` en el archivo paralelo de S1).\n- **Supuestos:** `fabrica/proyecto/perfil.md` no existe; uso los valores iniciales de `T04` como respaldo mientras la integración agrega los tokens a `tokens.css`; el build, la compilación real en navegador y las capturas quedan pendientes para la integración.\n- **Paso siguiente:** ejecutar la sesión de integración de `T04` para montar S1 y S2, agregar los tokens en `tokens.css` y correr compuertas completas y capturas.\n",
+  "stderr": ""
+}
