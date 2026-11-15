@@ -54,6 +54,19 @@ videos o capturas que quiera en `referentes/`). Todo lo demás lo saca el orques
    que miran sus mismas páginas o componentes, buscadas con `grep` de los textos, selectores y
    `data-*` que la tarea toca. Con ellas corren el constructor y el QA; la suite completa solo la
    auditoría final. Una que falte la atrapa la auditoría, pero cuesta una vuelta.
+2b. **Dividir en subtareas** (v5, autor 2026-11-14): para que varios Gemini construyan a la vez, la tarea
+   declara `subtareas: [S1, S2, …]` y, por cada una, `archivos-S<n>` (lo único que esa sesión escribe) y,
+   si hace falta, `esfuerzo-S<n>` (`xhigh` en la de shaders). En el cuerpo va una sección `## Subtarea S<n>`
+   por cada una y una `## Integración`. Reglas para que no se pisen:
+   - **Archivos disjuntos.** Ningún archivo en dos `archivos-S<n>`. Lo compartido (la página, `tokens.css`,
+     `package.json`) no es de ninguna subtarea: lo toca la integración, que tiene todos los `archivos` de la tarea.
+   - **La interfaz, escrita.** Si S2 usa algo de S1, la tarea dice qué exporta S1 (nombre, firma, eventos,
+     `data-*`) para que S2 lo use sin esperar a que exista.
+   - **Cada subtarea, una pieza que se pueda construir sola** (un componente, un módulo de efecto, un shader).
+     Entre 2 y 4: más subtareas son más integración, y la integración es la que más falla.
+   - Una tarea chica o que es una sola pieza no se divide: corre en una sola sesión, como antes.
+   La división es del orquestador, no del agente; si las partes no se pueden separar sin decidir dirección,
+   se pregunta al autor antes.
 3. **Escribir las pruebas de aceptación** en `sitio/tests/<ID>/`. Cada punto de «Cuándo
    terminaste» que se pueda comprobar con un script va ahí. Lo que no se pueda, se dice en
    la tarea y se revisa en el `VISTO BUENO`. La tarea declara su prueba en `requiere`.
@@ -62,7 +75,8 @@ videos o capturas que quiera en `referentes/`). Todo lo demás lo saca el orques
 4. **Validar la prueba** antes de lanzar: sembrar el defecto que la prueba debe atrapar y
    comprobar que falla. Una prueba que nunca se vio fallar no prueba nada.
 5. Las tareas con agentes van **en serie**, no en paralelo: el cuello de botella es la revisión del
-   autor, y dos suites a la vez dan fallos falsos (`F18`). Queda el turno de pruebas
+   autor, y dos suites a la vez dan fallos falsos (`F18`). El paralelo vive **dentro** de la tarea: las
+   subtareas no corren Playwright ni capturas (solo la integración), así que no chocan con `F18`. Queda el turno de pruebas
    (`fabrica/scripts/lib/turno.mjs`) por si dos procesos corren a la vez.
 6. Commit de la tarea y sus pruebas, para que el árbol esté limpio al lanzar: las compuertas
    marcan como «fuera de alcance» cualquier cambio sin versionar.
@@ -71,11 +85,22 @@ videos o capturas que quiera en `referentes/`). Todo lo demás lo saca el orques
 ## 2. Lanzar
 
 El autor escribe `/construir-tarea <ID>` (con `+Nk` si quiere un tope de tokens). El workflow
-`.claude/workflows/construir-tarea.js` corre constructor → QA → correcciones (máx. 3 rondas) →
-auditoría final con Opus, en segundo plano. Modelo y esfuerzo de cada papel están en
-`.claude/agents/`. **No se toca el repo mientras corre.** Una tarea
-de shaders se lanza con esfuerzo `high` para el constructor: `/construir-tarea <ID> high`. Sin esa
-palabra el constructor corre en `medium`.
+`.claude/workflows/construir-tarea.js` corre construcción → QA → correcciones (máx. 3 rondas) →
+auditoría final con Opus, en segundo plano. **No se toca el repo mientras corre.**
+
+**Construcción (v5).** El workflow no construye: le pide al relevo (`relevo-gemini`, Haiku) que corra
+`node fabrica/scripts/gemini.mjs <ID> r<N>`. En la ronda 1, el lanzador abre una sesión de Gemini 4 Hydrogen
+por subtarea, en paralelo, y después la de integración; en las correcciones, una sola sesión con todos los
+archivos. El esfuerzo de Gemini sale de la tarea (`esfuerzo`, `esfuerzo-S<n>`) o de
+`fabrica/proyecto/modelos.json` (`high`); una palabra al lanzar manda sobre todo:
+`/construir-tarea <ID> xhigh`. Una tarea de shaders lleva `esfuerzo: xhigh` en la tarea o en su subtarea.
+El estado de cada ronda queda en `fabrica/buzon/<ID>/tmp/gemini-r<N>.json` (y su registro en `.log`): si la
+ronda ya terminó en ENTREGADA, relanzarla devuelve ese resultado sin construir; para construir de nuevo desde
+cero, se borra ese archivo y las `ENTREGA-r<N>*.md`.
+
+**Sin cuota.** Si Gemini responde 429, la tarea para con estado `SIN_CUOTA` y una sección en `ESCALADO.md`
+(decisión del autor, 2026-11-14: ni otro modelo ni reintento solo). Cuando vuelva la cuota, el autor relanza
+el mismo comando: las subtareas con su `ENTREGA-r1-S<n>.md` se saltan.
 
 **Corte temprano y retomar.** El QA marca el dueño de cada hallazgo. Si un
 Crítico o un Mayor es del orquestador (una prueba, una compuerta, una contradicción entre la tarea y
@@ -87,7 +112,8 @@ orquestador lo arregla (§ 4.7) y retoma **sin volver a construir**:
 | También hallazgos del constructor (`CORRECCION-r<N>.md`) | `/construir-tarea <ID> correccion r<N+1>` | constructor → QA → … |
 | Nada más del constructor, pero el arreglo pide otra mirada | `/construir-tarea <ID> qa r<N+1>` | QA de la última entrega → … |
 | Nada más del constructor y compuertas en verde (las corre el orquestador) | `/construir-tarea <ID> auditoria` | solo la auditoría final |
-| La corrida se cayó o se paró después de construir y sin entrega | `/construir-tarea <ID>` con una nota al constructor en la orden: el código ya está en el árbol, no lo rehace; corre las compuertas una vez (o las corrió el orquestador) y escribe la entrega | constructor (solo entrega) → QA → … |
+| La corrida se cayó o se paró después de construir y sin entrega | `/construir-tarea <ID>`: el lanzador ya le pide a cada sesión que se quedó sin entrega que la termine, y las subtareas que entregaron no se repiten. Si aun así falla, el orquestador corre las compuertas y escribe él la nota en `ESCALADO.md` antes de relanzar | Gemini (lo que falta) → QA → … |
+| Gemini sin cuota (`SIN_CUOTA`) | `/construir-tarea <ID>` cuando vuelva la cuota | Gemini (lo que falta) → QA → … |
 
 Al retomar se hacen hasta 2 rondas. Se retoma por el workflow y no lanzando los agentes sueltos desde
 la sesión: así quedan en el monitor, con el mismo formato de veredicto y los tokens para el

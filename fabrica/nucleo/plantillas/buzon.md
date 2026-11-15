@@ -8,7 +8,7 @@
 ```markdown
 - **Tarea:** T3
 - **Ronda:** r1
-- **Modelo:** claude-sonnet-5-5                         ← el id exacto del modelo que corre tu papel
+- **Modelo:** gemini-4-hydrogen-high                    ← el id exacto del modelo que corre tu papel (constructor: el que te dio la orden)
 - **Fábrica:** v2.0                                     ← la de fabrica/nucleo/reglas.md
 - **Inicio:** 2026-09-23 10:02                          ← salida de `date` al empezar
 - **Fin:** 2026-09-23 11:40                             ← salida de `date` al entregar

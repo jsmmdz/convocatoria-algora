@@ -22,7 +22,9 @@ Resume al autor dónde va la web y cuál es el siguiente paso antes de tocar nad
   `fabrica/proyecto/tareas/`.
 - **Aquí se calca, no se inspira:** cada recurso de un referente entra por el mapa de adaptación con su
   función en esta web (`docs/1-PRODUCTO.md` § 3).
-- Opus orquesta; Sonnet construye y hace el QA; un Opus aparte audita (`/construir-tarea <ID>`). **No toques
+- Opus planea y orquesta (divide cada tarea en subtareas con archivos propios); **Gemini 4 Hydrogen construye**
+  por `agy` (subtareas en paralelo + integración, `fabrica/scripts/gemini.mjs`); Sonnet hace el QA; un Opus aparte
+  audita (`/construir-tarea <ID>`). Sin cuota de Gemini, la tarea para y se avisa. **No toques
   el repo mientras corre un lanzamiento**, y ninguna decisión de dirección se le deja a un agente.
 - Las fallas ya pagadas están en `fabrica/nucleo/fallas.md`: léelas antes de escribir pruebas.
 - Estados de tarea: `PENDING` · `IN_PROGRESS` · `REVIEW` · `PULIDO` · `VISTO BUENO` · `DONE` · `BLOCKED`.

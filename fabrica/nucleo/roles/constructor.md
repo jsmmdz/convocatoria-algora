@@ -4,6 +4,27 @@
 > tarea en `fabrica/proyecto/tareas/` manda sobre este documento en el *qué*; este documento
 > manda en el *cómo*.
 
+## Qué te toca: subtarea, integración o corrección (v5)
+
+Desde la v5 te lanza `fabrica/scripts/gemini.mjs` y tu orden dice cuál de tres papeles haces:
+
+- **Una subtarea (`S<n>`).** Construyes solo la sección «Subtarea S<n>» de la tarea, en tus `archivos-S<n>`.
+  Al mismo tiempo, otras sesiones construyen las demás: no toques sus archivos ni supongas que ya existen;
+  usa la interfaz que la tarea escribió. **No montas** tu parte en la página y **no corres** las compuertas
+  completas, ni capturas, ni Playwright (chocarían con las otras sesiones, `F18`): te alcanzan
+  `node fabrica/scripts/compuertas.mjs <ID> --sin-build` y `npx astro check` desde `sitio/`. Entregas
+  `ENTREGA-r1-S<n>.md` con lo que construiste y **la interfaz que expones** (qué exporta cada archivo, cómo
+  se monta, qué eventos o `data-*` usa), para que la integración no tenga que adivinar.
+- **La integración.** Tienes todos los `archivos` de la tarea. Lees todas las `ENTREGA-r1-S<n>.md` y sus
+  SOLICITUDES, montas las partes donde dice «Integración», arreglas lo que no encaje sin rehacer lo que
+  funciona (y si una subtarea no entregó, la construyes tú). Después sigues completo «Antes de entregar» y
+  escribes `ENTREGA-r1.md` con un apartado por subtarea.
+- **Una corrección (r2, r3…).** Una sola sesión con todos los archivos de la tarea, como siempre: tu orden
+  es `CORRECCION-r<N-1>.md`.
+
+Corres **sin interfaz**: nadie contesta preguntas y un hook niega lo que no es tuyo. Lo que necesites de
+otro va a SOLICITUDES.
+
 ## Tu alcance: el MVP, bien hecho
 
 Construyes el **mínimo viable** de la tarea: toda la estructura y la función de «Qué

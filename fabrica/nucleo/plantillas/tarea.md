@@ -13,6 +13,16 @@ archivos:                   # lo único que puede escribir; "!" excluye
   - "!sitio/src/components/nx/de-otra-tarea/**"
 regresion: [TA]             # tareas cerradas cuyas pruebas corren el constructor y el QA (la suite completa, solo la auditoría final)
 bloqueantes: []             # presupuestos de compuertas.json que en esta tarea bloquean aunque en general solo avisen
+esfuerzo: high              # de Gemini: low | medium | high | xhigh (opcional; sin él, el de fabrica/proyecto/modelos.json)
+# Subtareas (opcional, v5): cada una la construye una sesión de Gemini, en paralelo con las demás. Archivos
+# disjuntos; lo compartido (la página, tokens, package.json) es de la integración, que tiene todos los `archivos`.
+subtareas: [S1, S2]
+archivos-S1:
+  - sitio/src/components/nx/Pieza.astro
+archivos-S2:
+  - sitio/src/lib/nx-efecto.ts
+  - sitio/src/shaders/nx/**
+esfuerzo-S2: xhigh          # opcional, por subtarea (la del shader)
 ---
 
 # `TX` · `@nombre-del-agente` — Título corto
@@ -43,6 +53,22 @@ solo.
 Lo que **no** está decidido se dice explícitamente: «el look de X no está decidido: deja un
 punto de entrada tipado `aplicarX()` que hoy no haga nada visual».
 
+## Subtarea S1 · Nombre corto
+
+Solo si la tarea declara `subtareas`. Qué entregables de «Qué construyes» son de esta sesión (por número), en
+qué archivos y **qué interfaz expone** a las demás: lo que exporta cada archivo, con su firma, eventos y `data-*`.
+Esta sesión no monta su parte en la página ni corre compuertas completas ni capturas: eso es de la integración.
+
+## Subtarea S2 · Nombre corto
+
+Igual. Si usa algo de S1, lo nombra con la interfaz que S1 expone, sin esperar a que exista.
+
+## Integración
+
+Dónde se monta cada parte, qué toca en los archivos compartidos y qué se prueba al juntar (el orden de los pin,
+que dos efectos no peleen por el mismo scroll…). Es la sesión que corre las compuertas y las capturas y escribe
+`ENTREGA-r1.md`.
+
 ## Queda para el pulido — no es del agente
 
 Lo que se afina después, con el autor, en la fase de pulido: ritmo exacto de animaciones,
@@ -68,4 +94,5 @@ Solo lo que el encabezado no puede decir: «en `package.json` solo agregas X».
   (`capturas/<ruta>-breakpoints.jpg`, las 20 pantallas en una imagen): nada encimado, cortado ni diminuto.
 - Lo que **ninguna prueba** puede comprobar, dicho explícitamente: eso lo juzga el autor en
   el visto bueno. Nada de «probaste en el navegador»: sin interfaz no hay navegador.
-- Entrega en `fabrica/buzon/TX/ENTREGA-r1.md`.
+- Entrega en `fabrica/buzon/TX/ENTREGA-r1.md` (con subtareas: cada una deja `ENTREGA-r1-S<n>.md` y la
+  integración escribe `ENTREGA-r1.md`, con un apartado por subtarea).
