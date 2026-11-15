@@ -291,7 +291,8 @@ export function montarTrama(portada: HTMLElement, reducido: boolean): Trama | nu
       observador.disconnect();
       observadorZonas.disconnect();
       vigia.disconnect();
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      // Un contexto ya perdido no se vuelve a soltar: Chrome avisa en consola (auditoría de T03, E7).
+      if (!gl.isContextLost()) gl.getExtension('WEBGL_lose_context')?.loseContext();
     },
   };
 }

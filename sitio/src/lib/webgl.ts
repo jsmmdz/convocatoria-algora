@@ -8,7 +8,8 @@ export function hayWebGL(): boolean {
     const gl = prueba.getContext('webgl2') ?? prueba.getContext('webgl');
     disponible = gl !== null;
     // Se devuelve el contexto de prueba a la GPU: el navegador limita los contextos vivos.
-    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+    // Si el navegador ya lo perdió, no se suelta otra vez: Chrome avisa en consola (auditoría de T03, E7).
+    if (gl && !gl.isContextLost()) gl.getExtension('WEBGL_lose_context')?.loseContext();
   } catch {
     disponible = false;
   }
