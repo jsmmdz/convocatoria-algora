@@ -1,0 +1,50 @@
+{
+  "tarea": "T04 · Productos y marco de tinta",
+  "alcance": "Un bloque a sangre de un solo color (leadoff A2) con «¿Cuál es el tuyo?» como titular XXL, al que llegan volando siete fichas de producto con giro, ligadas al scroll (tabletales A4, K4); y, al terminar, un marco que crece como tinta hasta llenar la pantalla y deja ver la sección siguiente (tabletales A3, K2). Los titulares de la sección entran letra por letra (tabletales A5).",
+  "fecha": "2026-11-10",
+  "evidencia": {
+    "capturas": "referentes/capturas/tabletales-01..04.jpg y leadoff-scroll-00.jpg (2026-11-09, 1440×900)",
+    "codigo": "Chunks de tabletales y bundle de leadoff leídos el 2026-11-09 (fabrica/proyecto/referentes/tabletales.json y leadoff.json). Se reimplementa la técnica."
+  },
+  "librerias": {
+    "GSAP": "ScrollTrigger con pin y scrub; SplitText no (se parte el titular por letras con código propio, o con el plugin si ya está en el sitio)",
+    "OGL": "el shader del marco (un programa, pantalla completa). Se carga diferido, igual que la trama de la portada",
+    "Lenis": "la instancia de src/lib/movimiento.ts"
+  },
+  "referentes": [
+    {
+      "sitio": "https://tabletales.crz.studio/",
+      "se_toma": [
+        { "id": "A3", "aspecto": "Un marco con borde irregular crece desde una tarjeta hasta ocupar la pantalla, como tinta que se expande, y dentro aparece la sección siguiente", "fuente": "capturas tabletales-02 y -03; shader con u_rect, u_spread, fbm", "referente": "referentes/capturas/tabletales-03.jpg", "estado": "marco" },
+        { "id": "A4", "aspecto": "Piezas que llegan volando a su sitio con un giro, ligadas al scroll", "fuente": "chunk: set(pieza,{x,y desde un punto común, rotation, scale:.94}) y timeline scrub .55", "referente": "referentes/capturas/tabletales-01.jpg", "estado": "piezas" },
+        { "id": "A5", "aspecto": "Los titulares entran letra por letra desde abajo (yPercent 100 → 0) con stagger corto", "fuente": "chunk: to(chars,{yPercent:0,duration:.9,stagger:.03,ease:\"power4.out\"})", "referente": "referentes/capturas/tabletales-04.jpg", "estado": "piezas" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "La ilustración art nouveau dorada, el azul marino y el borde dorado", "por_que": "Identidad: el borde es ácido y el relleno el fondo del tema (autor, 2026-11-10)" },
+        { "aspecto": "La tinta dorada que pinta el cursor (K3)", "por_que": "D-6" }
+      ]
+    },
+    {
+      "sitio": "https://www.leadoff.fr/",
+      "se_toma": [
+        { "id": "L1", "aspecto": "Bloque a sangre de un solo color saturado con titular centrado y mucho aire alrededor", "fuente": "captura leadoff-scroll-00", "referente": "referentes/capturas/leadoff-scroll-00.jpg", "estado": "bloque" }
+      ],
+      "no_se_toma": [
+        { "aspecto": "La tipografía condensada en mayúsculas y la foto metida en la frase", "por_que": "D-3: el titular va en DM Serif Text; las fichas hacen el papel del objeto" }
+      ]
+    }
+  ],
+  "tecnica": [
+    { "id": "K1", "que": "Piezas que vuelan a su sitio", "como": "Cada ficha arranca en un punto común fuera del encuadre (x = 1,12·ancho, y = 0,52·alto) con rotación y scale 0,94 y llega a su posición final con un timeline ligado al scroll (scrub 0,55). La entrada: duración 1,3 s, stagger 0,09 s, expo.out, cuando la sección toca el 55 % de la pantalla.", "constantes": { "scrub": 0.55, "duracion_s": 1.3, "stagger_s": 0.09, "ease": "expo.out", "origen_x": 1.12, "origen_y": 0.52, "scale_inicial": 0.94 }, "tiempos": "start «top 55%» y scrub top top → bottom bottom", "fuente": "chunk con «.52*window.innerHeight»" },
+    { "id": "K2", "que": "Marco que se abre como tinta", "como": "Shader de pantalla completa (OGL): distancia con signo a un rectángulo redondeado (u_rect = centro y medio tamaño) más lóbulos de ruido fbm según la dirección desde el borde (fbm(dir·1,6 + tiempo·0,03)); u_spread hace crecer el borde (tope 120 px de pincel). Pinta el relleno dentro y el ácido en el borde. El progreso del scroll lo lleva de 0 a 1.", "constantes": { "pincel_max_px": 120, "ruido_escala": 1.6, "ruido_tiempo": 0.03 }, "tiempos": "scrub: palabras se apagan 0,12–0,26; marco progress 0 → 1 de 0,26 a 0,90 (power2.in); siguiente capa 0,34–0,94", "fuente": "shader 1 (u_view, u_dpr, u_rect, u_spread, u_time, u_paint, u_ink) y timeline scrub" },
+    { "id": "K3", "que": "Titulares letra por letra", "como": "Cada letra sube desde abajo (yPercent 100 → 0) con stagger corto, dentro de una máscara que oculta lo que está debajo de la línea.", "constantes": { "duracion_s": 0.9, "stagger_s": 0.03, "ease": "power4.out" }, "tiempos": "cuando la sección entra", "fuente": "chunk con stagger:.03" }
+  ],
+  "estados": [
+    { "nombre": "piezas", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 4200 }, { "esperar": 1500 }] },
+    { "nombre": "marco", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 5600 }, { "esperar": 1500 }] }
+  ],
+  "dudas": [
+    "Las distancias de rueda de los estados dependen de lo que midan los hitos (pin de T03): se ajustan al terminar T03 en el pulido.",
+    "Siguiente sección: «Cómo funciona» es de T05. Mientras no exista, el marco abre sobre un panel provisional con el fondo del tema y el texto «Cómo funciona»."
+  ]
+}

@@ -93,3 +93,6 @@ postularse. El mensaje se vive, no se dice; nunca se prometen ingresos.
 | 2026-11-10 | Portada: el titular **crece con la pantalla** por encima de 1440 (proporcional al ancho, con tope por alto en ultraanchos); las etiquetas y el aire crecen con él | tope en el tamaño de 1440 |
 | 2026-11-10 | Hitos: el panel de cada hito es un **bloque de color a sangre con la palabra del hito en serif cursiva gigante** (en lugar de la imagen del proyecto de Unseen) | una pieza 3D por hito; solo texto y línea |
 | 2026-11-10 | Hitos: la sección va sobre el **fondo del tema** y dos hitos **pasan a fondo invertido** (unseen A4b) | toda en tinta; un color de marca por hito |
+| 2026-11-10 | Productos: las piezas que llegan volando son **fichas tipográficas** del DOM (color del manual, nombre en serif cursiva y etiqueta mono `[APP]`…), una por producto | objetos 3D por código; maquetas ilustradas en SVG |
+| 2026-11-10 | Marco de tinta: **borde ácido y relleno del tema** (papel o tinta) donde vive «Cómo funciona» | todo en un color de marca; tinta/papel sin color |
+| 2026-11-10 | «¿Cuál es el tuyo?»: titular XXL con un botón **Postúlate** que baja al formulario (`#postulacion`, lo construye T07) | solo la pregunta; pregunta que rota por producto |
