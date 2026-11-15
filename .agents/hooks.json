@@ -1,0 +1,16 @@
+{
+  "fabrica-permisos": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node ../fabrica/scripts/hook-gemini.mjs",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

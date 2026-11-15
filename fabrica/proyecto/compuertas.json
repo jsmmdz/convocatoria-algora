@@ -38,6 +38,7 @@
     "fabrica/proyecto/**",
     "fabrica/scripts/**",
     ".claude/**",
+    ".agents/**",
     ".github/**",
     "sitio/tests/**",
     "sitio/playwright.config.ts"
