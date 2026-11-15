@@ -71,7 +71,7 @@ postularse. Al terminar, un marco de tinta se abre hacia «Cómo funciona» (T05
 - D-3: los titulares van en DM Serif Text. D-6: sin tinta de cursor.
 - Del orquestador (2026-11-10, reversibles por token o texto):
   - El bloque es **cobalto**; el titular va en papel. Las fichas van, en orden: ácido · magenta · tomate ·
-    papel · ácido · magenta · tomate. Texto en tinta sobre todas, menos sobre el tomate (papel).
+    papel · ácido · magenta · tomate. Texto en tinta sobre todas, también sobre el tomate (corregido el 2026-11-15, H2 del QA r1: papel sobre tomate da 3,66:1 y no llega al 4,5:1 del punto 2; tinta da 4,99:1, como en los hitos).
   - Las siete fichas, con su etiqueta: `[APP]` Una app · `[JUEGO]` Un juego · `[TIENDA]` Una tienda ·
     `[IA]` Una herramienta con IA · `[PLATAFORMA]` Una plataforma · `[SERVICIO]` Un servicio ·
     `[MEDIO]` Un medio. (Textos de `ENCARGO.md` § 2.)
@@ -152,7 +152,7 @@ afinan en el pulido. S1 los lee con `var()`, y S1 y S2 con `leerNumero` / `leerC
 | `--productos-bloque` | `var(--color-cobalto)` | S1 (el fondo del bloque) y S2 (lo que pinta fuera del hueco) |
 | `--ficha-ancho`, `--ficha-alto` | ≈ 220 px y 150 px a 1440, fluidos (`clamp`) | S1 |
 | `--ficha-color-1` … `--ficha-color-7` | ácido · magenta · tomate · papel · ácido · magenta · tomate | S1 |
-| `--ficha-texto-1` … `--ficha-texto-7` | tinta en todas, papel sobre el tomate (3 y 7) | S1 |
+| `--ficha-texto-1` … `--ficha-texto-7` | tinta en todas, también sobre el tomate (3 y 7; H2 del QA r1) | S1 |
 | `--ficha-giro-1` … `--ficha-giro-7` | siete ángulos distintos entre −10 y 10 (en grados, sin unidad) | S1 |
 | `--productos-scrub` | `0.55` | S1 (el vuelo) e integración |
 | `--productos-pin` | `2` (en pantallas: la distancia de scroll del pin) | integración |

@@ -27,7 +27,7 @@
     {
       "sitio": "https://www.leadoff.fr/",
       "se_toma": [
-        { "id": "L1", "aspecto": "Bloque a sangre de un solo color saturado con titular centrado y mucho aire alrededor", "fuente": "captura leadoff-scroll-00", "referente": "referentes/capturas/leadoff-scroll-00.jpg", "estado": "bloque" }
+        { "id": "L1", "aspecto": "Bloque a sangre de un solo color saturado con titular centrado y mucho aire alrededor", "fuente": "captura leadoff-scroll-00", "referente": "referentes/capturas/leadoff-scroll-00.jpg", "estado": "piezas" }
       ],
       "no_se_toma": [
         { "aspecto": "La tipografía condensada en mayúsculas y la foto metida en la frase", "por_que": "D-3: el titular va en DM Serif Text; las fichas hacen el papel del objeto" }
@@ -44,6 +44,7 @@
     { "nombre": "marco", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 9135 }, { "esperar": 1500 }] }
   ],
   "dudas": [
+    "L1 se compara en el estado «piezas» (corregido el 2026-11-15, H1 del QA r1: el estado «bloque» no existía). No hay un cuadro de bloque sin fichas: el vuelo arranca cuando la sección toca el 55 % de la pantalla, antes del pin, así que en la mitad del pin se ven el bloque a sangre, el titular centrado y el aire con las fichas ya en su sitio.",
     "Distancias de rueda medidas el 2026-11-15 con T03 cerrada, a 1440×900: la rueda corre 1:1 (1000→1000, 2000→2000, 4200→4200 px) y el pin de los hitos termina en y = 7560, donde empieza esta sección. Con --productos-pin 2 el pin va de 7560 a 9360: «piezas» = mitad del pin (7560 + 900 = 8460); «marco» = 75 % de la segunda mitad (7560 + 900 + 675 = 9135), con el hueco a medio abrir (power2.in de 0,26 a 0,90 → ~59 %). Si la integración cambia --productos-pin o mete algo entre los hitos y esta sección, se vuelven a medir.",
     "Siguiente sección: «Cómo funciona» es de T05. Mientras no exista, el marco abre sobre un panel provisional con el fondo del tema y el texto «Cómo funciona»."
   ]
