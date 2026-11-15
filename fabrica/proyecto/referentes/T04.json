@@ -40,11 +40,11 @@
     { "id": "K3", "que": "Titulares letra por letra", "como": "Cada letra sube desde abajo (yPercent 100 → 0) con stagger corto, dentro de una máscara que oculta lo que está debajo de la línea.", "constantes": { "duracion_s": 0.9, "stagger_s": 0.03, "ease": "power4.out" }, "tiempos": "cuando la sección entra", "fuente": "chunk con stagger:.03" }
   ],
   "estados": [
-    { "nombre": "piezas", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 4200 }, { "esperar": 1500 }] },
-    { "nombre": "marco", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 5600 }, { "esperar": 1500 }] }
+    { "nombre": "piezas", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 8460 }, { "esperar": 1500 }] },
+    { "nombre": "marco", "ruta": "/", "ancho": 1440, "alto": 900, "pasos": [{ "esperar": 5000 }, { "rueda": 9135 }, { "esperar": 1500 }] }
   ],
   "dudas": [
-    "Las distancias de rueda de los estados dependen de lo que midan los hitos (pin de T03): se ajustan al terminar T03 en el pulido.",
+    "Distancias de rueda medidas el 2026-11-15 con T03 cerrada, a 1440×900: la rueda corre 1:1 (1000→1000, 2000→2000, 4200→4200 px) y el pin de los hitos termina en y = 7560, donde empieza esta sección. Con --productos-pin 2 el pin va de 7560 a 9360: «piezas» = mitad del pin (7560 + 900 = 8460); «marco» = 75 % de la segunda mitad (7560 + 900 + 675 = 9135), con el hueco a medio abrir (power2.in de 0,26 a 0,90 → ~59 %). Si la integración cambia --productos-pin o mete algo entre los hitos y esta sección, se vuelven a medir.",
     "Siguiente sección: «Cómo funciona» es de T05. Mientras no exista, el marco abre sobre un panel provisional con el fondo del tema y el texto «Cómo funciona»."
   ]
 }
