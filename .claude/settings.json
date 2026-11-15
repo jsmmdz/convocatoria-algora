@@ -18,7 +18,10 @@
       "Bash(git status*)",
       "Bash(git diff*)",
       "Bash(git log*)",
-      "Bash(date*)"
+      "Bash(date*)",
+      "Bash(agy -p *)",
+      "Bash(agy models*)",
+      "Bash(node fabrica/scripts/gemini.mjs *)"
     ]
   },
   "hooks": {

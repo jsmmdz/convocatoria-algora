@@ -1,0 +1,12 @@
+{
+  "$comentario": "Qué modelo construye y con qué límites. Lo lee fabrica/scripts/gemini.mjs. Los ids salen de `agy models`. El esfuerzo se elige así: el que se pasa al lanzar (/construir-tarea T04 xhigh) > `esfuerzo-S<n>` de la subtarea > `esfuerzo` de la tarea > `esfuerzoPorDefecto`. Decisión del autor, 2026-11-14: Gemini 4 Hydrogen construye; Claude planea, orquesta y revisa.",
+  "constructor": {
+    "familia": "gemini-4-hydrogen",
+    "esfuerzoPorDefecto": "high",
+    "esfuerzos": ["low", "medium", "high", "xhigh"]
+  },
+  "minutosMaximosPorSesion": 60,
+  "minutosEsperaPorLlamada": 9,
+  "$sinCuota": "Decisión del autor, 2026-11-14: si Gemini responde 429 (sin cuota), la tarea para, se escribe ESCALADO.md y se avisa. No se pasa a otro modelo ni se reintenta solo.",
+  "sinCuota": "parar"
+}
