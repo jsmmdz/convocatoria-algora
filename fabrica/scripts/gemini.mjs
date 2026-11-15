@@ -55,7 +55,7 @@ function salirUso(mensaje) {
   console.error('Uso: node fabrica/scripts/gemini.mjs <ID> r<N> [--esfuerzo low|medium|high|xhigh] [--reintentar] [--simular]');
   process.exit(2);
 }
-if (!/^T\d+[A-Z]?$/.test(ID) || !(N >= 1)) salirUso('Falta la tarea o la ronda, por ejemplo: node fabrica/scripts/gemini.mjs T04 r1');
+if (!/^[TR]\d+[A-Z]?$/.test(ID) || !(N >= 1)) salirUso('Falta la tarea o la ronda, por ejemplo: node fabrica/scripts/gemini.mjs T04 r1');
 if (ESFUERZO && !MODELOS.constructor.esfuerzos.includes(ESFUERZO)) salirUso(`Esfuerzo desconocido: ${ESFUERZO}`);
 
 // ---------- Tarea ----------

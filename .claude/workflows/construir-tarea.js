@@ -24,7 +24,7 @@ const entrada = typeof args === 'string'
     }
   : (args ?? {})
 const ID = String(entrada.id ?? '').toUpperCase()
-if (!/^T\d+[A-Z]?$/.test(ID)) throw new Error('Falta el ID de la tarea, por ejemplo: /construir-tarea T01')
+if (!/^[TR]\d+[A-Z]?$/.test(ID)) throw new Error('Falta el ID de la tarea, por ejemplo: /construir-tarea T01 o R1')
 const DESDE = sinTildes(entrada.desde) || 'construir'
 if (!['construir', 'correccion', 'qa', 'auditoria'].includes(DESDE)) throw new Error(`No sé retomar desde «${entrada.desde}»: usa correccion, qa o auditoria`)
 const INICIO = DESDE === 'construir' ? 1 : Number(entrada.ronda) || 0
