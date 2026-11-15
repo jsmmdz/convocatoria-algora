@@ -42,11 +42,16 @@ titular y que el titular crece con la pantalla. La fábrica queda en v4.2.
 - **E6:** el hook ahora resuelve las rutas relativas contra los `cd` del comando (44 casos; el anterior fallaba 5).
 - **E7:** `loseContext()` solo se llama si el contexto sigue vivo (`webgl.ts`, `trama.ts`).
 
-La orden de trabajo para Gemini es `fabrica/buzon/T03/CORRECCION-r3.md` y se retoma con
-**`/construir-tarea T03 correccion r4`**. Será la **primera sesión real de Gemini**: una corrección, en una sola
-sesión.
+**`T03` DONE (2026-11-15).** La corrección r4 fue la **primera sesión real de Gemini**: una sesión de 764 s, 191
+llamadas al hook y ninguna negada. QA de Sonnet: PASA. Auditoría de Opus: suite completa en verde, con E1 Mayor (el
+viajero sobre el titular a 1280/1024) y E2–E4 Menores.
+- Autor: E1-A (los textos van por encima del viajero) y E2-A (la raya de la línea a través del viajero se acepta).
+- Pulido: el arreglo de E1 con su prueba (validada en los dos sentidos) y la onda a 0.08. 21/21 en `tests/T03`.
+- E3 y E4, de la fábrica: el QA busca al constructor como `gemini:<ID>` y las compuertas guardan la ronda real
+  (`--ronda=N` o `FABRICA_RONDA`, que pone `gemini.mjs`).
+- Visto bueno del autor. Cierre en `fabrica/buzon/T03/`: `PULIDO.md`, `VISTO-BUENO.md` y `REGISTRO.md`.
 
-**`T04` lista para cuando T03 cierre (2026-11-14):** decididas con el autor las tres cosas de dirección (fichas
+**`T04` (escrita el 2026-11-14):** decididas con el autor las tres cosas de dirección (fichas
 tipográficas, borde ácido con relleno del tema, titular + botón Postúlate; `docs/1-PRODUCTO.md` § 6). Ficha
 `fabrica/proyecto/referentes/T04.json` y tarea `fabrica/proyecto/tareas/T04-productos.md`. **Sin pruebas propias**
 (autor, 2026-11-10): solo la regresión de T01–T03, las capturas y el visto bueno.
@@ -75,16 +80,13 @@ tipográficas, borde ácido con relleno del tema, titular + botón Postúlate; `
   - el supervisor sobrevive entre llamadas;
   - SIN_CUOTA simulado para y retoma sin repetir lo entregado.
 - Lo que falta probar con una tarea real: la integración con compuertas y capturas, y el QA de Sonnet sobre
-  una entrega de Gemini. La corrección r4 de T03 prueba lo segundo y T04, lo primero.
+  una entrega de Gemini. Lo segundo quedó probado con la corrección r4 de T03 (2026-11-15); T04 prueba lo primero.
 - Con commit desde el 2026-11-14, en cinco commits: hook, lanzador, workflow, manual y planeación de T04. Además,
   el workflow y el lanzador aceptan IDs `R<n>` para las tareas de responsive (autor, 2026-11-14).
 
 **Sigue:**
-1. Autor: `/construir-tarea T03 correccion r4` (Gemini corrige E2–E4 → QA de Sonnet → auditoría de Opus).
-2. Orquestador: revisa la auditoría y hace el pulido. El autor da el visto bueno de T03 (tiene contenido
-   visible) → DONE.
-3. Orquestador: vuelve a medir las distancias de rueda de los estados de T04 con el pin final de T03 y hace el commit.
-4. Autor: `/construir-tarea T04`, la primera construcción con subtareas en paralelo.
+1. Orquestador: vuelve a medir las distancias de rueda de los estados de T04 con el pin final de T03 y hace el commit.
+2. Autor: `/construir-tarea T04`, la primera construcción con subtareas en paralelo.
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -133,7 +135,7 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 |---|---|---|---|---|
 | T01 | Andamio: Astro + TS estricto, tokens del manual (paleta, fuentes, espacios fluidos max(min, vw)), tema claro/oscuro con botón, `data-listo` con respaldo, GSAP + Lenis base con movimiento reducido, navegación y pie, despliegue a Pages con los secrets de Supabase | manual · leadoff K2 | — | DONE |
 | T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | DONE |
-| T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K4 | T02 | IN_PROGRESS (corrección r4) |
+| T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K4 | T02 | DONE |
 | T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | PENDING (escrita y dividida) |
 | T05 | Cómo funciona y carreras: 4 columnas fijas con hilos y mucho aire; carreras en bloques de color a sangre con lo que aporta cada una | leadoff A4, A6 | T04 | PENDING |
 | T06 | Hélice de proyectos: tarjetas curvas en WebGL (OGL) que giran con el scroll de una sección fija, más flechas y teclado; tarjetas reales en el DOM; color por facultad; zoom y deriva con la velocidad; `[EJEMPLO]`; «Sumarme» → evento al formulario | ryan A1–A6, K1–K4 | T05 | PENDING |

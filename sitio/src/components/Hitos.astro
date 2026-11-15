@@ -1,0 +1,212 @@
+---
+import Mascota from './Mascota.astro';
+
+// Textos de ENCARGO.md § 2. Los hitos 3 y 5 pasan a fondo invertido (unseen A4b).
+const hitos = [
+  { etiqueta: 'IDEA', titular: 'Deja de vivir en tu libreta.', palabra: 'Idea', color: 'acido', invertido: false },
+  { etiqueta: 'EQUIPO', titular: 'Alguien de otra carrera la entiende mejor que tú.', palabra: 'Equipo', color: 'magenta', invertido: false },
+  { etiqueta: 'USUARIOS', titular: 'Gente que no conoces la usa sin que se lo pidas.', palabra: 'Usuarios', color: 'tomate', invertido: true },
+  { etiqueta: 'VALOR', titular: 'Alguien paga por algo que tú hiciste.', palabra: 'Valor', color: 'cobalto', invertido: false },
+  { etiqueta: 'NOMBRE', titular: 'Te buscan por lo que construiste.', palabra: 'Nombre', color: 'acido', invertido: true },
+];
+---
+<section class="hitos" data-hitos aria-label="Hitos de un proyecto">
+  <div class="hitos__pista" data-hitos-pista>
+    <div class="hitos__linea" aria-hidden="true">
+      <svg class="hitos__svg" data-linea-punteada focusable="false"><path /></svg>
+      <div class="hitos__solida" data-linea-solida><svg class="hitos__svg" focusable="false"><path /></svg></div>
+    </div>
+    {hitos.map((h, i) => (
+      <article class="hito" data-hito data-color={h.color} data-invertido={h.invertido ? '' : undefined}>
+        <div class="hito__texto">
+          <p class="hito__etiquetas" data-hito-etiquetas>[{h.etiqueta}] [{String(i + 1).padStart(2, '0')}/05]</p>
+          <h2 class="hito__titular" data-hito-titular>{h.titular}</h2>
+        </div>
+        <div class="hito__bloque" data-hito-bloque><span class="hito__palabra" aria-hidden="true">{h.palabra}</span></div>
+      </article>
+    ))}
+    <div class="hitos__guia" data-guia aria-hidden="true">
+      <div class="hitos__viajero" data-viajero><Mascota /></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Por defecto (sin JS, angosto, movimiento reducido): los cinco hitos apilados, sin línea ni viajero. */
+  .hitos {
+    position: relative;
+  }
+  .hitos__linea,
+  .hitos__guia {
+    display: none;
+  }
+
+  .hito {
+    display: grid;
+    gap: var(--espacio-l);
+    padding: var(--espacio-xl) var(--margen);
+    background: var(--hito-fondo);
+    color: var(--hito-texto);
+    --hito-fondo: var(--fondo);
+    --hito-texto: var(--texto);
+    --hito-suave: var(--texto-suave);
+  }
+  .hito[data-invertido] {
+    --hito-fondo: var(--fondo-invertido);
+    --hito-texto: var(--texto-invertido);
+    --hito-suave: var(--etiqueta-invertida);
+  }
+  .hito[data-color='acido'] { --hito-bloque: var(--color-acido); --hito-tinta-palabra: var(--color-tinta); }
+  .hito[data-color='magenta'] { --hito-bloque: var(--color-magenta); --hito-tinta-palabra: var(--color-tinta); }
+  .hito[data-color='tomate'] { --hito-bloque: var(--color-tomate); --hito-tinta-palabra: var(--color-tinta); }
+  .hito[data-color='cobalto'] { --hito-bloque: var(--color-cobalto); --hito-tinta-palabra: var(--color-papel); }
+
+  /* Los textos van por encima de la línea y del viajero, como los bloques (autor, E1 de la auditoría r4):
+     cuando la cresta de la onda lo sube hasta un titular, el viajero pasa por detrás de las letras. */
+  .hito__texto {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    gap: var(--espacio-m);
+    align-content: start;
+    min-width: 0;
+  }
+  .hito__etiquetas {
+    margin: 0;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.14em;
+    color: var(--hito-suave);
+  }
+  .hito__titular {
+    font-family: var(--fuente-texto);
+    font-weight: 300;
+    font-size: var(--hito-titular);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    color: var(--hito-texto);
+  }
+
+  .hito__bloque {
+    position: relative;
+    z-index: 3;
+    container-type: size;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    inline-size: 100%;
+    block-size: var(--hito-bloque-alto-apilado);
+    padding: var(--espacio-m) var(--espacio-l);
+    border-radius: var(--radio);
+    background: var(--hito-bloque);
+    overflow: hidden;
+  }
+  .hito__palabra {
+    font-family: var(--fuente-titular);
+    font-style: italic;
+    font-size: var(--hito-palabra);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: var(--hito-tinta-palabra);
+    white-space: nowrap;
+  }
+
+  /* Horizontal: lo activa hitos.ts con data-modo (≥ 1024 px y sin movimiento reducido) */
+  .hitos[data-modo='horizontal'] {
+    block-size: 100svh;
+    overflow: hidden;
+  }
+  .hitos[data-modo='horizontal'] .hitos__pista {
+    position: relative;
+    display: flex;
+    inline-size: max-content;
+    block-size: 100%;
+    will-change: transform;
+  }
+  .hitos[data-modo='horizontal'] .hito {
+    flex: 0 0 100vw;
+    inline-size: 100vw;
+    block-size: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 calc(var(--margen) * 2);
+    padding: calc(var(--alto-nav) + var(--espacio-m)) var(--margen) var(--margen);
+    align-items: start;
+  }
+  /* Impares: texto abajo a la izquierda y bloque arriba a la derecha. Pares: al revés. */
+  .hitos[data-modo='horizontal'] .hito__texto {
+    grid-row: 1;
+    grid-column: 1;
+    align-self: end;
+  }
+  .hitos[data-modo='horizontal'] .hito__bloque {
+    grid-row: 1;
+    grid-column: 2;
+    align-self: start;
+    block-size: var(--hito-bloque-alto);
+  }
+  .hitos[data-modo='horizontal'] .hito:nth-of-type(even) .hito__texto {
+    grid-column: 2;
+    align-self: start;
+  }
+  .hitos[data-modo='horizontal'] .hito:nth-of-type(even) .hito__bloque {
+    grid-column: 1;
+    align-self: end;
+  }
+
+  /* La línea va entre los fondos y los bloques. Las dos copias se mezclan juntas con el fondo (difference):
+     negra sobre papel y clara sobre tinta, sin que la sólida cancele a la punteada. */
+  .hitos[data-modo='horizontal'] .hitos__linea {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    color: var(--color-papel);
+  }
+  .hitos__svg {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+  .hitos__svg path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: var(--linea-trazo);
+    stroke-linejoin: round;
+  }
+  .hitos__svg[data-linea-punteada] path {
+    stroke-dasharray: var(--linea-punteado) var(--linea-punteado);
+  }
+  .hitos__solida {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 0;
+    overflow: hidden;
+  }
+  /* La copia sólida es tan ancha como la pista, aunque su contenedor la recorte */
+  .hitos__solida .hitos__svg {
+    inline-size: var(--pista-ancho, 100%);
+  }
+
+  .hitos[data-modo='horizontal'] .hitos__guia {
+    display: block;
+    position: absolute;
+    inset: 0 auto auto 0;
+    z-index: 2;
+    pointer-events: none;
+    mix-blend-mode: difference;
+  }
+  .hitos__viajero {
+    --mascota-tam: var(--viajero-tam);
+    color: var(--color-papel);
+    transform-origin: 50% 100%;
+    /* Halo en tinta mezclado con difference: marca el borde de la silueta sobre los dos fondos. No tapa la
+       línea: con difference la invierte, y se ve cruzando al viajero (E2 de la auditoría r4, va al pulido). */
+    filter: drop-shadow(var(--viajero-halo) 0 0 var(--color-tinta)) drop-shadow(calc(var(--viajero-halo) * -1) 0 0 var(--color-tinta))
+      drop-shadow(0 var(--viajero-halo) 0 var(--color-tinta)) drop-shadow(0 calc(var(--viajero-halo) * -1) 0 var(--color-tinta));
+  }
+</style>

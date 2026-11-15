@@ -9,3 +9,14 @@
 {"fecha":"2026-11-10T17:23:58.730Z","tarea":"T02","ronda":3,"commit":"f3ff49d","veredicto":"VERDE","bloquean":[],"avisos":[]}
 {"fecha":"2026-11-10T22:08:21.661Z","tarea":"T02","ronda":3,"commit":"f3ff49d","veredicto":"ROJO","bloquean":["fuera-de-alcance"],"avisos":[]}
 {"fecha":"2026-11-10T22:14:40.792Z","tarea":"T02","ronda":3,"commit":"f3ff49d","veredicto":"ROJO","bloquean":["fuera-de-alcance"],"avisos":[]}
+{"fecha":"2026-11-11T00:37:39.774Z","tarea":"T03","ronda":1,"commit":"174da15","veredicto":"VERDE","bloquean":[],"avisos":[]}
+{"fecha":"2026-11-11T00:54:18.353Z","tarea":"T03","ronda":2,"commit":"174da15","veredicto":"ROJO","bloquean":["npx playwright test tests/comunes tests/T03 tests/T01 tests/T02 --reporter=line"],"avisos":[]}
+{"fecha":"2026-11-11T01:11:22.602Z","tarea":"T03","ronda":2,"commit":"174da15","veredicto":"ROJO","bloquean":["npx playwright test tests/comunes tests/T03 tests/T01 tests/T02 --reporter=line"],"avisos":[]}
+{"fecha":"2026-11-11T01:17:00.468Z","tarea":"T03","ronda":2,"commit":"174da15","veredicto":"ROJO","bloquean":["npx playwright test tests/comunes tests/T03 tests/T01 tests/T02 --reporter=line"],"avisos":[]}
+{"fecha":"2026-11-11T01:31:12.990Z","tarea":"T03","ronda":3,"commit":"174da15","veredicto":"ROJO","bloquean":["npx playwright test tests/comunes tests/T03 tests/T01 tests/T02 --reporter=line"],"avisos":[]}
+{"fecha":"2026-11-11T02:16:37.021Z","tarea":"T03","ronda":3,"commit":"174da15","veredicto":"ROJO","bloquean":["fuera-de-alcance"],"avisos":[]}
+{"fecha":"2026-11-11T02:21:45.731Z","tarea":"T03","ronda":3,"commit":"174da15","veredicto":"VERDE","bloquean":[],"avisos":[]}
+{"fecha":"2026-11-11T02:27:11.187Z","tarea":"T03","ronda":3,"commit":"174da15","veredicto":"ROJO","bloquean":["fuera-de-alcance"],"avisos":[]}
+{"fecha":"2026-11-15T15:04:44.125Z","tarea":"T03","ronda":3,"commit":"f843cf6","veredicto":"VERDE","bloquean":[],"avisos":[]}
+{"fecha":"2026-11-15T15:15:03.110Z","tarea":"T03","ronda":4,"commit":"f843cf6","veredicto":"VERDE","bloquean":[],"avisos":[]}
+{"fecha":"2026-11-15T15:27:35.228Z","tarea":"T03","ronda":4,"commit":"f843cf6","veredicto":"VERDE","bloquean":[],"avisos":[]}

@@ -589,6 +589,120 @@ test.describe('T03 · hitos', () => {
     });
   }
 
+  // E1 de la auditoría r4 (autor, 2026-11-15: los textos van por encima del viajero, como los bloques). Donde
+  // la caja del viajero cruza un titular o sus etiquetas, cada píxel de letra se ve igual con el viajero y sin
+  // él. Las letras salen de comparar la captura sin viajero con otra sin viajero y sin texto (F15: se mide el
+  // resultado, no el z-index). Paso fino de 40 px: a 1280 el choque solo sale en 8 de 129 posiciones.
+  // Mientras mide, las letras llevan un trazo de 4 px en su propio color: el titular es tan delgado que ningún
+  // píxel queda cubierto del todo (el centro del trazo es ~88 % opaco) y siempre se trasluce algo de lo de atrás.
+  for (const vp of [
+    { width: 1440, height: 900 },
+    { width: 1280, height: 720 },
+    { width: 1024, height: 768 },
+  ]) {
+    test(`viajero a ${vp.width}×${vp.height}: cuando cruza un titular, las letras lo tapan (nada encimado)`, async ({ page }) => {
+      test.setTimeout(240_000);
+      await page.setViewportSize(vp);
+      await page.goto('/');
+      await esperarListo(page);
+      const inicio = await inicioSeccion(page);
+      const recorrido = await recorridoPista(page);
+      expect(recorrido, 'la pista corre en horizontal').toBeGreaterThan(vp.width);
+      const modoTexto = async (modo: 'normal' | 'grueso' | 'oculto') => {
+        await page.evaluate((modo) => {
+          const id = 'prueba-modo-texto';
+          document.getElementById(id)?.remove();
+          if (modo === 'normal') return;
+          const s = document.createElement('style');
+          s.id = id;
+          s.textContent =
+            '[data-hito-titular], [data-hito-etiquetas] { -webkit-text-stroke: 4px currentColor; }' +
+            (modo === 'oculto' ? '[data-hito-titular], [data-hito-etiquetas] { color: transparent !important; }' : '');
+          document.head.append(s);
+        }, modo);
+        await page.waitForTimeout(60);
+      };
+      let letrasMedidas = 0;
+      let peor = 0;
+      let dondePeor = '';
+      for (let y = inicio + 40; y < inicio + recorrido; y += 40) {
+        await irA(page, y, 120);
+        await esperarPistaQuieta(page);
+        const zona = await page.evaluate(() => {
+          const v = document.querySelector('[data-viajero]')?.getBoundingClientRect();
+          if (!v || v.width === 0) return null;
+          let mejor: { x: number; y: number; w: number; h: number } | null = null;
+          for (const t of document.querySelectorAll('[data-hito-titular], [data-hito-etiquetas]')) {
+            const r = t.getBoundingClientRect();
+            const x = Math.max(v.left, r.left, 0);
+            const yy = Math.max(v.top, r.top, 0);
+            const w = Math.min(v.right, r.right, innerWidth) - x;
+            const h = Math.min(v.bottom, r.bottom, innerHeight) - yy;
+            if (w > 0 && h > 0 && (!mejor || w * h > mejor.w * mejor.h)) mejor = { x, y: yy, w, h };
+          }
+          return mejor;
+        });
+        if (!zona || zona.w < 4 || zona.h < 4) continue;
+        // Quieta del todo: un corrimiento de décimas de píxel cambia el antialias de las letras entre capturas.
+        let antes = NaN;
+        for (let i = 0; i < 40; i++) {
+          const x = await page.evaluate(() => document.querySelector('[data-hitos-pista]')?.getBoundingClientRect().left ?? NaN);
+          if (Math.abs(x - antes) < 0.01) break;
+          antes = x;
+          await page.waitForTimeout(100);
+        }
+        const clip = { x: Math.ceil(zona.x), y: Math.ceil(zona.y), width: Math.floor(zona.w), height: Math.floor(zona.h) };
+        await modoTexto('grueso');
+        const real = await page.screenshot({ clip });
+        await ocultarViajero(page, true);
+        const sinViajero = await page.screenshot({ clip });
+        await modoTexto('oculto');
+        const sinNada = await page.screenshot({ clip });
+        await modoTexto('normal');
+        await ocultarViajero(page, false);
+        const r = await page.evaluate(
+          async ({ a, b, c }) => {
+            const leer = async (b64: string) => {
+              const img = new Image();
+              img.src = `data:image/png;base64,${b64}`;
+              await img.decode();
+              const cv = document.createElement('canvas');
+              cv.width = img.width;
+              cv.height = img.height;
+              const ctx = cv.getContext('2d');
+              ctx?.drawImage(img, 0, 0);
+              return ctx?.getImageData(0, 0, cv.width, cv.height).data ?? new Uint8ClampedArray();
+            };
+            const [real, sinV, sinN] = await Promise.all([leer(a), leer(b), leer(c)]);
+            const d = (p: Uint8ClampedArray, q: Uint8ClampedArray, k: number) =>
+              Math.abs(p[k] - q[k]) + Math.abs(p[k + 1] - q[k + 1]) + Math.abs(p[k + 2] - q[k + 2]);
+            // Solo el centro de las letras: píxeles con al menos el 85 % del contraste máximo letra/fondo del recorte.
+            // Los bordes del antialias son medio transparentes y dejan ver lo de atrás aunque la letra esté encima.
+            let maximo = 0;
+            for (let k = 0; k < real.length; k += 4) maximo = Math.max(maximo, d(sinV, sinN, k));
+            let letras = 0;
+            let tapadas = 0;
+            for (let k = 0; k < real.length; k += 4) {
+              if (maximo < 300 || d(sinV, sinN, k) < maximo * 0.85) continue;
+              letras++;
+              if (d(real, sinV, k) > 60) tapadas++;
+            }
+            return { letras, tapadas };
+          },
+          { a: real.toString('base64'), b: sinViajero.toString('base64'), c: sinNada.toString('base64') },
+        );
+        letrasMedidas += r.letras;
+        const frac = r.letras >= 20 ? r.tapadas / r.letras : 0;
+        if (frac > peor) {
+          peor = frac;
+          dondePeor = `scroll ${Math.round(y - inicio)} px dentro de la sección (${r.tapadas} de ${r.letras} px de letra)`;
+        }
+      }
+      expect(letrasMedidas, 'el recorrido lleva al viajero sobre letras (si no, esta prueba no mide nada)').toBeGreaterThanOrEqual(20);
+      expect(peor, `donde el viajero cruza un texto, las letras quedan encima (peor: ${dondePeor})`).toBeLessThanOrEqual(0.02);
+    });
+  }
+
   // E3 (autor: desplazamiento bajo al inclinarse, 1–2 px por grado). Se mide en movimiento, con rueda real:
   // la distancia de los cascos (y = 96 % del cuadro de la mascota) a la unión sólida/punteada de la línea.
   test('inclinación en movimiento: los cascos se quedan en la unión sólida/punteada, como mucho 2 px por grado de inclinación', async ({ page }) => {

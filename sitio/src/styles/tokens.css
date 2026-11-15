@@ -92,6 +92,30 @@
   --parallax-atras: 0.32;
   --parallax-delante: 0.12;
 
+  /* Hitos (unseen A3-A5): titular, bloque, línea recorrida y viajero. Las fracciones son de la pantalla. */
+  --hito-titular: clamp(2.25rem, 1.2rem + 3vw, 4rem);
+  --hito-bloque-alto: 52svh;
+  --hito-bloque-alto-apilado: clamp(14rem, 50svh, 28rem);
+  --hito-palabra: min(33cqh, 21cqw);
+  --linea-trazo: 2px;
+  --linea-punteado: 6px;
+  --linea-centro: 0.52;
+  --linea-amplitud: 0.08;
+  --linea-onda-larga: 0.5;
+  --linea-onda-corta: 0.19;
+  --linea-onda-peso-larga: 0.65;
+  --linea-onda-peso-corta: 0.35;
+  --linea-onda-fase-larga: 0.6;
+  --linea-onda-fase-corta: 2.1;
+  --linea-paso: 8;
+  --viajero-x: 0.33;
+  --viajero-tam: clamp(4rem, 5vw, 5rem);
+  --viajero-halo: 2px;
+  --inclinacion-max: 40;
+  --inclinacion-lerp: 0.04;
+  --inclinacion-desp: 1.5;
+  --hitos-scrub: 0.2;
+
   /* Tema claro (por defecto) */
   --fondo: var(--color-papel);
   --superficie: var(--color-superficie-clara);
@@ -104,6 +128,10 @@
   /* Pie: bloque de tinta a sangre */
   --pie-fondo: var(--color-tinta);
   color-scheme: light;
+  /* Hitos de fondo invertido (unseen A4b): lo contrario del tema */
+  --fondo-invertido: var(--texto);
+  --texto-invertido: var(--fondo);
+  --etiqueta-invertida: var(--color-acido);
 }
 
 /* Sin atributo manda el sistema */
@@ -120,6 +148,7 @@
     /* En oscuro la tinta se aclara un punto para que el pie no se funda con el fondo (decisión 2026-11-10) */
     --pie-fondo: color-mix(in srgb, var(--color-tinta) 90%, var(--color-papel));
     color-scheme: dark;
+    --etiqueta-invertida: var(--color-cobalto);
   }
 }
 
@@ -136,6 +165,7 @@
   /* En oscuro la tinta se aclara un punto para que el pie no se funda con el fondo (decisión 2026-11-10) */
   --pie-fondo: color-mix(in srgb, var(--color-tinta) 90%, var(--color-papel));
   color-scheme: dark;
+  --etiqueta-invertida: var(--color-cobalto);
 }
 
 :root[data-theme="light"] {
@@ -150,4 +180,5 @@
   /* Pie: bloque de tinta a sangre */
   --pie-fondo: var(--color-tinta);
   color-scheme: light;
+  --etiqueta-invertida: var(--color-acido);
 }

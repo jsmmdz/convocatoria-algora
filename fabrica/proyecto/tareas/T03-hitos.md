@@ -69,6 +69,10 @@ línea de tiempo de Unseen, con el unicornio viajando por la línea. Va justo de
 - Autor, 2026-11-14 (auditoría final, E2): el viajero **pasa por debajo de los bloques**, como la línea.
 - Autor, 2026-11-14 (auditoría final, E3): al inclinarse se desplaza **1,5 px por grado** (no los 8 de Unseen,
   que es un globo que vuela): los cascos siguen en la unión sólida/punteada.
+- Autor, 2026-11-15 (auditoría final r4, E1): los **textos van por encima del viajero**, como los bloques; cuando
+  la cresta de la onda lo sube hasta un titular, pasa por detrás de las letras.
+- Autor, 2026-11-15 (auditoría final r4, E2): la raya de la línea que se ve cruzando al viajero (efecto del
+  `difference`) **queda para el pulido**, con la forma de la onda.
 
 ## Qué construyes
 
@@ -123,7 +127,8 @@ Selectores de contrato (las pruebas los leen; no los cambies):
    - Queda en una x fija de la pantalla, en torno al 30–35 % del ancho, mientras corre la pista.
    - Su y es la de la línea en esa x: muestrea el trazado y apoya los cascos sobre el trazo.
    - Mide unos 64–80 px a 1440.
-   - Va por debajo de los bloques y por encima de la línea: cuando cruza un bloque, el bloque lo tapa.
+   - Va por debajo de los bloques y de los textos, y por encima de la línea: cuando cruza un bloque o un titular,
+     el bloque o las letras lo tapan.
    - Su silueta (no solo un halo) se lee sobre el fondo de cada hito, también los invertidos (contraste ≥ 3:1).
 6. **Inclinación por velocidad** (K2), sobre `[data-viajero]` en el ticker de GSAP:
    - Cada cuadro: `rot = lerp(rot, clamp(−40, 40, velocidad), 0,04)`, y se aplica
@@ -143,6 +148,7 @@ Selectores de contrato (las pruebas los leen; no los cambies):
 - Los tamaños finales del titular, del bloque y de la palabra, y el aire entre hitos.
 - La x exacta del viajero y su tamaño.
 - Si la línea entra o sale con alguna animación propia.
+- La raya de la línea que se ve a través del viajero por el `difference` (E2 de la auditoría r4).
 
 ## Accesibilidad, respaldo y rendimiento
 
