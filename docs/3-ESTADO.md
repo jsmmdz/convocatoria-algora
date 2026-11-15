@@ -30,7 +30,61 @@ titular y que el titular crece con la pantalla. La fábrica queda en v4.2.
 - Dos decisiones del autor (el bloque de color con la palabra en cursiva; el fondo del tema con pasos a
   tinta) y las del orquestador, anotadas en la tarea.
 
-**Sigue:** `/construir-tarea T03` (sin `high`: no hay shaders).
+**`T03` corrió (2026-11-10, 3 rondas de QA):** la auditoría final quedó en **NO PASA todavía**.
+**Revisión del orquestador (2026-11-14)**, escrita al final de `fabrica/buzon/T03/AUDITORIA-FINAL.md`:
+- **E1** (compuerta en rojo por la planeación de T04 sin commit): cerrado con los commits.
+- **E2 y E3:** decidió el autor. E2-A: el viajero pasa **por debajo de los bloques**, como la línea. E3-B:
+  desplazamiento bajo al inclinarse, **1,5 px por grado**. Quedó en `docs/1-PRODUCTO.md` § 6, en la tarea y en la
+  ficha (K2).
+- **E4** (silueta con contraste 1:1 en los hitos invertidos): va al constructor.
+- **Cinco pruebas nuevas** (E2 a 1440 y 1024, E3 en movimiento, E4 en claro y oscuro). Fallan contra el código
+  actual y pasan con una referencia corregida: 18 de 18 en `tests/T03`.
+- **E6:** el hook ahora resuelve las rutas relativas contra los `cd` del comando (44 casos; el anterior fallaba 5).
+- **E7:** `loseContext()` solo se llama si el contexto sigue vivo (`webgl.ts`, `trama.ts`).
+
+La orden de trabajo para Gemini es `fabrica/buzon/T03/CORRECCION-r3.md` y se retoma con
+**`/construir-tarea T03 correccion r4`**. Será la **primera sesión real de Gemini**: una corrección, en una sola
+sesión.
+
+**`T04` lista para cuando T03 cierre (2026-11-14):** decididas con el autor las tres cosas de dirección (fichas
+tipográficas, borde ácido con relleno del tema, titular + botón Postúlate; `docs/1-PRODUCTO.md` § 6). Ficha
+`fabrica/proyecto/referentes/T04.json` y tarea `fabrica/proyecto/tareas/T04-productos.md`. **Sin pruebas propias**
+(autor, 2026-11-10): solo la regresión de T01–T03, las capturas y el visto bueno.
+- **Dividida (aprobada por el autor, 2026-11-14):**
+  - **S1, fichas y bloque:** `Productos.astro` y `productos-fichas.ts`.
+  - **S2, marco de tinta:** `marco-tinta.ts`, con `xhigh`.
+  - **Integración:** `productos.ts`, `index.astro` y `tokens.css`.
+- La interfaz (`prepararFichas`, `montarMarco`) y los nombres de los tokens están escritos en la tarea.
+- Resuelto en la tarea: **un solo pin en dos tramos**, el vuelo hasta la mitad del pin y el marco en la segunda
+  mitad (los puntos 3 y 5 se contradecían).
+- Antes de lanzarla, las distancias de rueda de sus estados de captura (`piezas`, `marco`) se vuelven a medir
+  con el pin final de T03 (duda de su ficha).
+
+**Fábrica v5.0 (2026-11-14, decisión del autor): Gemini construye, Claude planea, orquesta y revisa.**
+- Construye **Gemini 4 Hydrogen** por `agy`. La ronda 1 se reparte en subtareas en paralelo con archivos
+  disjuntos, más una integración; las correcciones las hace una sola sesión.
+- El QA sigue en Sonnet y la auditoría final en Opus.
+- Esfuerzo `high`, y `xhigh` en shaders.
+- Sin cuota (429), la tarea para y avisa.
+- Piezas: `fabrica/scripts/gemini.mjs`, `hook-gemini.mjs` (+ `probar-hook-gemini.mjs`, 22 casos),
+  `.agents/`, `.claude/agents/relevo-gemini.md`, `fabrica/proyecto/modelos.json` y el workflow.
+- Probada con la tarea desechable `T99`, ya borrada:
+  - dos subtareas reales en paralelo + integración, ~25 s y 25–40 k tokens por sesión en `low`;
+  - el hook negó la escritura cruzada (la primera corrida la dejó pasar porque `agy` 1.2 renombró
+    `write_to_file` → `write_file`; quedó corregido y cubierto en los casos);
+  - el supervisor sobrevive entre llamadas;
+  - SIN_CUOTA simulado para y retoma sin repetir lo entregado.
+- Lo que falta probar con una tarea real: la integración con compuertas y capturas, y el QA de Sonnet sobre
+  una entrega de Gemini. La corrección r4 de T03 prueba lo segundo y T04, lo primero.
+- Con commit desde el 2026-11-14, en cinco commits: hook, lanzador, workflow, manual y planeación de T04. Además,
+  el workflow y el lanzador aceptan IDs `R<n>` para las tareas de responsive (autor, 2026-11-14).
+
+**Sigue:**
+1. Autor: `/construir-tarea T03 correccion r4` (Gemini corrige E2–E4 → QA de Sonnet → auditoría de Opus).
+2. Orquestador: revisa la auditoría y hace el pulido. El autor da el visto bueno de T03 (tiene contenido
+   visible) → DONE.
+3. Orquestador: vuelve a medir las distancias de rueda de los estados de T04 con el pin final de T03 y hace el commit.
+4. Autor: `/construir-tarea T04`, la primera construcción con subtareas en paralelo.
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -79,8 +133,8 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 |---|---|---|---|---|
 | T01 | Andamio: Astro + TS estricto, tokens del manual (paleta, fuentes, espacios fluidos max(min, vw)), tema claro/oscuro con botón, `data-listo` con respaldo, GSAP + Lenis base con movimiento reducido, navegación y pie, despliegue a Pages con los secrets de Supabase | manual · leadoff K2 | — | DONE |
 | T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | DONE |
-| T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K4 | T02 | LISTA |
-| T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | PENDING |
+| T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K4 | T02 | IN_PROGRESS (corrección r4) |
+| T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | PENDING (escrita y dividida) |
 | T05 | Cómo funciona y carreras: 4 columnas fijas con hilos y mucho aire; carreras en bloques de color a sangre con lo que aporta cada una | leadoff A4, A6 | T04 | PENDING |
 | T06 | Hélice de proyectos: tarjetas curvas en WebGL (OGL) que giran con el scroll de una sección fija, más flechas y teclado; tarjetas reales en el DOM; color por facultad; zoom y deriva con la velocidad; `[EJEMPLO]`; «Sumarme» → evento al formulario | ryan A1–A6, K1–K4 | T05 | PENDING |
 | T07 | Postulación y datos: formulario de dos caminos con validación, trampa y Ley 1581; Supabase (esquema, envío, `proyectos_publicos` en la hélice) y modo demostración; recibe `algora:sumarse` | manual (componentes) | T06 | PENDING |
