@@ -129,7 +129,7 @@ Medición `R0` del 2026-11-16 y detalle en `fabrica/proyecto/tareas/R1-responsiv
 | R-1 | 2026-11-16 | Hitos en celular: **línea vertical con el unicornio** que baja por ella y se vuelve sólida al recorrerla (como Unseen a 390) | autor | dejarlos apilados sin línea ni mascota |
 | R-2 | 2026-11-16 | Proyectos en celular: **carrusel horizontal deslizable** con ajuste a cada tarjeta, contador y flechas | autor | lista vertical; hélice vertical en CSS 3D |
 | R-3 | 2026-11-16 | Productos en celular: rejilla quieta de dos columnas, sin vuelo ni marco de tinta | orquestador | marco sin pin |
-| R-4 | 2026-11-16 | Portada en celular: las piezas 3D se quedan, más pequeñas y sin cruzar palabras | orquestador | quitarlas |
+| R-4 | 2026-11-16 | Portada en celular: las piezas 3D **se quedan como en escritorio** (una cruza el titular y otra va detrás de las letras: decisión del autor del 2026-11-10, que vale a cualquier ancho). El intento de quitar el cruce en angosto se devolvió: contradecía esa decisión y su prueba de T02 | orquestador | quitar el cruce en angosto; quitarlas |
 | R-5 | 2026-11-16 | Formulario: los dos caminos apilados por debajo de 480 px | orquestador | dos columnas |
 | R-6 | 2026-11-16 | Las etiquetas mono de 12 px se quedan (rótulos del manual); los párrafos, mínimo 16 px | orquestador | subir todo a 16 px |
 | R-7 | 2026-11-16 | El modo de escritorio (pin, hélice, vuelo) pide ≥ 1024 px **y puntero fino**: las tabletas usan el modo de celular | orquestador | cortar solo por ancho |

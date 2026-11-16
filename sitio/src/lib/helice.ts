@@ -10,6 +10,7 @@ import { conectado, cargarProyectos } from './datos';
 import { mezclarConEjemplos } from '../datos/ejemplos';
 import { pintarTarjetas } from './tarjeta-proyecto';
 import { dibujarTexto } from './helice-texto';
+import { montarCarrusel } from './carrusel';
 import type { Color, HeliceGL, TarjetaGL } from './helice-gl';
 
 const CONSULTA_HELICE = CONSULTA_ESCRITORIO;
@@ -339,11 +340,17 @@ function montar(seccion: HTMLElement): () => void {
       tarjetas.forEach((t) => t?.removeAttribute('aria-current'));
       seccion.removeAttribute('data-gl');
       seccion.removeAttribute('data-gl-texto');
-      delete seccion.dataset.modo;
+      if (seccion.dataset.modo === 'helice') delete seccion.dataset.modo;
     };
   });
 
-  return () => mm.revert();
+  // Celular y tableta: carrusel de scroll nativo (nunca a la vez que la hélice: las consultas no se cruzan).
+  const desmontarCarrusel = montarCarrusel(seccion);
+
+  return () => {
+    desmontarCarrusel();
+    mm.revert();
+  };
 }
 
 export function iniciarProyectos(): void {

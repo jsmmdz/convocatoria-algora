@@ -1,10 +1,19 @@
 ---
-import { equipo } from '../lib/rutas';
+import { equipo, inicio } from '../lib/rutas';
+
+// Frase de cierre: el autor no la ha dado. Se cambia solo aquí (no se inventa contenido del autor).
+const FRASE_CIERRE = '¿Y si esta vez sí?';
 ---
 <footer class="pie">
-  <p class="pie__linea">Semillero Algora · Creación Digital · Universidad El Bosque</p>
-  <p class="pie__estado">Convocatoria abierta · fechas por confirmar</p>
-  <p class="pie__equipo"><a href={equipo}>Acceso del equipo</a></p>
+  <div class="pie__cierre">
+    <p class="pie__frase">{FRASE_CIERRE}</p>
+    <a class="boton boton--principal pie__cta" href={`${inicio}#postulacion`}>Postúlate</a>
+  </div>
+  <div class="pie__datos">
+    <p class="pie__linea">Semillero Algora · Creación Digital · Universidad El Bosque</p>
+    <p class="pie__estado">Convocatoria abierta · fechas por confirmar</p>
+    <p class="pie__equipo"><a href={equipo}>Acceso del equipo</a></p>
+  </div>
 </footer>
 
 <style>
@@ -13,19 +22,43 @@ import { equipo } from '../lib/rutas';
     color: var(--color-papel);
     /* Sobre tinta el foco va en ácido en los dos temas: el cobalto daría 2,4:1 */
     --foco: var(--color-acido);
-    padding: var(--espacio-xl) var(--margen);
+    /* El botón lleva borde y sombra del color del papel para que se lea sobre la tinta */
+    --borde: var(--color-papel);
+    --pie-linea: color-mix(in srgb, var(--color-papel) 25%, transparent);
+    padding: var(--espacio-xl) var(--margen) var(--espacio-l);
     display: grid;
-    gap: var(--espacio-m);
+    gap: var(--espacio-xl);
+    overflow-x: clip;
   }
   .pie p { margin: 0; }
-  .pie__linea {
+  .pie__cierre {
+    display: grid;
+    justify-items: start;
+    gap: var(--espacio-l);
+  }
+  .pie__frase {
     font-family: var(--fuente-titular);
-    font-size: var(--titular-m);
-    line-height: 1;
+    font-size: var(--titular-xl);
+    line-height: 0.95;
     text-wrap: balance;
+    overflow-wrap: anywhere;
+    max-inline-size: 16ch;
+  }
+  .pie__datos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    align-items: center;
+    gap: var(--espacio-m) var(--espacio-l);
+    padding-block-start: var(--espacio-l);
+    border-block-start: var(--hilo) solid var(--pie-linea);
   }
   /* Texto de cuerpo (Zalando Sans) sobre la tinta fija, igual en los dos temas */
-  .pie__estado { font-family: var(--fuente-texto); }
+  .pie__linea,
+  .pie__estado {
+    font-family: var(--fuente-texto);
+    font-size: var(--texto-base);
+    line-height: 1.5;
+  }
   .pie__equipo {
     font-family: var(--fuente-etiqueta);
     font-size: var(--texto-etiqueta);
@@ -37,5 +70,8 @@ import { equipo } from '../lib/rutas';
     align-items: center;
     min-block-size: 44px;
     color: var(--color-papel);
+  }
+  @media (min-width: 900px) {
+    .pie__equipo { justify-self: end; }
   }
 </style>

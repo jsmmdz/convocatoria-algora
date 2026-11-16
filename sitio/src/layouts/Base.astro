@@ -20,6 +20,11 @@ const {
   descripcion = 'Convocatoria del semillero Algora (Creación Digital, Universidad El Bosque) para estudiantes de cualquier carrera.',
   noindex = false,
 } = Astro.props;
+
+// Rutas con BASE_URL; la URL absoluta solo existe si hay `site` (en local no lo hay y no rompe)
+const base = import.meta.env.BASE_URL;
+const imagenRedes = Astro.site ? new URL(`${base}og.jpg`, Astro.site).href : `${base}og.jpg`;
+const canonica = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
 ---
 <!doctype html>
 <html lang="es-CO">
@@ -28,6 +33,17 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{titulo}</title>
     <meta name="description" content={descripcion} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    {canonica && <link rel="canonical" href={canonica} />}
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_CO" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:image" content={imagenRedes} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titulo} />
+    <meta name="twitter:description" content={descripcion} />
+    <meta name="twitter:image" content={imagenRedes} />
     {noindex && <meta name="robots" content="noindex" />}
     <!-- Aplica el tema guardado antes de pintar, para evitar el parpadeo -->
     <script is:inline>

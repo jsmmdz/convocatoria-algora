@@ -247,6 +247,59 @@ const proyectos = EJEMPLOS.map((p) => ({ ...p, facultad: facultadDe(p.area) }));
     gap: var(--espacio-m);
   }
 
+  /* Carrusel (celular y tableta): lo activa carrusel.ts con data-modo='carrusel'. Scroll nativo con ajuste:
+     el gesto vertical sigue siendo de la página; la fila solo captura el horizontal. */
+  .proyectos[data-modo='carrusel'] {
+    --carrusel-tarjeta: 84%;
+  }
+
+  .proyectos[data-modo='carrusel'] .proyectos__etapa {
+    gap: var(--espacio-l);
+    padding-block: var(--espacio-l);
+  }
+
+  .proyectos[data-modo='carrusel'] .proyectos__lista {
+    display: flex;
+    align-items: stretch;
+    gap: var(--espacio-m);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    /* Aire para que la sombra y el aro de foco de las tarjetas no se recorten */
+    /* La fila sangra hasta el borde de la ventana: las vecinas asoman a ambos lados */
+    padding: var(--espacio-s) var(--margen) var(--espacio-m);
+    margin: calc(-1 * var(--espacio-s)) calc(-1 * var(--margen));
+    scroll-padding-inline: var(--margen);
+  }
+
+  .proyectos[data-modo='carrusel'] .proyectos__lista::-webkit-scrollbar {
+    display: none;
+  }
+
+  .proyectos[data-modo='carrusel'] :global(.proyectos__item) {
+    flex: 0 0 min(var(--carrusel-tarjeta), 32rem);
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+
+  .proyectos[data-modo='carrusel'] :global(.tarjeta__regla) {
+    font-size: clamp(1rem, 3.4cqi, 1.125rem);
+  }
+
+  .proyectos[data-modo='carrusel'] .proyectos__control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--espacio-m);
+  }
+
+  .proyectos[data-modo='carrusel'] .proyectos__control .boton {
+    min-inline-size: 2.75rem;
+    min-block-size: 2.75rem;
+  }
+
   .proyectos__posicion {
     min-inline-size: 5.5em;
     text-align: center;

@@ -293,6 +293,14 @@ import { conectado } from '../lib/datos';
     text-transform: uppercase;
   }
 
+  /* R-5: por debajo de 480 px los dos caminos van uno debajo del otro (en dos columnas el texto se parte en cinco líneas) */
+  @media (max-width: 479px) {
+    .formulario__caminos {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--espacio-m);
+    }
+  }
+
   .formulario__fila {
     display: grid;
     gap: var(--espacio-m);
@@ -405,6 +413,29 @@ import { conectado } from '../lib/datos';
 
   .casilla input {
     margin-block-start: 0.25rem;
+  }
+
+  /* Toque y lectura (R1, R-6): con dedo o en angosto, la fila entera de la casilla mide >= 44 px, la ayuda sube a
+     16 px y las opciones no tocan el borde de su pastilla. Con ratón y >= 1024 px queda como estaba. */
+  @media (max-width: 1023px), (pointer: coarse) {
+    .casilla {
+      align-items: center;
+      min-block-size: 44px;
+      padding-block: var(--espacio-s);
+    }
+    .casilla input {
+      margin-block-start: 0;
+    }
+    .campo__ayuda {
+      font-size: 1rem;
+    }
+  }
+  /* `.campo label` (más específico que `.opcion`) anula el relleno de la pastilla: aquí se devuelve */
+  @media (max-width: 1023px), (pointer: coarse) {
+    .campo .opcion {
+      padding: 0.5rem 1.125rem;
+      line-height: 1.3;
+    }
   }
 
   .formulario__trampa {

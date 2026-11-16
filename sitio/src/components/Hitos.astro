@@ -200,6 +200,50 @@ const hitos = [
     pointer-events: none;
     mix-blend-mode: difference;
   }
+  /* Vertical (celular y tableta): lo activa hitos-vertical.ts. Los hitos siguen apilados; la línea baja por el
+     borde derecho, bajo los bloques y los textos, y el unicornio va chico para caber en el margen. */
+  .hitos[data-modo='vertical'] {
+    --linea-v-amplitud: 4;
+    --linea-v-onda: 280;
+    --linea-v-ancla: 0.6;
+    --viajero-tam-v: 2.75rem;
+    overflow-x: clip;
+  }
+  .hitos[data-modo='vertical'] .hitos__pista {
+    position: relative;
+  }
+  .hitos[data-modo='vertical'] .hitos__linea {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    color: var(--color-papel);
+  }
+  .hitos[data-modo='vertical'] .hitos__solida {
+    inset-inline: 0;
+    inset-block-end: auto;
+    inline-size: 100%;
+    block-size: 0;
+  }
+  .hitos[data-modo='vertical'] .hitos__solida .hitos__svg {
+    inset-block-end: auto;
+    inline-size: 100%;
+    block-size: var(--pista-alto, 100%);
+  }
+  .hitos[data-modo='vertical'] .hitos__guia {
+    display: block;
+    position: absolute;
+    inset: 0 auto auto 0;
+    z-index: 2;
+    pointer-events: none;
+    mix-blend-mode: difference;
+  }
+  .hitos[data-modo='vertical'] .hitos__viajero {
+    --mascota-tam: var(--viajero-tam-v);
+  }
+
   .hitos__viajero {
     --mascota-tam: var(--viajero-tam);
     color: var(--color-papel);

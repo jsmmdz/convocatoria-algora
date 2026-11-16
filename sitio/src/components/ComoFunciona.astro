@@ -98,6 +98,22 @@ const pasos = [
     color: var(--texto-suave);
   }
 
+  /* Tableta (640–1023 px): los 4 pasos en 2 × 2, con el hilo de arriba de cada fila y uno vertical entre columnas */
+  @media (min-width: 640px) and (max-width: 1023px) {
+    .pasos__lista {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .paso:nth-child(odd) {
+      padding-inline-end: var(--espacio-l);
+    }
+
+    .paso:nth-child(even) {
+      padding-inline-start: var(--espacio-l);
+      border-inline-start: var(--hilo) solid var(--linea);
+    }
+  }
+
   /* Escritorio (D-7): 4 columnas fijas a toda la altura, hilos verticales entre ellas y el aire en medio */
   @media (min-width: 1024px) {
     .pasos__lista {

@@ -59,6 +59,32 @@ import { inicio } from '../lib/rutas';
     transform: translate(2px, 2px);
     box-shadow: var(--sombra-hover);
   }
+  /* Toque (R1): en angosto y con dedo, logo y botones miden al menos 44 × 44 px. Con ratón y >= 1024 px
+     la nav queda como estaba. */
+  @media (max-width: 1023px), (pointer: coarse) {
+    .nav__logo,
+    .nav__boton {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-block-size: 44px;
+      min-inline-size: 44px;
+    }
+  }
+  /* 320–400 px: margen y relleno más cortos para que logo, Tema y Postúlate quepan en una fila */
+  @media (max-width: 400px) {
+    .nav {
+      padding-inline: var(--espacio-m);
+      gap: var(--espacio-s);
+    }
+    .nav__acciones {
+      gap: var(--espacio-s);
+    }
+    .nav__boton {
+      padding-inline: 0.625rem;
+      letter-spacing: 0.06em;
+    }
+  }
   /* Bloque de marca: igual en claro y oscuro */
   .nav__boton--cta {
     background: var(--color-acido);

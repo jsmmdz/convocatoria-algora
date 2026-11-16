@@ -238,6 +238,38 @@ import Base from '../layouts/Base.astro';
     align-items: center;
   }
 
+  /* Celular (< 640 px): filtros y botones en una columna a lo ancho; la tabla conserva su scroll propio */
+  @media (max-width: 639px) {
+    .panel__filtros {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .panel__filtros :global(.boton),
+    .panel__filtros select {
+      inline-size: 100%;
+    }
+    .panel__cabecera :global(.boton) {
+      flex: none;
+    }
+  }
+
+  /* Toque y lectura (R1): con dedo o en angosto, todo lo tocable mide >= 44 px y la tabla se lee a 16 px.
+     Con ratón y >= 1024 px el panel queda como estaba. */
+  @media (max-width: 1023.98px), (pointer: coarse) {
+    .panel__filtros select,
+    .panel__campo input {
+      min-block-size: 44px;
+    }
+    .panel :global(.boton--mini) {
+      min-block-size: 44px;
+      min-inline-size: 44px;
+    }
+    /* Más específica que la regla base de la tabla, que va más abajo en el archivo */
+    .panel .panel__tabla table {
+      font-size: 1rem;
+    }
+  }
+
   .panel__tabla {
     /* relative: el texto solo para lectores de la cabecera (absoluto) se queda dentro de la caja con scroll */
     position: relative;

@@ -871,7 +871,9 @@ test.describe('T03 · hitos', () => {
     { nombre: '1000 × 800', vp: { width: 1000, height: 800 }, reducido: false },
     { nombre: '390 × 844', vp: { width: 390, height: 844 }, reducido: false },
   ]) {
-    test(`apilado (${caso.nombre}): sin pin, los cinco hitos uno debajo de otro, sin línea ni viajero y sin scroll horizontal`, async ({ page }) => {
+    // Desde R1 (R-1, autor 2026-11-16) el apilado con movimiento lleva la línea vertical y el unicornio que baja;
+    // con movimiento reducido sigue sin línea ni viajero. Lo demás (sin pin, apilado, sin scroll) no cambió.
+    test(`apilado (${caso.nombre}): sin pin, los cinco hitos uno debajo de otro y sin scroll horizontal; línea y viajero solo con movimiento`, async ({ page }) => {
       if (caso.reducido) await page.emulateMedia({ reducedMotion: 'reduce' });
       await page.setViewportSize(caso.vp);
       await page.goto('/');
@@ -888,8 +890,10 @@ test.describe('T03 · hitos', () => {
         if (i > 0) expect(t.y, `hito ${i + 1} va debajo del ${i}`).toBeGreaterThan(p.titulares[i - 1].y + p.titulares[i - 1].h);
       }
       expect(p.anchoPagina, 'sin scroll horizontal de página').toBeLessThanOrEqual(caso.vp.width + 1);
-      expect(await page.locator('[data-viajero]').isVisible(), 'el viajero no se muestra apilado').toBe(false);
-      expect(await page.locator('[data-linea-punteada]').isVisible(), 'la línea no se muestra apilada').toBe(false);
+      expect(await page.locator('[data-viajero]').isVisible(), 'el viajero: solo con movimiento').toBe(!caso.reducido);
+      expect(await page.locator('[data-linea-punteada]').isVisible(), 'la línea: solo con movimiento').toBe(!caso.reducido);
+      const modo = await page.locator('section[data-hitos]').getAttribute('data-modo');
+      expect(modo, 'modo de la sección').toBe(caso.reducido ? null : 'vertical');
     });
   }
 

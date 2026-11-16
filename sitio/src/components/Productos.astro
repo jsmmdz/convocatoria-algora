@@ -133,6 +133,10 @@ const fichas = [
   }
 
   @media (min-width: 1024px) {
+    /* Sin modo horizontal (tableta táctil): la columna del bloque no crece más que la pantalla */
+    .productos:not([data-modo='horizontal']) .productos__bloque {
+      grid-template-columns: minmax(0, 1fr);
+    }
     .productos:not([data-modo='horizontal']) .productos__fichas {
       grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
     }
@@ -203,6 +207,21 @@ const fichas = [
     font-size: clamp(1.25rem, 1rem + 0.9vw, 1.75rem);
     line-height: 1.05;
     overflow-wrap: break-word;
+  }
+
+  /* Celular angosto (R-3, solo espacios): la ficha gana ancho útil para que «herramienta» y «PLATAFORMA» no se
+     partan a media palabra a 320 px. La rejilla sigue en dos columnas y el modo horizontal (>= 1024) no pasa por aquí. */
+  @media (max-width: 479px) {
+    .productos__ficha {
+      padding: 0.75rem;
+      gap: var(--espacio-m);
+    }
+    .productos__ficha-etiqueta {
+      letter-spacing: 0.04em;
+    }
+    .productos__ficha-nombre {
+      font-size: 1.125rem;
+    }
   }
 
   /* Entrada de «Cómo funciona» (T05): fondo del tema, titular XXL y una frase. Es lo que el marco deja ver. */

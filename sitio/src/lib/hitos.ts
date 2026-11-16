@@ -1,7 +1,8 @@
 // Hitos (unseen A3-A5, técnicas K1-K4): pista horizontal con pin, línea ondulada que se vuelve sólida al
 // recorrerla y unicornio viajero que se apoya en ella y se inclina con la velocidad del scroll.
 // El CSS por defecto es el apilado: este módulo solo activa el modo horizontal (data-modo) cuando aplica.
-import { gsap, ScrollTrigger, lenis, CONSULTA_ESCRITORIO } from './movimiento';
+import { gsap, ScrollTrigger, lenis, CONSULTA_ESCRITORIO, CONSULTA_TACTIL_ANIMADO } from './movimiento';
+import { activarVertical } from './hitos-vertical';
 import { leerNumero } from './tokens';
 
 type Punto = { x: number; y: number };
@@ -53,6 +54,8 @@ export function iniciarHitos(): void {
   if (!seccion || !pista || !guia || !viajero || !solida || !trazoPunteado || !trazoSolido) return;
 
   const mm = gsap.matchMedia();
+  // Celular y tableta (R-1): modo vertical con scroll nativo. Nunca coincide con el horizontal.
+  mm.add(CONSULTA_TACTIL_ANIMADO, () => activarVertical({ seccion, pista, guia, viajero, solida, trazoPunteado, trazoSolido }));
   mm.add(CONSULTA_HORIZONTAL, () => {
     seccion.dataset.modo = 'horizontal';
 

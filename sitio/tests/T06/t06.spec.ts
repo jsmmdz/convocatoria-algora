@@ -139,7 +139,9 @@ test.describe('T06 · Hélice de proyectos', () => {
     await page.goto('/', { waitUntil: 'networkidle' });
     await esperarListo(page);
     await expect(page.locator('[data-proyectos]')).not.toHaveAttribute('data-modo', 'helice');
-    const cajas = await page.locator('[data-tarjeta]').evaluateAll((els) => els.map((e) => e.getBoundingClientRect()).map((r) => r.x + r.width));
-    for (const derecha of cajas) expect(derecha).toBeLessThanOrEqual(390);
+    // Desde R1 (R-2) en angosto es un carrusel: las tarjetas que no están a la vista quedan a la derecha,
+    // dentro de la fila que se desliza. Lo que no puede pasar es que la página se ensanche.
+    const anchos = await page.evaluate(() => ({ documento: document.documentElement.scrollWidth, ventana: window.innerWidth }));
+    expect(anchos.documento).toBeLessThanOrEqual(anchos.ventana);
   });
 });
