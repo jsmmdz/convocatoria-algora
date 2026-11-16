@@ -1,6 +1,6 @@
 name: Publicar en GitHub Pages
 
-# Cada push a main construye sitio/ y lo publica. Hasta que T01 cree sitio/package.json no corre nada.
+# Cada push a main que toque sitio/ lo construye y lo publica.
 # La base sale sola del nombre del repo: <usuario>.github.io se sirve en la raíz; cualquier otro, en /<repo>/.
 on:
   push:
@@ -20,7 +20,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: hashFiles('sitio/package.json') != ''
     env:
       SITIO_URL: https://${{ github.repository_owner }}.github.io
       SITIO_BASE: ${{ endsWith(github.event.repository.name, '.github.io') && '/' || format('/{0}/', github.event.repository.name) }}
