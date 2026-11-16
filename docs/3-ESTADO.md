@@ -152,7 +152,11 @@ baratos: cuatro constructores Sonnet en paralelo con archivos separados (`fabric
 2. **Supabase real:** crear el proyecto, correr `sitio/supabase/esquema.sql`, poner los secrets
    `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_ANON_KEY` en el repo e inscribir al equipo (pasos en `LEEME.md`).
    Entonces se prueban el envío real, `proyectos_publicos()` y el panel, que hoy solo corren en demostración.
-3. **Textos definitivos** (siguen los del prototipo v2) y **unicornio y objetos 3D** de Antigravity.
+3. **Textos y contenido definitivos: `fabrica/proyecto/tareas/T10-contenido-definitivo.md`** (escrita el 2026-11-16, sin
+   empezar). Trae el inventario de cada texto con su archivo y la prueba que lo fija, en bloques A–H, las preguntas
+   de hecho que solo el autor puede contestar (fechas, tamaño de equipos, facultades oficiales, correo institucional,
+   política de datos) y el bloque I de assets (unicornio, objetos 3D, logo). El autor responde por bloques; lo que no
+   responda se queda como está.
 4. **Pendientes menores:** `theme-color` por tema; la cabecera de la hélice roza los dorsos a 1024 con ratón; mirar
    la matriz de 20 pantallas en capturas (`node fabrica/scripts/capturas.mjs R1`).
 5. Si el autor quiere una segunda mirada con contexto limpio: `/construir-tarea T06 auditoria`.
@@ -214,6 +218,7 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 | R0 | Auditoría responsive: matriz de 20 pantallas, cortes de los referentes, maquetas de opciones y decisiones R-1…R-n (orquestador) | unseen A6 y lo que midan los referentes en celular | revisión | DONE |
 | R1 | Responsive de todo el sitio en una sola tarea, según R-1…R-7 (`R1-responsive.md`; la construye el orquestador) | unseen a 390 (hitos) | R0 | PULIDO |
 | T09 | Cierre: pulido de T05–T08, pie en bloque negro, metadatos, rendimiento, axe en las 20 pantallas, `LEEME.md` y publicación en modo demostración (repo público, Pages) | leadoff A6 | R1 | PULIDO |
+| T10 | Textos y contenido definitivos, por bloques A–I (`T10-contenido-definitivo.md`); el autor entrega o aprueba cada bloque | — | T09 | PENDING |
 
 **Del autor, en paralelo:** el unicornio (Antigravity; `.glb` o PNG/WebP con transparencia) y, cuando
 quiera, los objetos 3D de la portada. Supabase: crear el proyecto y pasar URL y clave anon (`T07` y `T08` ya están
