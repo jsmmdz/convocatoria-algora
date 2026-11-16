@@ -137,7 +137,7 @@ sesión con Fable». Quedó:
 baratos: cuatro constructores Sonnet en paralelo con archivos separados (`fabrica/buzon/T09/REGISTRO.md`).
 - **`R1`:** corte único escritorio/táctil (≥ 1024 px y puntero fino, R-7); hitos en celular con línea vertical y
   unicornio (R-1); proyectos en celular como carrusel deslizable (R-2); toques ≥ 44 px y párrafos ≥ 16 px de 320 a
-  1024 táctil. 22 pruebas en `sitio/tests/R1/`.
+  1024 táctil. 23 pruebas en `sitio/tests/R1/`.
 - **`T09`:** pie de cierre con la frase del autor «¿Y si esta vez sí?» y «Postúlate», favicon, metadatos para
   redes, `LEEME.md`, axe en las 20 pantallas en claro y oscuro, presupuestos de peso. 9 pruebas en `sitio/tests/T09/`.
 - **Decisiones del autor en la sesión:** la frase del pie y publicar con el historial tal cual (el correo de los
