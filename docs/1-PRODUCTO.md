@@ -103,10 +103,11 @@ postularse. El mensaje se vive, no se dice; nunca se prometen ingresos.
 | 2026-11-15 | Postúlate (auditoría final de T04, E4): **una sola ancla, `#postulacion`**, para la nav y para la sección de productos; el formulario de T07 lleva ese `id` | `#postulate`, la que tenía la nav desde T01 |
 | 2026-11-16 | **`T05`–`T08` las construye el orquestador (Claude Fable 5.2) en una sola sesión**, sin Gemini, QA ni auditoría aparte, para dejar el prototipo de escritorio completo («usa Fable para continuar… déjame un prototipo con todas las tareas hechas»). Las decisiones de dirección de esas tareas las toma el orquestador y quedan **por confirmar** en la revisión del prototipo (filas de abajo) | el ciclo de la fábrica v5 tarea por tarea |
 
-### Por confirmar en la revisión del prototipo (tomadas por el orquestador el 2026-11-16)
+### Tomadas por el orquestador en `T05`–`T08` y **aceptadas por el autor el 2026-11-16**
 
-El autor pidió el prototipo completo sin paradas, así que estas no se le preguntaron. Cada una se puede cambiar
-en el pulido sin rehacer la sección; el detalle está en la tarea que se cita.
+El autor pidió el prototipo completo sin paradas, así que estas no se le preguntaron al construir. Las aceptó
+todas, en bloque, el mismo día («Aceptarlas todas»). Están cerradas; si alguna no le gusta al verla, se cambia en
+el pulido. El detalle está en la tarea que se cita.
 
 | Tarea | Decisión | Lo que había |
 |---|---|---|
@@ -118,3 +119,27 @@ en el pulido sin rehacer la sección; el detalle está en la tarea que se cita.
 | T06 | Hélice: **la tarjeta del frente es el botón de sumarse**; una de los lados gira al frente. Sin panel de detalle aparte ni ajuste a la tarjeta más cercana | detalle y botón debajo, como el prototipo v2 |
 | T07 | Formulario de **una sola pantalla con dos caminos** (el del prototipo v2) | por pasos (Vitra, Notie, No-Code: nunca elegidos) |
 | T08 | Sin Supabase, el panel se puede **recorrer con datos `[EJEMPLO]`** en memoria | solo el aviso «falta conectar» |
+
+## 7. Responsive
+
+Medición `R0` del 2026-11-16 y detalle en `fabrica/proyecto/tareas/R1-responsive.md`. A 1440 px nada cambia.
+
+| Id | Fecha | Decisión | Quién | Opciones que había |
+|---|---|---|---|---|
+| R-1 | 2026-11-16 | Hitos en celular: **línea vertical con el unicornio** que baja por ella y se vuelve sólida al recorrerla (como Unseen a 390) | autor | dejarlos apilados sin línea ni mascota |
+| R-2 | 2026-11-16 | Proyectos en celular: **carrusel horizontal deslizable** con ajuste a cada tarjeta, contador y flechas | autor | lista vertical; hélice vertical en CSS 3D |
+| R-3 | 2026-11-16 | Productos en celular: rejilla quieta de dos columnas, sin vuelo ni marco de tinta | orquestador | marco sin pin |
+| R-4 | 2026-11-16 | Portada en celular: las piezas 3D se quedan, más pequeñas y sin cruzar palabras | orquestador | quitarlas |
+| R-5 | 2026-11-16 | Formulario: los dos caminos apilados por debajo de 480 px | orquestador | dos columnas |
+| R-6 | 2026-11-16 | Las etiquetas mono de 12 px se quedan (rótulos del manual); los párrafos, mínimo 16 px | orquestador | subir todo a 16 px |
+| R-7 | 2026-11-16 | El modo de escritorio (pin, hélice, vuelo) pide ≥ 1024 px **y puntero fino**: las tabletas usan el modo de celular | orquestador | cortar solo por ancho |
+
+Las R-3 a R-7 son del orquestador, conservadoras, para que la última sesión no pare; el autor las ve en el visto
+bueno final.
+
+## 8. Publicación del MVP
+
+| Fecha | Decisión | Opciones que había |
+|---|---|---|
+| 2026-11-16 | El MVP **se publica en modo demostración** (los `[EJEMPLO]` y el aviso de que el formulario no guarda). Supabase se conecta después con los secrets del repo, sin tocar código | publicar con Supabase real; no publicar todavía |
+| 2026-11-16 | `R1` y `T09` las construye el orquestador (Claude Fable) en **una última sesión**, sin el ciclo Gemini/QA/auditoría | el ciclo de la fábrica v5 |

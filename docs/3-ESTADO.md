@@ -4,8 +4,9 @@
 
 ## Dónde va
 
-**Prototipo de escritorio completo (2026-11-16): `T01`–`T08` construidas.** `T05`–`T08` las hizo el orquestador
-(Claude Fable 5.2) en una sola sesión, por encargo directo del autor, y esperan su revisión. Detalle más abajo, en
+**Prototipo de escritorio completo (2026-11-16): `T01`–`T08` construidas. Faltan `R1` (responsive) y `T09` (cierre y
+publicación), ya escritas: ver «Última sesión: cómo arrancarla».** `T05`–`T08` las hizo el orquestador
+(Claude Fable 5.2) en una sola sesión, por encargo directo del autor; sus decisiones están aceptadas y les falta el pulido. Detalle más abajo, en
 «`T05`–`T08`». Lo anterior, en orden:
 
 **Fase:** arranque, retomado el 2026-11-09. Encargo reescrito, referentes capturados y su código leído,
@@ -121,16 +122,40 @@ construyó las cuatro seguidas, **sin Gemini, sin QA de Sonnet y sin auditoría 
   la revisión del prototipo» (ocho filas).
 - **Sin probar:** todo lo que toca Supabase real (envío, `proyectos_publicos()`, entrar al panel): falta el proyecto.
 
-**Sigue:**
-1. **Autor: revisar el prototipo completo en escritorio** (`cd sitio && npm run dev`, http://localhost:4321/ y
-   http://localhost:4321/equipo/). Confirmar o cambiar las ocho decisiones «por confirmar» y aprobar los textos.
-   Con eso el orquestador hace el pulido y `T05`–`T08` pasan a `DONE`.
-2. Autor: crear el proyecto de Supabase, correr `sitio/supabase/esquema.sql` y pasar URL y clave anon (van en
-   `sitio/.env` como `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_ANON_KEY`, y como secrets del repo). El orquestador
-   prueba entonces el envío real y el panel.
-3. Autor, si quiere una segunda mirada con contexto limpio: `/construir-tarea T06 auditoria` (la hélice es la pieza
-   con más riesgo).
-4. Después de la revisión: `R0` (auditoría responsive con maquetas y decisiones R-1…R-n).
+**Preparación de la última sesión (2026-11-16).** El autor pidió: «deja todo listo para acabar el MVP en una última
+sesión con Fable». Quedó:
+- **Decisiones:** aceptó en bloque las ocho de `T05`–`T08`; R-1 (hitos en celular con línea vertical y unicornio),
+  R-2 (proyectos en celular como carrusel deslizable) y publicar en **modo demostración**. Las R-3 a R-7 las fijó el
+  orquestador. Todo en `docs/1-PRODUCTO.md` § 6, § 7 y § 8.
+- **`R0` hecha** (medición a 390 × 844 táctil): el sitio ya se sostiene apilado y sin scroll horizontal; falta
+  afinar toques, dos tamaños de texto, los caminos del formulario y las dos mecánicas de R-1 y R-2. Cifras en la tarea.
+- **Tareas escritas:** `fabrica/proyecto/tareas/R1-responsive.md` (una sola para todo el sitio) y
+  `T09-cierre.md` (pulido de `T05`–`T08`, pie, metadatos, rendimiento, axe en 20 pantallas, `LEEME.md` y publicación).
+- **Comprobado para publicar:** el repo `jsmmdz/convocatoria-algora` **no existe todavía en GitHub** y el repo local
+  **no tiene remoto**; `gh` está autenticado como `jsmmdz`; `previo/` y las capturas de referentes no están versionados.
+
+## Última sesión: cómo arrancarla
+
+Mensaje para abrirla: **«Última sesión: construye R1 y T09 y publica el MVP»**. El orquestador sigue este orden y
+no para salvo en lo marcado con ✋:
+
+1. Leer este archivo, `R1-responsive.md` y `T09-cierre.md`. `git status` limpio, compuertas de `T08` en verde.
+2. **`R1`:** matriz de 20 pantallas y «lo que veo» → pruebas de `tests/R1/` (con la foto del escritorio antes de
+   tocar) → construir en el orden de la tarea → compuertas completas → commit.
+3. **`T09`:** pulido de `T05`–`T08` → pie → metadatos → rendimiento → axe en las 20 pantallas → `LEEME.md` →
+   compuertas completas → commit.
+4. **Publicar** (autorizado por el autor el 2026-11-16, en modo demostración): revisar que no suba nada que no
+   deba, crear el repo público, primer push, activar Pages y **probar el sitio publicado**.
+5. Cerrar: buzones, este archivo («MVP publicado») y lo que queda fuera del MVP.
+
+✋ **Lo único que puede parar la sesión** (si el autor lo deja antes, no para):
+- La **frase de cierre del pie**. Sin ella sale `[FRASE DE CIERRE DEL AUTOR]`.
+- Los **textos definitivos**, si los quiere distintos del borrador del prototipo v2.
+- El **unicornio** de Antigravity. Sin él sale la silueta provisional.
+
+**Fuera del MVP** (después de publicar): Supabase real (el autor crea el proyecto, corre
+`sitio/supabase/esquema.sql`, pone los secrets e inscribe al equipo; entonces se prueban el envío y el panel),
+objetos 3D de Antigravity y el visto bueno en un celular de verdad.
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -186,9 +211,9 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 | T07 | Postulación y datos: formulario de dos caminos con validación, trampa y Ley 1581; Supabase (esquema, envío, `proyectos_publicos` en la hélice) y modo demostración; recibe `algora:sumarse` | manual (componentes) | T06 | PULIDO |
 | T08 | Panel del equipo `/equipo/`: entrar, filtrar, aprobar ideas para la hélice, marcar equipo completo, borrar con confirmación, descargar CSV | — (utilitario, manual) | T07 | PULIDO |
 | — | **Prototipo al 80 %: revisión del autor sobre el sitio completo en escritorio** | — | T08 | — |
-| R0 | Auditoría responsive: matriz de 20 pantallas, cortes de los referentes, maquetas de opciones y decisiones R-1…R-n (orquestador) | unseen A6 y lo que midan los referentes en celular | revisión | PENDING |
-| R1–Rn | Responsive por sección, según R-1…R-n (`@responsive`) | según R0 | R0 | PENDING |
-| T09 | Cierre: pie en bloque negro, rendimiento (presupuestos, Three y modelos diferidos), axe en las 20 pantallas, publicación real (repo público, secrets, Pages) | leadoff A6 | R1–Rn | PENDING |
+| R0 | Auditoría responsive: matriz de 20 pantallas, cortes de los referentes, maquetas de opciones y decisiones R-1…R-n (orquestador) | unseen A6 y lo que midan los referentes en celular | revisión | DONE |
+| R1 | Responsive de todo el sitio en una sola tarea, según R-1…R-7 (`R1-responsive.md`; la construye el orquestador) | unseen a 390 (hitos) | R0 | PENDING |
+| T09 | Cierre: pulido de T05–T08, pie en bloque negro, metadatos, rendimiento, axe en las 20 pantallas, `LEEME.md` y publicación en modo demostración (repo público, Pages) | leadoff A6 | R1 | PENDING |
 
 **Del autor, en paralelo:** el unicornio (Antigravity; `.glb` o PNG/WebP con transparencia) y, cuando
 quiera, los objetos 3D de la portada. Supabase: crear el proyecto y pasar URL y clave anon (`T07` y `T08` ya están
