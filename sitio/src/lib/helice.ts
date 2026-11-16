@@ -3,7 +3,7 @@
 // mueven el mismo scroll (una sola fuente de verdad). Las tarjetas son botones reales del DOM colocados con
 // CSS 3D; un canvas WebGL dibuja debajo las mismas tarjetas curvadas y, si falla, quedan las del DOM.
 // El CSS por defecto es la lista: este módulo solo activa la hélice (data-modo) cuando aplica.
-import { gsap, ScrollTrigger, lenis } from './movimiento';
+import { gsap, ScrollTrigger, lenis, CONSULTA_ESCRITORIO } from './movimiento';
 import { leerColor, leerNumero } from './tokens';
 import { hayWebGL } from './webgl';
 import { conectado, cargarProyectos } from './datos';
@@ -12,7 +12,7 @@ import { pintarTarjetas } from './tarjeta-proyecto';
 import { dibujarTexto } from './helice-texto';
 import type { Color, HeliceGL, TarjetaGL } from './helice-gl';
 
-const CONSULTA_HELICE = '(min-width: 1024px) and (prefers-reduced-motion: no-preference)';
+const CONSULTA_HELICE = CONSULTA_ESCRITORIO;
 
 export const EVENTO_SUMARSE = 'algora:sumarse';
 export interface DetalleSumarse {

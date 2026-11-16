@@ -1,7 +1,7 @@
 // Hitos (unseen A3-A5, técnicas K1-K4): pista horizontal con pin, línea ondulada que se vuelve sólida al
 // recorrerla y unicornio viajero que se apoya en ella y se inclina con la velocidad del scroll.
 // El CSS por defecto es el apilado: este módulo solo activa el modo horizontal (data-modo) cuando aplica.
-import { gsap, ScrollTrigger, lenis } from './movimiento';
+import { gsap, ScrollTrigger, lenis, CONSULTA_ESCRITORIO } from './movimiento';
 import { leerNumero } from './tokens';
 
 type Punto = { x: number; y: number };
@@ -10,7 +10,7 @@ type Punto = { x: number; y: number };
 const SIN_TOKEN = 1;
 
 // Corte de K3: horizontal solo en escritorio y sin movimiento reducido.
-const CONSULTA_HORIZONTAL = '(min-width: 1024px) and (prefers-reduced-motion: no-preference)';
+const CONSULTA_HORIZONTAL = CONSULTA_ESCRITORIO;
 
 /** Ondulación de la línea: dos senos de largo distinto, a lo ancho de toda la pista. */
 function trazar(ancho: number, alto: number): Punto[] {

@@ -1,12 +1,12 @@
 // Orquestación de la sección Productos (T04): pin en dos tramos, vuelo de fichas K1,
 // entrada letra por letra K3 y carga diferida del marco de tinta WebGL K2.
-import { gsap, ScrollTrigger, lenis } from './movimiento';
+import { gsap, ScrollTrigger, lenis, CONSULTA_ESCRITORIO } from './movimiento';
 import { prepararFichas } from './productos-fichas';
 import { leerNumero } from './tokens';
 import { hayWebGL } from './webgl';
 import type { Marco } from './marco-tinta';
 
-const CONSULTA_HORIZONTAL = '(min-width: 1024px) and (prefers-reduced-motion: no-preference)';
+const CONSULTA_HORIZONTAL = CONSULTA_ESCRITORIO;
 
 export function iniciarProductos(): void {
   const seccion = document.querySelector<HTMLElement>('section[data-productos]');

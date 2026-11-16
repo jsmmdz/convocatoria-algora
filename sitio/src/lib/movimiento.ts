@@ -5,6 +5,14 @@ import 'lenis/dist/lenis.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Corte único del sitio (R-7, docs/1-PRODUCTO § 7). El modo de escritorio (pin de hitos y productos, hélice)
+// pide ancho, puntero fino y movimiento: una tableta o un celular usan el modo táctil, que no secuestra el gesto.
+export const CONSULTA_ESCRITORIO = '(min-width: 1024px) and (pointer: fine) and (prefers-reduced-motion: no-preference)';
+/** Angosto o táctil, con o sin movimiento reducido (para lo que es scroll nativo, como el carrusel). */
+export const CONSULTA_TACTIL = '(max-width: 1023.98px), (pointer: coarse)';
+/** Angosto o táctil y con movimiento (para lo animado del modo táctil, como la línea vertical de los hitos). */
+export const CONSULTA_TACTIL_ANIMADO = '(prefers-reduced-motion: no-preference) and (max-width: 1023.98px), (prefers-reduced-motion: no-preference) and (pointer: coarse)';
+
 export const movimientoReducido: boolean =
   typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
