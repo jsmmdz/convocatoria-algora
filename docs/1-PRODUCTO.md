@@ -101,3 +101,20 @@ postularse. El mensaje se vive, no se dice; nunca se prometen ingresos.
 | 2026-11-15 | Hitos (auditoría r4 de T03, E1): los **textos van por encima del unicornio**, como los bloques; si la onda lo sube hasta un titular, pasa por detrás de las letras | bajar la cresta de la onda; dejarlo encima hasta el pulido |
 | 2026-11-15 | Hitos (auditoría r4 de T03, E2): la raya de la línea que se ve a través del unicornio (por la mezcla `difference`) **se ve en el pulido**, con la forma de la onda | taparla ya con una silueta del color del fondo |
 | 2026-11-15 | Postúlate (auditoría final de T04, E4): **una sola ancla, `#postulacion`**, para la nav y para la sección de productos; el formulario de T07 lleva ese `id` | `#postulate`, la que tenía la nav desde T01 |
+| 2026-11-16 | **`T05`–`T08` las construye el orquestador (Claude Fable 5.2) en una sola sesión**, sin Gemini, QA ni auditoría aparte, para dejar el prototipo de escritorio completo («usa Fable para continuar… déjame un prototipo con todas las tareas hechas»). Las decisiones de dirección de esas tareas las toma el orquestador y quedan **por confirmar** en la revisión del prototipo (filas de abajo) | el ciclo de la fábrica v5 tarea por tarea |
+
+### Por confirmar en la revisión del prototipo (tomadas por el orquestador el 2026-11-16)
+
+El autor pidió el prototipo completo sin paradas, así que estas no se le preguntaron. Cada una se puede cambiar
+en el pulido sin rehacer la sección; el detalle está en la tarea que se cita.
+
+| Tarea | Decisión | Lo que había |
+|---|---|---|
+| T05 | La entrada de «Cómo funciona» (etiqueta, titular y frase) va **dentro del panel que deja ver el marco de tinta**; las 4 columnas siguen debajo | reemplazar el panel por las columnas |
+| T05 | Titular «De la idea **al mercado**, con método» | «al primer peso» del prototipo v2 (roza la regla de no prometer ingresos) |
+| T05 | Carreras: **8 bandas a sangre**, una por facultad, en el orden cobalto, ácido, magenta, tomate (se repite). Ese color es el de sus tarjetas en la hélice (D-8) | rejilla de tarjetas; un solo bloque de color |
+| T06 | Hélice: el **texto de la tarjeta va pintado dentro de la textura** para que se curve con ella; el botón real queda encima, transparente | texto en el DOM, como el título de Ryan (se despegaba hasta 25 px al girar) |
+| T06 | Hélice: las tarjetas que vienen quedan **un escalón más abajo** y suben al girar (como `ryan-03.jpg`); el centro va un 6 % a la derecha y la cabecera abajo a la izquierda | subir hacia la derecha; cabecera arriba |
+| T06 | Hélice: **la tarjeta del frente es el botón de sumarse**; una de los lados gira al frente. Sin panel de detalle aparte ni ajuste a la tarjeta más cercana | detalle y botón debajo, como el prototipo v2 |
+| T07 | Formulario de **una sola pantalla con dos caminos** (el del prototipo v2) | por pasos (Vitra, Notie, No-Code: nunca elegidos) |
+| T08 | Sin Supabase, el panel se puede **recorrer con datos `[EJEMPLO]`** en memoria | solo el aviso «falta conectar» |

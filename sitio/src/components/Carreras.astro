@@ -1,0 +1,128 @@
+---
+// Carreras (leadoff A2/A6): una banda de color a sangre por facultad con lo que le aporta a un equipo.
+// El color de cada facultad es el mismo de sus tarjetas en la hélice (D-8). Textos del prototipo v2 (borrador).
+import { FACULTADES } from '../datos/facultades';
+---
+<section class="carreras" id="carreras" data-carreras aria-labelledby="carreras-titulo">
+  <header class="carreras__cabecera">
+    <p class="etiqueta" data-revelar>[PARA TODAS LAS CARRERAS]</p>
+    <h2 class="carreras__titular" id="carreras-titulo" data-revelar style="--i:1">No hace falta <em>saber programar</em>.</h2>
+    <p class="carreras__texto" data-revelar style="--i:2">Un proyecto rentable necesita mucho más que código. Esto es lo que cada área le aporta a un equipo de Algora.</p>
+  </header>
+
+  <ul class="carreras__lista">
+    {FACULTADES.map((f) => (
+      <li class="carrera" data-carrera style={`--carrera-fondo: var(--facultad-${f.indice}); --carrera-texto: var(--facultad-texto-${f.indice});`}>
+        <span class="carrera__numero" aria-hidden="true">[{String(f.indice).padStart(2, '0')}]</span>
+        <h3 class="carrera__nombre" data-revelar>{f.nombre}</h3>
+        <p class="carrera__aporte" data-revelar style="--i:1">{f.aporte}</p>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .carreras {
+    background: var(--fondo);
+    color: var(--texto);
+  }
+
+  .carreras__cabecera {
+    display: grid;
+    gap: var(--espacio-l);
+    padding: var(--espacio-xl) var(--margen);
+  }
+
+  .carreras__cabecera p {
+    margin: 0;
+  }
+
+  .carreras__titular {
+    max-inline-size: 14ch;
+    font-size: var(--titular-xl);
+  }
+
+  .carreras__titular em {
+    color: var(--acento);
+  }
+
+  .carreras__texto {
+    max-inline-size: 44ch;
+    font-size: var(--texto-l);
+    line-height: 1.45;
+    color: var(--texto-suave);
+  }
+
+  .carreras__lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Bloque de marca: igual en claro y oscuro. El foco y el borde se fijan para cada color. */
+  .carrera {
+    display: grid;
+    gap: var(--espacio-m);
+    align-content: center;
+    min-block-size: var(--carrera-alto);
+    padding: var(--espacio-l) var(--margen);
+    background: var(--carrera-fondo);
+    color: var(--carrera-texto);
+  }
+
+  .carrera__numero {
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.14em;
+  }
+
+  .carrera__nombre {
+    font-size: var(--titular-m);
+    line-height: 1;
+  }
+
+  .carrera__aporte {
+    margin: 0;
+    max-inline-size: 40ch;
+    font-size: var(--texto-l);
+    line-height: 1.4;
+  }
+
+  @media (min-width: 1024px) {
+    .carreras__cabecera {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: end;
+    }
+
+    .carreras__cabecera .etiqueta {
+      grid-column: 1 / -1;
+    }
+
+    .carreras__titular {
+      grid-column: 1 / span 7;
+    }
+
+    .carreras__texto {
+      grid-column: 9 / -1;
+    }
+
+    .carrera {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--gutter);
+      align-items: center;
+    }
+
+    .carrera__numero {
+      grid-column: 1 / span 1;
+    }
+
+    .carrera__nombre {
+      grid-column: 2 / span 6;
+    }
+
+    .carrera__aporte {
+      grid-column: 9 / -1;
+    }
+  }
+</style>

@@ -30,8 +30,11 @@ const fichas = [
 
   <canvas class="productos__marco" data-marco aria-hidden="true"></canvas>
 
-  <div class="productos__siguiente" data-siguiente>
-    <p class="productos__siguiente-titulo">Cómo funciona</p>
+  <!-- Lo que el marco de tinta deja ver: la entrada de «Cómo funciona» (T05). Las columnas siguen debajo. -->
+  <div class="productos__siguiente" data-siguiente id="como-funciona">
+    <p class="productos__siguiente-etiqueta">[CÓMO FUNCIONA]</p>
+    <h2 class="productos__siguiente-titulo" id="como-funciona-titulo">De la idea al mercado, <em>con método</em>.</h2>
+    <p class="productos__siguiente-texto">Estudiamos la rentabilidad como objeto de investigación: cada proyecto se prueba en el mercado y deja datos, aprendizajes y un informe.</p>
   </div>
 </section>
 
@@ -202,23 +205,50 @@ const fichas = [
     overflow-wrap: break-word;
   }
 
-  /* Panel provisional para T05: fondo del tema y titular sin contenido extra */
+  /* Entrada de «Cómo funciona» (T05): fondo del tema, titular XXL y una frase. Es lo que el marco deja ver. */
   .productos__siguiente {
     display: grid;
-    place-items: center;
-    min-block-size: 60svh;
-    padding: var(--espacio-xl) var(--margen);
+    align-content: center;
+    justify-items: center;
+    gap: var(--espacio-l);
+    min-block-size: 70svh;
+    padding: calc(var(--alto-nav) + var(--espacio-xl)) var(--margen) var(--espacio-xl);
     background: var(--fondo);
     color: var(--texto);
+    text-align: center;
+    /* Vuelve al foco y al borde del tema: el bloque de productos los había fijado para el cobalto */
+    --borde: var(--texto);
+    --foco: var(--acento);
+  }
+
+  .productos__siguiente-etiqueta {
+    margin: 0;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
   }
 
   .productos__siguiente-titulo {
     margin: 0;
+    max-inline-size: 16ch;
     font-family: var(--fuente-titular);
-    font-size: var(--titular-l);
+    font-size: var(--titular-xl);
     line-height: 0.95;
     letter-spacing: -0.03em;
-    text-align: center;
+  }
+
+  .productos__siguiente-titulo em {
+    color: var(--acento);
+  }
+
+  .productos__siguiente-texto {
+    margin: 0;
+    max-inline-size: 44ch;
+    font-size: var(--texto-l);
+    line-height: 1.45;
+    color: var(--texto-suave);
   }
 
   /* Modo horizontal (>= 1024 px y sin movimiento reducido): lo activa productos.ts con data-modo='horizontal' */

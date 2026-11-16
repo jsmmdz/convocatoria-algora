@@ -1,0 +1,257 @@
+---
+// Hélice de proyectos (ryan A1-A6, D-2 y D-8). Las tarjetas son botones reales del DOM; en escritorio
+// helice.ts las coloca en hélice con CSS 3D y un canvas WebGL dibuja debajo las mismas tarjetas curvadas.
+// El CSS por defecto es el respaldo: lista de tarjetas (sin JS, angosto o movimiento reducido).
+// El marcado de cada tarjeta es el mismo que arma tarjeta-proyecto.ts cuando llegan ideas reales.
+import { EJEMPLOS } from '../datos/ejemplos';
+import { facultadDe } from '../datos/facultades';
+
+const dos = (n: number): string => String(n).padStart(2, '0');
+const proyectos = EJEMPLOS.map((p) => ({ ...p, facultad: facultadDe(p.area) }));
+---
+<section class="proyectos" id="proyectos" data-proyectos aria-labelledby="proyectos-titulo" style={`--n:${proyectos.length}`}>
+  <div class="proyectos__etapa" data-etapa>
+    <header class="proyectos__cabecera">
+      <p class="etiqueta">[PROYECTOS] · <span data-cuenta>{dos(proyectos.length)}</span> en la hélice</p>
+      <h2 class="proyectos__titular" id="proyectos-titulo">Gira y <em>súmate</em>.</h2>
+      <p class="proyectos__texto">Ideas postuladas que buscan equipo. Elige una y pide tu puesto. Las marcadas [EJEMPLO] muestran cómo se verán mientras llegan las primeras.</p>
+    </header>
+
+    <canvas class="proyectos__gl" data-helice-gl aria-hidden="true"></canvas>
+
+    <ul class="proyectos__lista" data-tarjetas>
+      {proyectos.map((p, i) => (
+        <li class="proyectos__item" data-item>
+          <button
+            class="tarjeta"
+            type="button"
+            data-tarjeta
+            data-facultad={p.facultad.indice}
+            data-idea={p.idea}
+            data-faltan={p.faltan.join('|')}
+            style={`--tarjeta-fondo: var(--facultad-${p.facultad.indice}); --tarjeta-texto: var(--facultad-texto-${p.facultad.indice});`}
+          >
+            <span class="tarjeta__meta">
+              <span>{p.ejemplo ? '[EJEMPLO]' : '[IDEA]'}</span>
+              <span>{dos(i + 1)}</span>
+            </span>
+            <span class="tarjeta__titulo">{p.idea}<sup class="tarjeta__facultad">{p.facultad.corto}</sup></span>
+            <span class="tarjeta__regla">{p.regla}</span>
+            <span class="tarjeta__pie">
+              <span>{p.equipo_completo ? 'Equipo completo' : p.faltan.length > 0 ? `Busca: ${p.faltan.join(' · ')}` : 'Busca equipo'}</span>
+              <span class="tarjeta__accion">{p.equipo_completo ? 'Ser reserva →' : 'Sumarme →'}</span>
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+
+    <div class="proyectos__control" data-control>
+      <button class="boton" type="button" data-anterior aria-label="Proyecto anterior">←</button>
+      <span class="proyectos__posicion" data-posicion aria-live="polite">01 / {dos(proyectos.length)}</span>
+      <button class="boton" type="button" data-posterior aria-label="Proyecto siguiente">→</button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .proyectos {
+    position: relative;
+    background: var(--fondo);
+    color: var(--texto);
+  }
+
+  .proyectos__etapa {
+    display: grid;
+    gap: var(--espacio-xl);
+    padding: var(--espacio-xl) var(--margen);
+  }
+
+  .proyectos__cabecera {
+    display: grid;
+    gap: var(--espacio-m);
+  }
+
+  .proyectos__cabecera p {
+    margin: 0;
+  }
+
+  .proyectos__titular {
+    font-size: var(--titular-l);
+  }
+
+  .proyectos__titular em {
+    color: var(--acento);
+  }
+
+  .proyectos__texto {
+    max-inline-size: 38ch;
+    color: var(--texto-suave);
+  }
+
+  .proyectos__gl,
+  .proyectos__control {
+    display: none;
+  }
+
+  /* Respaldo: lista de tarjetas quietas */
+  .proyectos__lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+    gap: var(--gutter);
+  }
+
+  .proyectos :global(.proyectos__item) {
+    container-type: inline-size;
+    display: grid;
+  }
+
+  /* Tarjeta: bloque de marca del color de su facultad, igual en claro y oscuro */
+  .proyectos :global(.tarjeta) {
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: 0.6em;
+    inline-size: 100%;
+    min-block-size: 13rem;
+    padding: 1.25rem;
+    text-align: start;
+    font: inherit;
+    cursor: pointer;
+    color: var(--tarjeta-texto);
+    background: var(--tarjeta-fondo);
+    border: var(--borde-ancho) solid var(--color-tinta);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+  }
+
+  .proyectos :global(.tarjeta__meta),
+  .proyectos :global(.tarjeta__pie) {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--espacio-m);
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .proyectos :global(.tarjeta__titulo) {
+    font-family: var(--fuente-titular);
+    font-size: clamp(1.5rem, 7.4cqi, var(--helice-titulo));
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  /* La facultad como superíndice del nombre (ryan A6) */
+  .proyectos :global(.tarjeta__facultad) {
+    margin-inline-start: 0.4em;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    vertical-align: super;
+  }
+
+  .proyectos :global(.tarjeta__regla) {
+    font-size: clamp(0.9375rem, 3.4cqi, 1.125rem);
+    line-height: 1.35;
+  }
+
+  .proyectos :global(.tarjeta__accion) {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* Hélice (>= 1024 px y sin movimiento reducido): la activa helice.ts con data-modo='helice' */
+  .proyectos[data-modo='helice'] {
+    block-size: calc(100svh + (var(--n) - 1) * var(--helice-por-tarjeta) * 100svh);
+  }
+
+  .proyectos[data-modo='helice'] .proyectos__etapa {
+    position: sticky;
+    inset-block-start: 0;
+    display: block;
+    block-size: 100svh;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .proyectos[data-modo='helice'] .proyectos__cabecera {
+    position: absolute;
+    z-index: 3;
+    inset-block-end: var(--espacio-l);
+    inset-inline-start: var(--margen);
+    max-inline-size: min(26rem, 30vw);
+  }
+
+  .proyectos[data-modo='helice'] .proyectos__lista {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: block;
+    perspective: var(--helice-perspectiva);
+    perspective-origin: calc(50% + var(--helice-centro-x) * 100%) 50%;
+    pointer-events: none;
+  }
+
+  .proyectos[data-modo='helice'] :global(.proyectos__item) {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: calc(50% + var(--helice-centro-x) * 100%);
+    inline-size: var(--helice-tarjeta);
+    block-size: calc(var(--helice-tarjeta) * var(--helice-proporcion));
+    container-type: size;
+    pointer-events: auto;
+    will-change: transform, opacity;
+  }
+
+  .proyectos[data-modo='helice'] :global(.tarjeta) {
+    block-size: 100%;
+    min-block-size: 0;
+    padding: 5cqi;
+    box-shadow: none;
+  }
+
+  /* Con el canvas montado, la tarjeta curva la pinta WebGL: el botón deja solo el texto encima */
+  .proyectos[data-modo='helice'][data-gl] :global(.tarjeta) {
+    background: transparent;
+    border-color: transparent;
+  }
+
+  /* Con el texto ya pintado en la textura (curvo), el del DOM se queda para el teclado y los lectores */
+  .proyectos[data-modo='helice'][data-gl-texto] :global(.tarjeta) {
+    color: transparent;
+  }
+
+  .proyectos[data-modo='helice'][data-gl] .proyectos__gl {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    inline-size: 100%;
+    block-size: 100%;
+    pointer-events: none;
+  }
+
+  .proyectos[data-modo='helice'] .proyectos__control {
+    position: absolute;
+    z-index: 3;
+    inset-block-end: var(--espacio-l);
+    inset-inline-end: var(--margen);
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-m);
+  }
+
+  .proyectos__posicion {
+    min-inline-size: 5.5em;
+    text-align: center;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.14em;
+  }
+</style>

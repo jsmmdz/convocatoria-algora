@@ -149,6 +149,63 @@
   --marco-ruido-tiempo: 0.03;
   --marco-dpr-max: 2;
 
+  /* Entradas al hacer scroll (leadoff K1): sube y aparece una vez */
+  --revelar-desp: 1.75rem;
+  --revelar-dur: 700ms;
+  --revelar-escalon: 80ms;
+
+  /* Cómo funciona (leadoff A4): columnas altas con hilos finos y mucho aire */
+  --pasos-alto: clamp(24rem, 64svh, 40rem);
+  --hilo: 1px;
+  --texto-l: clamp(1.0625rem, 0.95rem + 0.45vw, 1.375rem);
+
+  /* Carreras (leadoff A2/A6): una banda de color a sangre por facultad. El mismo color va en la hélice (D-8) */
+  --carrera-alto: clamp(9rem, 25svh, 15rem);
+  --facultad-1: var(--color-cobalto);
+  --facultad-2: var(--color-acido);
+  --facultad-3: var(--color-magenta);
+  --facultad-4: var(--color-tomate);
+  --facultad-5: var(--color-cobalto);
+  --facultad-6: var(--color-acido);
+  --facultad-7: var(--color-magenta);
+  --facultad-8: var(--color-tomate);
+  --facultad-9: var(--color-papel);
+  --facultad-texto-1: var(--color-papel);
+  --facultad-texto-2: var(--color-tinta);
+  --facultad-texto-3: var(--color-tinta);
+  --facultad-texto-4: var(--color-tinta);
+  --facultad-texto-5: var(--color-papel);
+  --facultad-texto-6: var(--color-tinta);
+  --facultad-texto-7: var(--color-tinta);
+  --facultad-texto-8: var(--color-tinta);
+  --facultad-texto-9: var(--color-tinta);
+
+  /* Hélice de proyectos (ryan K1-K4): geometría, giro por scroll e inercia visual */
+  --helice-vuelta: 6.5;
+  --helice-subida: 0.52;
+  --helice-hueco: 0.36;
+  --helice-tarjeta: clamp(320px, 34vw, 600px);
+  --helice-proporcion: 0.62;
+  --helice-perspectiva: clamp(900px, 97.22vw, 1680px);
+  --helice-por-tarjeta: 0.6;
+  --helice-centro-x: 0.06;
+  --helice-centro-y: -0.03;
+  --helice-dorso: 0.75;
+  --helice-zoom: 0.05;
+  --helice-deriva: 0.02;
+  --helice-suavizado: 0.2;
+  --helice-decaimiento: 0.85;
+  --helice-trama-celda: 26;
+  --helice-trama-fuerza: 0.1;
+  --helice-dpr-max: 2;
+  --helice-titulo: clamp(1.5rem, 1rem + 1.6vw, 2.75rem);
+
+  /* Formulario y panel (componentes del manual) */
+  --campo-alto: 3rem;
+  --campo-relleno: 0.75rem 1rem;
+  --formulario-ancho: 46rem;
+  --color-error: var(--color-tomate);
+
   /* Tema claro (por defecto) */
   --fondo: var(--color-papel);
   --superficie: var(--color-superficie-clara);

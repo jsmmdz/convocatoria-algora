@@ -1,0 +1,469 @@
+---
+// Postulación (componentes del manual): un formulario de dos caminos, «Tengo una idea» o «Quiero sumarme»,
+// con datos comunes, trampa para bots y autorización de la Ley 1581. La lógica vive en lib/postulacion.ts.
+// Textos del prototipo v2 (borrador; el autor los aprueba).
+import { FACULTADES, HABILIDADES, MODELOS, PERFILES_FALTAN } from '../datos/facultades';
+import { conectado } from '../lib/datos';
+---
+<section class="postulacion" id="postulacion" data-postulacion aria-labelledby="postulacion-titulo">
+  <div class="postulacion__lado">
+    <p class="etiqueta">[POSTULACIÓN]</p>
+    <h2 class="postulacion__titular" id="postulacion-titulo">Reclama tu <em>puesto</em>.</h2>
+    <p class="postulacion__texto">Toma unos cinco minutos. Te escribimos al correo para armar los equipos.</p>
+    <ul class="postulacion__notas">
+      <li><strong>Con idea:</strong> cuéntanos la regla en una frase y cómo se sostendría.</li>
+      <li><strong>Sin idea:</strong> dinos qué sabes hacer y a qué proyecto te quieres sumar.</li>
+      <li>En la hélice solo mostramos la idea y tu facultad, nunca tu nombre ni tu correo. Las ideas salen después de que el equipo las revisa.</li>
+    </ul>
+  </div>
+
+  <form class="formulario" data-formulario novalidate>
+    <fieldset class="formulario__caminos">
+      <legend class="solo-lector">Tipo de postulación</legend>
+      <label class="camino">
+        <input type="radio" name="tipo" value="idea" checked />
+        <span class="camino__titulo">Tengo una idea</span>
+        <span class="camino__texto">La propongo y armo equipo</span>
+      </label>
+      <label class="camino">
+        <input type="radio" name="tipo" value="equipo" />
+        <span class="camino__titulo">Quiero sumarme</span>
+        <span class="camino__texto">Me uno a un proyecto</span>
+      </label>
+    </fieldset>
+
+    <fieldset class="formulario__grupo">
+      <legend>Tus datos</legend>
+      <div class="formulario__fila">
+        <div class="campo">
+          <label for="p-nombre">Nombre completo</label>
+          <input type="text" id="p-nombre" name="nombre" autocomplete="name" maxlength="120" required />
+        </div>
+        <div class="campo">
+          <label for="p-correo">Correo institucional</label>
+          <input type="email" id="p-correo" name="correo" autocomplete="email" maxlength="160" placeholder="usuario@unbosque.edu.co" required />
+        </div>
+      </div>
+      <div class="formulario__fila">
+        <div class="campo">
+          <label for="p-area">Facultad o área</label>
+          <select id="p-area" name="area" required>
+            <option value="">Selecciona</option>
+            {FACULTADES.map((f) => <option>{f.nombre}</option>)}
+            <option>Otra</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="p-programa">Programa y semestre</label>
+          <input type="text" id="p-programa" name="programa" maxlength="120" placeholder="Ej.: Administración de Empresas, 4.º" required />
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="formulario__grupo" data-bloque="idea">
+      <legend>Tu idea</legend>
+      <div class="campo">
+        <label for="p-idea">Nombre de la idea</label>
+        <input type="text" id="p-idea" name="idea" maxlength="60" placeholder="Ej.: La Silla del Mes" />
+      </div>
+      <div class="campo">
+        <label for="p-regla">La regla en una frase</label>
+        <input type="text" id="p-regla" name="regla" maxlength="120" placeholder="Ej.: quien más aporte en el mes pone su marca en la silla del auditorio" aria-describedby="p-regla-ayuda" />
+        <p class="campo__ayuda" id="p-regla-ayuda">Si no cabe en una frase, todavía no es lo bastante simple.</p>
+      </div>
+      <div class="formulario__fila">
+        <div class="campo">
+          <label for="p-modelo">¿Cómo genera dinero?</label>
+          <select id="p-modelo" name="modelo">
+            <option value="">Selecciona</option>
+            {MODELOS.map((m) => <option>{m}</option>)}
+          </select>
+        </div>
+        <div class="campo">
+          <label for="p-publico">¿Quién pagaría?</label>
+          <input type="text" id="p-publico" name="publico" maxlength="160" placeholder="Ej.: marcas locales, estudiantes" />
+        </div>
+      </div>
+      <fieldset class="campo campo--opciones" data-opciones="faltan">
+        <legend>¿Qué perfiles te faltan?</legend>
+        <div class="opciones">
+          {PERFILES_FALTAN.map((p) => (
+            <label class="opcion"><input type="checkbox" name="faltan" value={p} /> {p}</label>
+          ))}
+        </div>
+      </fieldset>
+      <label class="casilla">
+        <input type="checkbox" id="p-publicar" name="publicar" checked />
+        <span>Publicar el nombre de la idea, la regla y mi facultad en la hélice de proyectos.</span>
+      </label>
+    </fieldset>
+
+    <fieldset class="formulario__grupo" data-bloque="equipo" hidden>
+      <legend>Lo que aportas</legend>
+      <div class="campo">
+        <label for="p-proyecto">Proyecto al que te quieres sumar (opcional)</label>
+        <input type="text" id="p-proyecto" name="proyecto" maxlength="80" placeholder="Elige uno en la hélice o escribe su nombre" />
+      </div>
+      <fieldset class="campo campo--opciones" data-opciones="habilidades">
+        <legend>Habilidades</legend>
+        <div class="opciones">
+          {HABILIDADES.map((h) => (
+            <label class="opcion"><input type="checkbox" name="habilidades" value={h} /> {h}</label>
+          ))}
+        </div>
+      </fieldset>
+      <div class="formulario__fila">
+        <div class="campo">
+          <label for="p-horas">Horas por semana</label>
+          <input type="number" id="p-horas" name="horas" min="1" max="40" inputmode="numeric" placeholder="Ej.: 6" />
+        </div>
+        <div class="campo">
+          <label for="p-portafolio">Portafolio o LinkedIn (opcional)</label>
+          <input type="url" id="p-portafolio" name="portafolio" maxlength="300" placeholder="https://" />
+        </div>
+      </div>
+      <div class="campo">
+        <label for="p-motivacion">¿Qué te gustaría construir?</label>
+        <textarea id="p-motivacion" name="motivacion" maxlength="1000" rows="4" placeholder="Un tema, un sector o un tipo de proyecto que te llame la atención"></textarea>
+      </div>
+    </fieldset>
+
+    <!-- Trampa para bots: las personas no la ven ni llegan a ella con el teclado -->
+    <div class="formulario__trampa" aria-hidden="true">
+      <label for="p-sitio">Sitio web</label>
+      <input type="text" id="p-sitio" name="sitio" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <label class="casilla">
+      <input type="checkbox" id="p-consentimiento" name="consentimiento" required />
+      <span>Autorizo el tratamiento de mis datos personales para fines de esta convocatoria, según la Ley 1581 de 2012.</span>
+    </label>
+
+    {!conectado && (
+      <p class="formulario__demo" data-demo>[DEMOSTRACIÓN] Esta copia todavía no está conectada a la base de datos: puedes probar el formulario, pero no guarda nada.</p>
+    )}
+
+    <div class="formulario__envio">
+      <button class="boton boton--principal" type="submit" data-enviar>Enviar postulación</button>
+      <p class="formulario__estado" id="p-estado" role="status" data-estado hidden></p>
+    </div>
+  </form>
+</section>
+
+<script>
+  import { iniciarPostulacion } from '../lib/postulacion';
+  iniciarPostulacion();
+</script>
+
+<style>
+  .postulacion {
+    display: grid;
+    gap: var(--espacio-xl);
+    padding: var(--espacio-xl) var(--margen);
+    background: var(--fondo);
+    color: var(--texto);
+  }
+
+  .postulacion__lado {
+    display: grid;
+    gap: var(--espacio-l);
+    align-content: start;
+  }
+
+  .postulacion__lado p {
+    margin: 0;
+  }
+
+  .postulacion__titular {
+    font-size: var(--titular-xl);
+  }
+
+  .postulacion__titular em {
+    font-family: var(--fuente-acento);
+    font-style: normal;
+    letter-spacing: 0;
+    color: var(--acento);
+  }
+
+  .postulacion__texto {
+    max-inline-size: 36ch;
+    font-size: var(--texto-l);
+    line-height: 1.45;
+    color: var(--texto-suave);
+  }
+
+  .postulacion__notas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    max-inline-size: 44ch;
+    border-block-end: var(--hilo) solid var(--linea);
+  }
+
+  .postulacion__notas li {
+    padding: var(--espacio-m) 0;
+    border-block-start: var(--hilo) solid var(--linea);
+  }
+
+  /* El formulario es una superficie del manual: borde de tinta y sombra dura */
+  .formulario {
+    display: grid;
+    gap: var(--espacio-l);
+    inline-size: 100%;
+    max-inline-size: var(--formulario-ancho);
+    padding: clamp(1.25rem, 3vw, 2.5rem);
+    background: var(--superficie);
+    border: var(--borde-ancho) solid var(--borde);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+  }
+
+  .formulario fieldset {
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .formulario__grupo {
+    display: grid;
+    gap: var(--espacio-m);
+  }
+
+  .formulario__grupo[hidden] {
+    display: none;
+  }
+
+  .formulario__grupo > legend {
+    padding: 0;
+    margin-block-end: var(--espacio-m);
+    font-family: var(--fuente-titular);
+    font-size: var(--titular-m);
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .formulario__caminos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--gutter);
+  }
+
+  .camino {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--espacio-s);
+    row-gap: 0.25rem;
+    align-items: center;
+    padding: var(--espacio-m);
+    cursor: pointer;
+    background: var(--fondo);
+    border: var(--borde-ancho) solid var(--borde);
+    border-radius: var(--radio);
+  }
+
+  /* Elegido: bloque ácido de la marca, igual en los dos temas; el foco pasa a cobalto para que contraste */
+  .camino:has(input:checked) {
+    background: var(--color-acido);
+    color: var(--color-tinta);
+    border-color: var(--color-tinta);
+    box-shadow: var(--sombra);
+    --foco: var(--color-cobalto);
+  }
+
+  .camino input {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    margin: 0;
+    accent-color: var(--color-tinta);
+  }
+
+  .camino__titulo {
+    font-family: var(--fuente-titular);
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+    line-height: 1.1;
+  }
+
+  .camino__texto {
+    grid-column: 2;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .formulario__fila {
+    display: grid;
+    gap: var(--espacio-m);
+  }
+
+  @media (min-width: 640px) {
+    .formulario__fila {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .campo {
+    display: grid;
+    gap: var(--espacio-s);
+    align-content: start;
+  }
+
+  .campo label,
+  .campo--opciones > legend {
+    padding: 0;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .campo--opciones > legend {
+    margin-block-end: var(--espacio-s);
+  }
+
+  .campo input,
+  .campo select,
+  .campo textarea {
+    inline-size: 100%;
+    min-block-size: var(--campo-alto);
+    padding: var(--campo-relleno);
+    font: inherit;
+    color: var(--texto);
+    background: var(--fondo);
+    border: var(--borde-ancho) solid var(--borde);
+    border-radius: var(--radio);
+  }
+
+  .campo textarea {
+    resize: vertical;
+  }
+
+  .campo ::placeholder {
+    color: var(--texto-suave);
+    opacity: 1;
+  }
+
+  .campo [aria-invalid='true'],
+  .casilla input[aria-invalid='true'] {
+    border-color: var(--color-error);
+    outline: var(--borde-ancho) solid var(--color-error);
+    outline-offset: 0;
+  }
+
+  .campo__ayuda {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--texto-suave);
+  }
+
+  .opciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espacio-s);
+  }
+
+  .opcion {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espacio-s);
+    min-block-size: 44px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--fondo);
+    border: var(--borde-ancho) solid var(--borde);
+    border-radius: var(--radio-pastilla);
+  }
+
+  .opcion:has(input:checked) {
+    background: var(--color-acido);
+    color: var(--color-tinta);
+    border-color: var(--color-tinta);
+    --foco: var(--color-cobalto);
+  }
+
+  .opcion input,
+  .casilla input {
+    flex: none;
+    inline-size: 1.125rem;
+    block-size: 1.125rem;
+    margin: 0;
+    accent-color: var(--color-tinta);
+  }
+
+  .casilla {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--espacio-s);
+    cursor: pointer;
+  }
+
+  .casilla input {
+    margin-block-start: 0.25rem;
+  }
+
+  .formulario__trampa {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .formulario__demo {
+    margin: 0;
+    padding: var(--espacio-m);
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.04em;
+    line-height: 1.6;
+    border: var(--borde-ancho) dashed var(--borde);
+    border-radius: var(--radio);
+  }
+
+  .formulario__envio {
+    display: grid;
+    gap: var(--espacio-m);
+    justify-items: start;
+  }
+
+  .formulario__estado {
+    margin: 0;
+    padding: var(--espacio-m);
+    inline-size: 100%;
+    color: var(--color-tinta);
+    background: var(--color-papel);
+    border: var(--borde-ancho) solid var(--color-tinta);
+    border-radius: var(--radio);
+  }
+
+  .formulario__estado[data-tono='bien'] {
+    background: var(--color-acido);
+  }
+
+  .formulario__estado[data-tono='mal'] {
+    background: var(--color-tomate);
+  }
+
+  @media (min-width: 1024px) {
+    .postulacion {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      column-gap: var(--gutter);
+      align-items: start;
+    }
+
+    .postulacion__lado {
+      position: sticky;
+      inset-block-start: calc(var(--alto-nav) + var(--espacio-l));
+    }
+
+    .formulario {
+      justify-self: end;
+    }
+  }
+</style>

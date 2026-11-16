@@ -1,0 +1,125 @@
+---
+// Cómo funciona (leadoff A4, D-7): 4 columnas fijas separadas por hilos finos, con mucho aire. La entrada de
+// la sección (etiqueta, titular y frase) vive en el panel que deja ver el marco de tinta (Productos.astro).
+// Textos del prototipo v2 (borrador; el autor los aprueba).
+const pasos = [
+  { titulo: 'Postula', texto: 'Envía tu idea en una frase o inscríbete para sumarte a un equipo con lo que sabes hacer.', sale: 'Banco de ideas y talentos' },
+  { titulo: 'Arma equipo', texto: 'Cruzamos ideas con perfiles de distintas carreras. Cada equipo mezcla técnica, negocio y diseño.', sale: 'Equipos de 3 a 5 personas' },
+  { titulo: 'Prototipa y prueba', texto: 'Sprints cortos para lanzar una versión mínima y medir si la gente participa y paga.', sale: 'Prototipo en línea y métricas' },
+  { titulo: 'Presenta', texto: 'Demo day con resultados reales y un informe que documenta qué funcionó y por qué.', sale: 'Demo, informe y portafolio' },
+];
+---
+<section class="pasos" data-pasos aria-label="Los cuatro pasos de la convocatoria">
+  <ol class="pasos__lista">
+    {pasos.map((p, i) => (
+      <li class="paso" data-paso data-revelar style={`--i:${i}`}>
+        <div class="paso__arriba">
+          <span class="paso__numero" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <span class="paso__flecha" aria-hidden="true">↗</span>
+        </div>
+        <div class="paso__abajo">
+          <h3 class="paso__titulo">{p.titulo}</h3>
+          <p class="paso__texto">{p.texto}</p>
+          <p class="paso__sale"><span class="paso__sale-etiqueta">[SALE]</span> {p.sale}</p>
+        </div>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .pasos {
+    background: var(--fondo);
+    color: var(--texto);
+    padding: 0 var(--margen) var(--espacio-xl);
+  }
+
+  /* Angosto: los pasos apilados, cada uno con su hilo arriba */
+  .pasos__lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    border-block-end: var(--hilo) solid var(--linea);
+  }
+
+  .paso {
+    display: grid;
+    gap: var(--espacio-l);
+    padding: var(--espacio-l) 0;
+    border-block-start: var(--hilo) solid var(--linea);
+  }
+
+  .paso__arriba {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.14em;
+    color: var(--texto-suave);
+  }
+
+  .paso__flecha {
+    font-size: 1.25rem;
+    line-height: 1;
+    color: var(--texto);
+  }
+
+  .paso__abajo {
+    display: grid;
+    gap: var(--espacio-m);
+    align-content: end;
+  }
+
+  .paso__titulo {
+    font-size: var(--titular-m);
+    line-height: 1;
+  }
+
+  .paso__texto,
+  .paso__sale {
+    margin: 0;
+  }
+
+  .paso__texto {
+    max-inline-size: 34ch;
+    color: var(--texto-suave);
+  }
+
+  .paso__sale {
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .paso__sale-etiqueta {
+    color: var(--texto-suave);
+  }
+
+  /* Escritorio (D-7): 4 columnas fijas a toda la altura, hilos verticales entre ellas y el aire en medio */
+  @media (min-width: 1024px) {
+    .pasos__lista {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-block-start: var(--hilo) solid var(--linea);
+    }
+
+    .paso {
+      grid-template-rows: auto 1fr;
+      min-block-size: var(--pasos-alto);
+      padding: var(--espacio-l) var(--gutter);
+      border-block-start: 0;
+      border-inline-start: var(--hilo) solid var(--linea);
+    }
+
+    .paso:first-child {
+      padding-inline-start: 0;
+      border-inline-start: 0;
+    }
+
+    .paso:last-child {
+      padding-inline-end: 0;
+    }
+  }
+</style>

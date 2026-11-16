@@ -16,7 +16,8 @@
     marco de tinta.
   - `three`: solo para los objetos 3D de la portada y el unicornio si llega como `.glb`; se carga
     diferido (import dinámico) para no pesar en la primera pintura.
-  - `@supabase/supabase-js`: postulaciones y proyectos públicos.
+  - `@supabase/supabase-js`: postulaciones y proyectos públicos. Se carga diferida (import dinámico en
+    `lib/datos.ts`) y solo si están las variables: en modo demostración no entra al JS que carga la página.
 - **Prohibidas:** jQuery, frameworks de componentes (React, Vue, Svelte), Barba/Taxi (es una sola página),
   cualquier CDN en tiempo de ejecución (todo sale del build), fuentes que no estén en el manual.
 - **Por qué dos librerías WebGL:** OGL es mínima y calza con shaders propios (hélice, trama, tinta); Three
@@ -41,7 +42,9 @@
 - **WebGL con respaldo:** toda escena WebGL tiene un equivalente en el DOM que se ve si WebGL falla o el
   contexto se pierde (la hélice deja sus tarjetas reales; la portada deja su titular completo).
 - **Accesibilidad de la hélice:** las tarjetas son botones reales en el DOM con su texto; el canvas es
-  `aria-hidden` y `pointer-events:none`. Flechas izquierda/derecha giran, Enter elige.
+  `aria-hidden` y `pointer-events:none`. Flechas izquierda/derecha giran, Enter elige. Con WebGL montado el
+  texto se pinta además dentro de la textura (para que se curve) y el del botón queda transparente
+  (`data-gl-texto`): nunca se quita del DOM.
 - **Eventos entre secciones:** `algora:sumarse` (`detail: { idea, faltan }`) desde la hélice al
   formulario; `algora:reclamar` (`detail: { regla }`) si una sección lleva texto al formulario.
 
@@ -69,7 +72,8 @@
 - **Sin variables de entorno** (desarrollo, pruebas, previsualizaciones): modo demostración. La hélice
   muestra los `[EJEMPLO]` y el formulario avisa que no está conectado. Las pruebas corren en este modo
   y simulan Supabase con `page.route` cuando miden el envío.
-- **Panel del equipo:** `/equipo/` con Supabase Auth (correo y contraseña; registro público apagado).
+- **Panel del equipo:** `/equipo/` con Supabase Auth (correo y contraseña; registro público apagado). Sin
+  variables, ofrece recorrerlo con filas `[EJEMPLO]` en memoria.
 - **Antispam:** campo trampa oculto y checks del esquema. Sin captcha.
 
 ## 6. Presupuestos

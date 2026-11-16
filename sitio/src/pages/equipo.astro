@@ -1,0 +1,326 @@
+---
+// Panel del equipo (utilitario, componentes del manual): entrar, filtrar, aprobar ideas para la hélice,
+// marcar equipo completo, borrar con confirmación y descargar CSV. La lógica vive en lib/equipo.ts.
+// La seguridad la ponen las reglas del esquema (supabase/esquema.sql): quien no esté en la tabla «equipo»
+// no ve nada. Sin Supabase conectado, se puede recorrer con datos de ejemplo.
+import Base from '../layouts/Base.astro';
+---
+<Base titulo="Panel del equipo · Convocatoria Algora" descripcion="Panel interno del semillero Algora." noindex>
+  <main class="panel" data-panel>
+    <header class="panel__cabecera">
+      <p class="etiqueta">[PANEL DEL EQUIPO]</p>
+      <button class="boton" type="button" data-salir hidden>Cerrar sesión</button>
+    </header>
+
+    <section class="panel__vista" data-vista="cargando" aria-live="polite">
+      <h1>Panel del equipo</h1>
+      <p class="panel__suave">Cargando…</p>
+    </section>
+
+    <section class="panel__vista panel__vista--angosta" data-vista="entrar" hidden>
+      <h1>Entrar al panel</h1>
+      <p class="panel__suave">Solo para el equipo del semillero. Si no tienes usuario, pídeselo a quien administra Supabase.</p>
+      <form class="panel__entrar" data-entrar novalidate>
+        <div class="panel__campo">
+          <label for="e-correo">Correo</label>
+          <input type="email" id="e-correo" name="correo" autocomplete="username" required />
+        </div>
+        <div class="panel__campo">
+          <label for="e-clave">Contraseña</label>
+          <input type="password" id="e-clave" name="clave" autocomplete="current-password" required />
+        </div>
+        <button class="boton boton--principal" type="submit" data-entrar-boton>Entrar</button>
+        <p class="panel__aviso" role="status" data-aviso-entrar hidden></p>
+      </form>
+    </section>
+
+    <section class="panel__vista panel__vista--angosta" data-vista="sin-conexion" hidden>
+      <h1>Falta conectar Supabase</h1>
+      <p class="panel__suave">Esta copia de la página no tiene las variables PUBLIC_SUPABASE_URL y PUBLIC_SUPABASE_ANON_KEY, así que no hay postulaciones reales que mostrar. Puedes recorrer el panel con datos de ejemplo: nada de lo que hagas se guarda.</p>
+      <button class="boton boton--principal" type="button" data-demo>Ver el panel con datos de ejemplo</button>
+    </section>
+
+    <section class="panel__vista" data-vista="panel" hidden>
+      <h1>Postulaciones</h1>
+      <p class="panel__demo" data-marca-demo hidden>[DEMOSTRACIÓN] Datos de ejemplo. Los cambios no se guardan.</p>
+      <dl class="panel__cifras" data-cifras></dl>
+      <div class="panel__filtros">
+        <select data-filtro="tipo" aria-label="Filtrar por tipo">
+          <option value="">Todos los tipos</option>
+          <option value="idea">Con idea</option>
+          <option value="equipo">Para sumarse</option>
+        </select>
+        <select data-filtro="area" aria-label="Filtrar por facultad o área">
+          <option value="">Todas las áreas</option>
+        </select>
+        <select data-filtro="estado" aria-label="Filtrar por estado">
+          <option value="">Todos los estados</option>
+          <option value="pendiente">Ideas por revisar</option>
+          <option value="aprobada">Ideas en la hélice</option>
+        </select>
+        <button class="boton" type="button" data-csv>Descargar CSV</button>
+        <button class="boton" type="button" data-recargar>Actualizar</button>
+      </div>
+      <p class="panel__aviso" role="status" data-aviso-panel hidden></p>
+      <div class="panel__tabla" tabindex="0" role="region" aria-label="Tabla de postulaciones">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Persona</th>
+              <th scope="col">Área · programa</th>
+              <th scope="col">Idea / habilidades</th>
+              <th scope="col">Detalle</th>
+              <th scope="col">Hélice</th>
+              <th scope="col"><span class="solo-lector">Borrar</span></th>
+            </tr>
+          </thead>
+          <tbody data-filas></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</Base>
+
+<script>
+  import { iniciarPanel } from '../lib/equipo';
+  iniciarPanel();
+</script>
+
+<style>
+  .panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--espacio-l);
+    align-content: start;
+    min-block-size: 80vh;
+    padding: calc(var(--alto-nav) + var(--espacio-l)) var(--margen) var(--espacio-xl);
+  }
+
+  .panel :global([hidden]) {
+    display: none;
+  }
+
+  .panel__cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--gutter);
+    min-block-size: 44px;
+  }
+
+  .panel__cabecera p {
+    margin: 0;
+  }
+
+  .panel__vista {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--espacio-l);
+    min-inline-size: 0;
+  }
+
+  .panel__vista--angosta {
+    max-inline-size: 34rem;
+  }
+
+  .panel__vista h1 {
+    font-size: var(--titular-l);
+  }
+
+  .panel__vista p {
+    margin: 0;
+  }
+
+  .panel__suave {
+    color: var(--texto-suave);
+  }
+
+  .panel__entrar {
+    display: grid;
+    gap: var(--espacio-m);
+    justify-items: start;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--superficie);
+    border: var(--borde-ancho) solid var(--borde);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra);
+  }
+
+  .panel__campo {
+    display: grid;
+    gap: var(--espacio-s);
+    inline-size: 100%;
+  }
+
+  .panel__campo label,
+  .panel :global(th) {
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .panel__campo input,
+  .panel__filtros select {
+    min-block-size: var(--campo-alto);
+    padding: var(--campo-relleno);
+    font: inherit;
+    color: var(--texto);
+    background: var(--fondo);
+    border: var(--borde-ancho) solid var(--borde);
+    border-radius: var(--radio);
+  }
+
+  .panel__campo input {
+    inline-size: 100%;
+  }
+
+  .panel__aviso,
+  .panel__demo {
+    padding: var(--espacio-m);
+    border-radius: var(--radio);
+  }
+
+  .panel__aviso {
+    inline-size: 100%;
+    color: var(--color-tinta);
+    background: var(--color-papel);
+    border: var(--borde-ancho) solid var(--color-tinta);
+  }
+
+  .panel__aviso[data-tono='mal'] {
+    background: var(--color-tomate);
+  }
+
+  .panel__demo {
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.04em;
+    border: var(--borde-ancho) dashed var(--borde);
+  }
+
+  /* Cifras: fila con hilos, como las columnas de «Cómo funciona» */
+  .panel__cifras {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    border-block: var(--hilo) solid var(--linea);
+  }
+
+  .panel :global(.cifra) {
+    display: grid;
+    gap: var(--espacio-s);
+    padding: var(--espacio-m) var(--espacio-m) var(--espacio-m) 0;
+  }
+
+  .panel :global(.cifra dd) {
+    margin: 0;
+    font-family: var(--fuente-titular);
+    font-size: var(--titular-m);
+    line-height: 1;
+  }
+
+  .panel :global(.cifra dt) {
+    order: 2;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .panel__filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espacio-m);
+    align-items: center;
+  }
+
+  .panel__tabla {
+    /* relative: el texto solo para lectores de la cabecera (absoluto) se queda dentro de la caja con scroll */
+    position: relative;
+    overflow-x: auto;
+    background: var(--superficie);
+    border: var(--borde-ancho) solid var(--borde);
+    border-radius: var(--radio);
+  }
+
+  .panel table {
+    inline-size: 100%;
+    min-inline-size: 72rem;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+
+  .panel :global(th),
+  .panel :global(td) {
+    padding: var(--espacio-m);
+    text-align: start;
+    vertical-align: top;
+    border-block-end: var(--hilo) solid var(--linea);
+  }
+
+  /* Las columnas de acciones guardan su ancho: «¿Seguro? Borrar» no puede montarse sobre la de al lado */
+  .panel th:nth-child(7) {
+    inline-size: 12.5rem;
+  }
+
+  .panel th:nth-child(8) {
+    inline-size: 12rem;
+  }
+
+  .panel :global(tbody tr:last-child td) {
+    border-block-end: 0;
+  }
+
+  .panel :global(.fila__suave) {
+    display: block;
+    color: var(--texto-suave);
+    overflow-wrap: anywhere;
+  }
+
+  .panel :global(.fila__tipo) {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-family: var(--fuente-etiqueta);
+    font-size: var(--texto-etiqueta);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-tinta);
+    background: var(--color-acido);
+    border: var(--borde-ancho) solid var(--color-tinta);
+    border-radius: var(--radio-pastilla);
+  }
+
+  .panel :global(.fila__tipo[data-tipo='equipo']) {
+    background: var(--color-magenta);
+  }
+
+  .panel :global(.fila__acciones) {
+    display: grid;
+    gap: var(--espacio-s);
+    justify-items: start;
+  }
+
+  /* Botones de la tabla: los del manual, más compactos */
+  .panel :global(.boton--mini) {
+    padding: 0.5rem 0.875rem;
+    box-shadow: none;
+    white-space: nowrap;
+  }
+
+  .panel :global(.boton--mini[aria-pressed='true']) {
+    background: var(--color-acido);
+    color: var(--color-tinta);
+    border-color: var(--color-tinta);
+  }
+
+  .panel :global(.boton--peligro[data-armado]) {
+    background: var(--color-tomate);
+    color: var(--color-tinta);
+    border-color: var(--color-tinta);
+  }
+</style>

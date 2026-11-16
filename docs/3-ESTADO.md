@@ -4,6 +4,10 @@
 
 ## Dónde va
 
+**Prototipo de escritorio completo (2026-11-16): `T01`–`T08` construidas.** `T05`–`T08` las hizo el orquestador
+(Claude Fable 5.2) en una sola sesión, por encargo directo del autor, y esperan su revisión. Detalle más abajo, en
+«`T05`–`T08`». Lo anterior, en orden:
+
 **Fase:** arranque, retomado el 2026-11-09. Encargo reescrito, referentes capturados y su código leído,
 fichas y mapa hechos, decisiones D-1…D-8 cerradas, plan aprobado con el orden del autor (2026-11-10).
 **`T01` DONE (2026-11-10).** Pasó la auditoría final tras 3 rondas de QA (las dos primeras bloqueadas por la
@@ -99,10 +103,34 @@ la vez, después la integración (904 s); ninguna acción negada. La primera cor
 - Con commit desde el 2026-11-14, en cinco commits: hook, lanzador, workflow, manual y planeación de T04. Además,
   el workflow y el lanzador aceptan IDs `R<n>` para las tareas de responsive (autor, 2026-11-14).
 
+**`T05`–`T08` construidas (2026-11-16), en `PULIDO` hasta la revisión del autor.** El autor pidió: «usa Fable para
+continuar… déjame un prototipo con todas las tareas hechas como entregable final». El orquestador (Claude Fable 5.2)
+construyó las cuatro seguidas, **sin Gemini, sin QA de Sonnet y sin auditoría de Opus**
+(`fabrica/buzon/T05/REGISTRO.md`).
+- **`T05`:** la entrada de «Cómo funciona» en el panel del marco de tinta, 4 columnas con hilos (leadoff A4) y 8
+  bandas de color a sangre, una por facultad.
+- **`T06`:** hélice de proyectos (ryan K1–K4): sección fija, 0,6 pantallas por tarjeta, flechas y teclado sobre el
+  mismo scroll, tarjetas curvas en WebGL con el texto dentro de la textura y botones reales encima; sin WebGL quedan
+  las del DOM. «Sumarme» → `algora:sumarse`.
+- **`T07`:** formulario de dos caminos en `#postulacion`, validación, trampa, Ley 1581, Supabase con carga diferida y
+  modo demostración. `sitio/supabase/esquema.sql`.
+- **`T08`:** `/equipo/`: entrar, cifras, filtros, aprobar, equipo completo, borrar en dos clics y CSV; sin Supabase
+  se recorre con filas `[EJEMPLO]`.
+- **Pruebas:** 37 nuevas (`sitio/tests/T05`–`T08`) y `tests/comunes/ayudas.ts`. Compuertas completas en `fabrica/buzon/T08/COMPUERTAS-r1.md`.
+- **Decisiones de dirección tomadas por el orquestador**, por confirmar: `docs/1-PRODUCTO.md` § 6, «Por confirmar en
+  la revisión del prototipo» (ocho filas).
+- **Sin probar:** todo lo que toca Supabase real (envío, `proyectos_publicos()`, entrar al panel): falta el proyecto.
+
 **Sigue:**
-1. Orquestador: preparar T05 (Cómo funciona y carreras) según `orquestador.md` § 1: analizar leadoff A4 y A6, traer
-   al autor en un solo bloque las decisiones de dirección, escribir la tarea con sus subtareas y sus pruebas.
-2. Autor: `/construir-tarea T05`.
+1. **Autor: revisar el prototipo completo en escritorio** (`cd sitio && npm run dev`, http://localhost:4321/ y
+   http://localhost:4321/equipo/). Confirmar o cambiar las ocho decisiones «por confirmar» y aprobar los textos.
+   Con eso el orquestador hace el pulido y `T05`–`T08` pasan a `DONE`.
+2. Autor: crear el proyecto de Supabase, correr `sitio/supabase/esquema.sql` y pasar URL y clave anon (van en
+   `sitio/.env` como `PUBLIC_SUPABASE_URL` y `PUBLIC_SUPABASE_ANON_KEY`, y como secrets del repo). El orquestador
+   prueba entonces el envío real y el panel.
+3. Autor, si quiere una segunda mirada con contexto limpio: `/construir-tarea T06 auditoria` (la hélice es la pieza
+   con más riesgo).
+4. Después de la revisión: `R0` (auditoría responsive con maquetas y decisiones R-1…R-n).
 
 ## Decisiones cerradas (no se rediscuten)
 
@@ -153,17 +181,18 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 | T02 | Precarga y portada: contador con el unicornio provisional al centro; «¿Y si esta vez sí lo haces realidad?» por líneas con un objeto que crece dentro de la frase; trama de caracteres (OGL) que se deforma con el cursor; objetos 3D en capas con parallax (Three diferido) | unseen A1–A2 · leadoff A2–A3, K1 · tabletales A1–A2, K1 | T01 | DONE |
 | T03 | Hitos: línea ondulada que se vuelve sólida, hitos `[IDEA]`…`[NOMBRE]` en horizontal con scrub, unicornio que viaja inclinándose con la velocidad | unseen A3–A5, K1–K4 | T02 | DONE |
 | T04 | Productos y marco de tinta: bloque a sangre con los productos que llegan volando a su sitio, «¿Cuál es el tuyo?»; el marco que se abre como tinta (shader) hacia «Cómo funciona» | leadoff A2 · tabletales A3–A5, K2, K4 | T03 | DONE |
-| T05 | Cómo funciona y carreras: 4 columnas fijas con hilos y mucho aire; carreras en bloques de color a sangre con lo que aporta cada una | leadoff A4, A6 | T04 | PENDING |
-| T06 | Hélice de proyectos: tarjetas curvas en WebGL (OGL) que giran con el scroll de una sección fija, más flechas y teclado; tarjetas reales en el DOM; color por facultad; zoom y deriva con la velocidad; `[EJEMPLO]`; «Sumarme» → evento al formulario | ryan A1–A6, K1–K4 | T05 | PENDING |
-| T07 | Postulación y datos: formulario de dos caminos con validación, trampa y Ley 1581; Supabase (esquema, envío, `proyectos_publicos` en la hélice) y modo demostración; recibe `algora:sumarse` | manual (componentes) | T06 | PENDING |
-| T08 | Panel del equipo `/equipo/`: entrar, filtrar, aprobar ideas para la hélice, marcar equipo completo, borrar con confirmación, descargar CSV | — (utilitario, manual) | T07 | PENDING |
+| T05 | Cómo funciona y carreras: 4 columnas fijas con hilos y mucho aire; carreras en bloques de color a sangre con lo que aporta cada una | leadoff A4, A6 | T04 | PULIDO |
+| T06 | Hélice de proyectos: tarjetas curvas en WebGL (OGL) que giran con el scroll de una sección fija, más flechas y teclado; tarjetas reales en el DOM; color por facultad; zoom y deriva con la velocidad; `[EJEMPLO]`; «Sumarme» → evento al formulario | ryan A1–A6, K1–K4 | T05 | PULIDO |
+| T07 | Postulación y datos: formulario de dos caminos con validación, trampa y Ley 1581; Supabase (esquema, envío, `proyectos_publicos` en la hélice) y modo demostración; recibe `algora:sumarse` | manual (componentes) | T06 | PULIDO |
+| T08 | Panel del equipo `/equipo/`: entrar, filtrar, aprobar ideas para la hélice, marcar equipo completo, borrar con confirmación, descargar CSV | — (utilitario, manual) | T07 | PULIDO |
 | — | **Prototipo al 80 %: revisión del autor sobre el sitio completo en escritorio** | — | T08 | — |
 | R0 | Auditoría responsive: matriz de 20 pantallas, cortes de los referentes, maquetas de opciones y decisiones R-1…R-n (orquestador) | unseen A6 y lo que midan los referentes en celular | revisión | PENDING |
 | R1–Rn | Responsive por sección, según R-1…R-n (`@responsive`) | según R0 | R0 | PENDING |
 | T09 | Cierre: pie en bloque negro, rendimiento (presupuestos, Three y modelos diferidos), axe en las 20 pantallas, publicación real (repo público, secrets, Pages) | leadoff A6 | R1–Rn | PENDING |
 
 **Del autor, en paralelo:** el unicornio (Antigravity; `.glb` o PNG/WebP con transparencia) y, cuando
-quiera, los objetos 3D de la portada. Supabase: crear el proyecto y pasar URL y clave anon antes de `T07`.
+quiera, los objetos 3D de la portada. Supabase: crear el proyecto y pasar URL y clave anon (`T07` y `T08` ya están
+construidas y corren en modo demostración hasta entonces).
 
 Estados: `PENDING` · `IN_PROGRESS` (MVP con agentes) · `REVIEW` · `PULIDO` (orquestador + autor) ·
 `VISTO BUENO` · `DONE` · `BLOCKED`.
