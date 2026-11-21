@@ -143,3 +143,20 @@ bueno final.
 |---|---|---|
 | 2026-11-16 | El MVP **se publica en modo demostración** (los `[EJEMPLO]` y el aviso de que el formulario no guarda). Supabase se conecta después con los secrets del repo, sin tocar código | publicar con Supabase real; no publicar todavía |
 | 2026-11-16 | `R1` y `T09` las construye el orquestador (Claude Fable) en **una última sesión**, sin el ciclo Gemini/QA/auditoría | el ciclo de la fábrica v5 |
+
+## 9. Experiencia reducida (2026-11-21)
+
+El autor pidió «una experiencia un poco más reducida y al punto, más que todo en celulares», sin perder lo que hay.
+La versión completa queda en la etiqueta **`v1-completa`** y la rama **`version-completa`** de GitHub; los
+componentes que salen del recorrido se quedan en el código, sin usarse. Medido sobre el sitio publicado: **18,4
+pantallas en celular (390) y 22,3 en escritorio (1440)**. La meta es ~12 en celular y ~16 en escritorio. Se
+construye en `R2`.
+
+| Id | Decisión | Opciones que había |
+|---|---|---|
+| X-1 | Recorte **en las dos versiones, de distinto grado**: fuerte en celular y leve en escritorio | solo celular; todo igual |
+| X-2 | **Tres hitos: Idea, Equipo y Nombre** (salen Usuarios y Valor), en escritorio y en celular. Etiquetas `[01/03]`…`[03/03]` | Idea · Usuarios · Nombre; Idea · Equipo · Usuarios; dejar los 5 en celular |
+| X-3 | Hitos en escritorio: **el mismo efecto** (línea, unicornio, bloques, pin horizontal) con 3 hitos, y el recorrido se acorta en proporción (de 7,4 a ~4,5 pantallas) | mismo efecto más corto con 5; dejarlo igual |
+| X-4 | Hitos en celular: **carrusel deslizable**, un hito por tarjeta, como el de proyectos (R-2). Reemplaza la línea vertical con el unicornio de R-1 (~0,8 pantallas en lugar de 4,6) | una pantalla compacta; quitarlos |
+| X-5 | Carreras: **rejilla de bloques** con los mismos 8 colores, facultad y una línea de lo que aporta: 2 columnas en celular y 4 × 2 en escritorio (de 3,1 a ~1 en celular y de 2,7 a ~1 en escritorio) | fichas de nombre; acordeón |
+| X-6 | Formulario en celular: **plegar lo opcional**. A la vista quedan nombre, correo, facultad, programa y lo esencial del camino (idea: nombre y regla; sumarme: proyecto y habilidades). El resto va en «Agregar más detalles», cerrado. No se pierde ningún dato ni cambia Supabase; en escritorio el formulario sigue igual | quitar campos en celular; por pasos |
