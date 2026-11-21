@@ -149,7 +149,8 @@ baratos: cuatro constructores Sonnet en paralelo con archivos separados (`fabric
 
 0. **Experiencia reducida (2026-11-21, pedida por el autor):** decisiones X-1…X-6 en `docs/1-PRODUCTO.md` § 9 y
    tarea `fabrica/proyecto/tareas/R2-experiencia-reducida.md` (**PENDING**, falta la aprobación del autor para
-   construirla). Lo de antes queda en la etiqueta `v1-completa` y la rama `version-completa` (subidas a GitHub).
+   construirla). Tras ver la propuesta, el autor pidió no perder interactividad en celular: X-7…X-11 y tarea
+   `R3-interactividad-tactil.md` (**PENDING**, depende de R2). Lo de antes queda en la etiqueta `v1-completa` y la rama `version-completa` (subidas a GitHub).
 
 1. **Autor: visto bueno** sobre el sitio publicado, en un celular de verdad (inercia del unicornio y del carrusel).
    Con eso `T05`–`T09` y `R1` pasan a `DONE`.
@@ -223,6 +224,7 @@ En serie. Cada tarea calca una sección completa con su ficha; las de shaders se
 | R1 | Responsive de todo el sitio en una sola tarea, según R-1…R-7 (`R1-responsive.md`; la construye el orquestador) | unseen a 390 (hitos) | R0 | PULIDO |
 | T09 | Cierre: pulido de T05–T08, pie en bloque negro, metadatos, rendimiento, axe en las 20 pantallas, `LEEME.md` y publicación en modo demostración (repo público, Pages) | leadoff A6 | R1 | PULIDO |
 | R2 | Experiencia reducida (X-1…X-6): 3 hitos, carrusel de hitos en celular, carreras en rejilla, formulario plegado en celular (`R2-experiencia-reducida.md`) | — | T09 | PENDING |
+| R3 | Interactividad táctil (X-7…X-11): unicornio en el carrusel de hitos, trama al dedo, vuelo de productos y marco corto, hélice curva táctil, carreras que se abren (`R3-interactividad-tactil.md`) | tabletales · ryan · unseen | R2 | PENDING |
 | T10 | Textos y contenido definitivos, por bloques A–I (`T10-contenido-definitivo.md`); el autor entrega o aprueba cada bloque | — | T09 | PENDING |
 
 **Del autor, en paralelo:** el unicornio (Antigravity; `.glb` o PNG/WebP con transparencia) y, cuando

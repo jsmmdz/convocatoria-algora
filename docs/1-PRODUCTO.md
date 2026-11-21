@@ -127,8 +127,8 @@ Medición `R0` del 2026-11-16 y detalle en `fabrica/proyecto/tareas/R1-responsiv
 | Id | Fecha | Decisión | Quién | Opciones que había |
 |---|---|---|---|---|
 | R-1 | 2026-11-16 | Hitos en celular: **línea vertical con el unicornio** que baja por ella y se vuelve sólida al recorrerla (como Unseen a 390) | autor | dejarlos apilados sin línea ni mascota |
-| R-2 | 2026-11-16 | Proyectos en celular: **carrusel horizontal deslizable** con ajuste a cada tarjeta, contador y flechas | autor | lista vertical; hélice vertical en CSS 3D |
-| R-3 | 2026-11-16 | Productos en celular: rejilla quieta de dos columnas, sin vuelo ni marco de tinta | orquestador | marco sin pin |
+| R-2 | 2026-11-16 | Proyectos en celular: **carrusel horizontal deslizable** con ajuste a cada tarjeta, contador y flechas (desde X-10, queda como caída de la hélice táctil) | autor | lista vertical; hélice vertical en CSS 3D |
+| R-3 | 2026-11-16 | ~~Productos en celular: rejilla quieta de dos columnas, sin vuelo ni marco de tinta~~ **Reemplazada por X-9 (2026-11-21)** | orquestador | marco sin pin |
 | R-4 | 2026-11-16 | Portada en celular: las piezas 3D **se quedan como en escritorio** (una cruza el titular y otra va detrás de las letras: decisión del autor del 2026-11-10, que vale a cualquier ancho). El intento de quitar el cruce en angosto se devolvió: contradecía esa decisión y su prueba de T02 | orquestador | quitar el cruce en angosto; quitarlas |
 | R-5 | 2026-11-16 | Formulario: los dos caminos apilados por debajo de 480 px | orquestador | dos columnas |
 | R-6 | 2026-11-16 | Las etiquetas mono de 12 px se quedan (rótulos del manual); los párrafos, mínimo 16 px | orquestador | subir todo a 16 px |
@@ -160,3 +160,17 @@ construye en `R2`.
 | X-4 | Hitos en celular: **carrusel deslizable**, un hito por tarjeta, como el de proyectos (R-2). Reemplaza la línea vertical con el unicornio de R-1 (~0,8 pantallas en lugar de 4,6) | una pantalla compacta; quitarlos |
 | X-5 | Carreras: **rejilla de bloques** con los mismos 8 colores, facultad y una línea de lo que aporta: 2 columnas en celular y 4 × 2 en escritorio (de 3,1 a ~1 en celular y de 2,7 a ~1 en escritorio) | fichas de nombre; acordeón |
 | X-6 | Formulario en celular: **plegar lo opcional**. A la vista quedan nombre, correo, facultad, programa y lo esencial del camino (idea: nombre y regla; sumarme: proyecto y habilidades). El resto va en «Agregar más detalles», cerrado. No se pierde ningún dato ni cambia Supabase; en escritorio el formulario sigue igual | quitar campos en celular; por pasos |
+
+**Interactividad en celular (autor, 2026-11-21).** Al ver la propuesta, el autor dijo: «me preocupa que se perdió
+mucho la interactividad en mobile». Era cierto ya en el MVP: la trama y las piezas no reaccionan al dedo, los
+productos son una rejilla quieta (R-3) y la hélice es un carrusel plano. Con R2, además, se iba el unicornio. La
+regla: **corto no es quieto**. Cada efecto responde al dedo o al scroll natural, sin pin y sin alargar la página.
+Se construye en `R3`.
+
+| Id | Decisión | Opciones que había |
+|---|---|---|
+| X-7 | Carrusel de hitos con **línea ondulada horizontal bajo las tarjetas** que se vuelve sólida al deslizar y **el unicornio que la recorre** inclinándose con la velocidad del dedo (misma fórmula de T03) | carrusel sin mascota |
+| X-8 | Portada en táctil: **la trama se deforma donde tocas o arrastras** y las piezas 3D se mueven con el scroll (parallax). Sin giroscopio | quieta en táctil |
+| X-9 | Productos en táctil: **las fichas llegan volando con giro** a la rejilla al entrar en pantalla, sin pin, y **el marco de tinta se abre corto** hacia «Cómo funciona». Reemplaza R-3 | rejilla quieta (R-3) |
+| X-10 | Proyectos en táctil: **la hélice curva en WebGL movida por el dedo**, con las tarjetas reales en el DOM. Si un celular de gama media no la sostiene (presupuesto de R3), cae al carrusel plano de R-2 | carrusel plano (R-2) |
+| X-11 | Carreras: **cada bloque se abre al tocarlo** (crece en su color y muestra lo que aporta), uno abierto a la vez, accesible con teclado | entrada escalonada; quieta |
