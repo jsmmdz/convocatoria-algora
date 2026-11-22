@@ -147,6 +147,10 @@ baratos: cuatro constructores Sonnet en paralelo con archivos separados (`fabric
 
 ## Después del MVP
 
+- **Arreglo (2026-11-22): portada blanca en celulares de visitantes.** Causa y prueba en `fabrica/nucleo/fallas.md`
+  («Al publicar») y `sitio/tests/comunes/fondo-portada.spec.ts`. Corregidos `trama.ts` y `marco-tinta.ts`. Suite
+  completa: 145/145.
+
 0. **Experiencia reducida (2026-11-21, pedida por el autor):** decisiones X-1…X-6 en `docs/1-PRODUCTO.md` § 9 y
    tarea `fabrica/proyecto/tareas/R2-experiencia-reducida.md` (**PENDING**, falta la aprobación del autor para
    construirla). Tras ver la propuesta, el autor pidió no perder interactividad en celular: X-7…X-11 y tarea

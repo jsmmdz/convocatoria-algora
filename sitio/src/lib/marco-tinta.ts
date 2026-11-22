@@ -128,7 +128,8 @@ const FRAGMENTO = /* glsl */ `
     float mezclaBloque = smoothstep(bordeExterior - aa, bordeExterior + aa, sd);
     vec3 color = mix(uAcido, uBloque, mezclaBloque);
 
-    gl_FragColor = vec4(color, alfa);
+    // Salida premultiplicada (ver trama.ts): igual en los dispositivos que ignoran premultipliedAlpha: false
+    gl_FragColor = vec4(color * alfa, alfa);
   }
 `;
 
@@ -185,7 +186,7 @@ function crearRenderer(canvas: HTMLCanvasElement, ancho: number, alto: number): 
     height: alto,
     dpr: dprLimitado(),
     alpha: true,
-    premultipliedAlpha: false,
+    premultipliedAlpha: true,
     antialias: false,
     depth: false,
   });

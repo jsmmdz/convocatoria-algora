@@ -103,7 +103,10 @@ const FRAGMENTO = /* glsl */ `
     // El toque aviva la trama, salvo detrás del contenido: ahí se queda en el brillo de reposo.
     float realce = toque * 1.2 * (1.0 - enContenido(p));
     float alfa = a * presencia * uOpacidad * (1.0 + realce);
-    gl_FragColor = vec4(uPapel, min(alfa, 1.0));
+    // Salida premultiplicada: hay dispositivos que ignoran premultipliedAlpha: false y, con (papel, 0) en cada
+    // píxel, la portada entera se veía blanca. Con (papel × alfa, alfa) da lo mismo en todos.
+    float alfaFinal = min(alfa, 1.0);
+    gl_FragColor = vec4(uPapel * alfaFinal, alfaFinal);
   }
 `;
 
@@ -130,7 +133,7 @@ export function montarTrama(portada: HTMLElement, reducido: boolean): Trama | nu
 
   let renderer: Renderer;
   try {
-    renderer = new Renderer({ canvas, alpha: true, premultipliedAlpha: false, antialias: false, depth: false, dpr: Math.min(window.devicePixelRatio || 1, 2) });
+    renderer = new Renderer({ canvas, alpha: true, premultipliedAlpha: true, antialias: false, depth: false, dpr: Math.min(window.devicePixelRatio || 1, 2) });
   } catch {
     return null;
   }
@@ -150,7 +153,7 @@ export function montarTrama(portada: HTMLElement, reducido: boolean): Trama | nu
   const programa = new Program(gl, {
     vertex: VERTICE,
     fragment: FRAGMENTO,
-    // Sin mezcla: el shader ya entrega (papel, alfa) y el canvas se compone con la página
+    // Sin mezcla: el shader ya entrega (papel × alfa, alfa) y el canvas se compone con la página
     transparent: false,
     depthTest: false,
     uniforms: {

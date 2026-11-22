@@ -71,6 +71,7 @@ La mayoría de los defectos nacen en las pruebas del orquestador, no en el const
 | Se ve bien en local y no publicada | GitHub Pages sirve el sitio bajo `/<repo>/`; las rutas escritas desde la raíz se rompen | Todo pasa por `import.meta.env.BASE_URL` (compuerta `ruta-sin-base`); el despliegue fija `SITIO_BASE` |
 | Margen blanco alrededor | El navegador pone 8 px de margen al `body` | `body{margin:0}` explícito siempre |
 | Clases genéricas que chocan | `.tag` de una sección hereda el estilo de otra definida más abajo | Prefijo por sección y mirar la captura tras cada sección nueva |
+| Portada blanca en celulares ajenos (2026-11-22) | Un canvas WebGL transparente escribía `(color, alfa)` sin premultiplicar en cada píxel y confiaba en `premultipliedAlpha: false`; hay GPU y WebView que ignoran la bandera y el color se suma al fondo. En las pruebas y en el celular del autor se veía bien | Todo shader sobre la página entrega `(color × alfa, alfa)` con `premultipliedAlpha: true`; la prueba `tests/comunes/fondo-portada.spec.ts` fuerza el caso y mide los píxeles, no el CSS |
 | Formularios que nadie recibe | Una página estática no guarda datos | El destino de los datos se decide en `docs/2-TECNICO.md` antes de construir el formulario |
 
 ## Sobre el proceso
